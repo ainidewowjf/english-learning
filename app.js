@@ -112,7 +112,7 @@ function selectLevel(level) {
 function startLesson(index, fromLevel) {
     console.log('➡️ startLesson:', index, fromLevel);
     
-    let lessons = fromLevel ? getLessonsByLevel(currentLevel) : (COMPLETE_DB.allLessons || []);
+    let lessons = fromLevel ? getLessonsByLevel(currentLevel) : (window.COMPLETE_DB ? window.COMPLETE_DB.allLessons : []);
     currentLessonIndex = index;
     currentLesson = lessons[index];
     
@@ -137,7 +137,7 @@ function startLesson(index, fromLevel) {
 
 function getLessonsByLevel(level) {
     const map = {'A1':'level_a1','A2':'level_a2','B1':'level_b1','B2':'level_b2','C1':'level_c1','C2':'level_c2'};
-    return ENGLISH_DB[map[level]] || [];
+    return window.ENGLISH_DB ? window.ENGLISH_DB[map[level]] : [];
 }
 
 // ========== 课程学习 ==========
