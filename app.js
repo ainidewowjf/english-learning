@@ -1,4 +1,11 @@
 // ===============================
+// DEBUG: Check if ENGLISH_DB is defined
+if (typeof window.ENGLISH_DB !== "undefined") {
+    console.log("✅ ENGLISH_DB loaded:", Object.keys(window.ENGLISH_DB));
+} else {
+    console.error("❌ ENGLISH_DB NOT DEFINED!");
+}
+
 // 极简版英语学习网站 - V6.2 最终修复版
 // ===============================
 
@@ -335,7 +342,7 @@ function goToNextLesson() {
 // ========== 专项练习 ==========
 
 function renderPracticeList() {
-    const practices = ENGLISH_DB.special_practices || [];
+    const practices = (window.ENGLISH_DB || {}).special_practices || [];
     const cats = {};
     
     practices.forEach(p => {
@@ -346,7 +353,7 @@ function renderPracticeList() {
     document.getElementById('practiceCategories').innerHTML = Object.entries(cats).map(([cat, items]) => `
         <div class="category-section">
             <div class="category-title"><i class="fas fa-tag" style="color:#6366f1;"></i> ${cat}</div>
-            ${items.map(p => `<div class="practice-item" onclick="startPractice('${p.id}')">
+            ${items.map(p => `<div class="practice-item" onclick="window.startPractice('${p.id}')">
                 <div class="practice-title">${p.title}</div>
                 <div class="practice-desc">${p.description}</div>
             </div>`).join('')}
@@ -355,7 +362,7 @@ function renderPracticeList() {
 }
 
 function startPractice(id) {
-    currentPractice = ENGLISH_DB.special_practices.find(p => p.id === id);
+    currentPractice = (window.ENGLISH_DB || {}).special_practices.find(p => p.id === id);
     if (!currentPractice) return;
     
     practiceItemIndex = 0;
@@ -437,9 +444,9 @@ function nextPracticeItem() { loadPracticeItem(practiceItemIndex + 1); }
 // ========== 语法指南 ==========
 
 function renderGrammarList() {
-    const grammars = ENGLISH_DB.grammar_guide || [];
+    const grammars = (window.ENGLISH_DB || {}).grammar_guide || [];
     document.getElementById('grammarListView').innerHTML = grammars.map(g => `
-        <div class="grammar-item" onclick="viewGrammar('${g.id}')">
+        <div class="grammar-item" onclick="window.viewGrammar('${g.id}')">
             <div class="grammar-title">${g.title}</div>
             <div class="grammar-summary">${g.summary}</div>
         </div>
@@ -447,7 +454,7 @@ function renderGrammarList() {
 }
 
 function viewGrammar(id) {
-    const g = ENGLISH_DB.grammar_guide.find(x => x.id === id);
+    const g = (window.ENGLISH_DB || {}).grammar_guide.find(x => x.id === id);
     if (!g) return;
     
     document.getElementById('grammarListView').style.display = 'none';

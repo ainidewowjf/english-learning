@@ -3,7 +3,7 @@
 // 包含：词汇、短语、句子、词根词缀、专项练习、语法详解
 // ============================================
 
-const ENGLISH_DB = {
+var ENGLISH_DB = {
     // ========== 词根词缀基础 ==========
     roots: [
         { id: 'act', word: 'act', phonetic: '/ækt/', chinese: '做，行动', meaning: '做，行动', examples: ['action(行动)', 'active(活跃的)', 'actor(演员)'] },
