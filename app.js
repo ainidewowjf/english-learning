@@ -1,9 +1,8 @@
-// ============================================
-// 英语大师 Pro - 完整学习系统 v6.1 (修复版)
-// 新增：级别选择、专项练习、语法讲解
-// ============================================
+// ===============================
+// 极简版英语学习网站 - V6.2 最终修复版
+// ===============================
 
-let currentPage = 'home';
+// 全局变量
 let currentLevel = '';
 let currentLesson = {};
 let currentLessonIndex = 0;
@@ -11,255 +10,150 @@ let learnedWords = [];
 let wordIndex = 0;
 let correctCount = 0;
 let totalAttempts = 0;
-
 let currentPractice = {};
 let practiceItemIndex = 0;
 
-let currentGrammar = {};
-
-// 初始化应用
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('App initialized');
-    bindEvents();
-    
-    // 确保数据已加载
-    if (typeof ENGLISH_DB === 'undefined') {
-        console.error('ENGLISH_DB not loaded!');
-        alert('数据加载失败，请刷新页面重试');
-        return;
-    }
-    console.log('Data loaded successfully');
+// DOM Ready
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🎯 App Started');
+    initEvents();
 });
 
-// 绑定所有事件
-function bindEvents() {
-    // 单词学习
-    document.getElementById('checkWordBtn').addEventListener('click', checkWord);
-    document.getElementById('skipBtn').addEventListener('click', skipWord);
-    document.getElementById('nextWordBtn').addEventListener('click', nextWord);
-    document.getElementById('playWordBtn').addEventListener('click', playCurrentWord);
+// 初始化事件
+function initEvents() {
+    // 单词检查
+    document.getElementById('checkWordBtn').onclick = checkWord;
+    document.getElementById('skipBtn').onclick = skipWord;
+    document.getElementById('nextWordBtn').onclick = nextWord;
+    document.getElementById('playWordBtn').onclick = playCurrentWord;
     
     // 句子练习
-    document.getElementById('checkSentenceBtn').addEventListener('click', checkSentence);
-    document.getElementById('resetSentenceBtn').addEventListener('click', resetSentence);
-    document.getElementById('finishLessonBtn').addEventListener('click', showCompletion);
-    document.getElementById('nextLessonFromCompleteBtn').addEventListener('click', goToNextLesson);
+    document.getElementById('checkSentenceBtn').onclick = checkSentence;
+    document.getElementById('resetSentenceBtn').onclick = resetSentence;
+    document.getElementById('finishLessonBtn').onclick = showCompletion;
+    document.getElementById('nextLessonFromCompleteBtn').onclick = goToNextLesson;
     
     // 专项练习
-    document.getElementById('checkPracticeBtn').addEventListener('click', checkPractice);
-    document.getElementById('showAnswerBtn').addEventListener('click', showPracticeAnswer);
-    document.getElementById('nextPracticeBtn').addEventListener('click', nextPracticeItem);
-    
-    // 回车键支持
-    setupEnterKeyHandlers();
+    document.getElementById('checkPracticeBtn').onclick = checkPractice;
+    document.getElementById('showAnswerBtn').onclick = showPracticeAnswer;
+    document.getElementById('nextPracticeBtn').onclick = nextPracticeItem;
 }
 
-// 设置回车键处理
-function setupEnterKeyHandlers() {
-    const wordInput = document.getElementById('wordInput');
-    const sentenceInput = document.getElementById('sentenceInput');
-    const practiceInput = document.getElementById('practiceInput');
-    
-    if (wordInput) {
-        wordInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                const btn = document.getElementById('nextWordBtn').style.display !== 'none' 
-                    ? document.getElementById('nextWordBtn') 
-                    : document.getElementById('checkWordBtn');
-                btn.click();
-            }
-        });
-    }
-    
-    if (sentenceInput) {
-        sentenceInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                const btn = document.getElementById('finishLessonBtn').style.display !== 'none'
-                    ? document.getElementById('finishLessonBtn')
-                    : document.getElementById('checkSentenceBtn');
-                btn.click();
-            }
-        });
-    }
-    
-    if (practiceInput) {
-        practiceInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                const btn = document.getElementById('nextPracticeBtn').style.display !== 'none'
-                    ? document.getElementById('nextPracticeBtn')
-                    : document.getElementById('checkPracticeBtn');
-                btn.click();
-            }
-        });
-    }
+// ========== 页面切换 ==========
+
+function hideAllPages() {
+    document.querySelectorAll('.content-area, .home-page').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(el => el.style.display = 'none');
 }
 
-// ========== 页面导航函数 ==========
-
-window.hideAllPages = function() {
-    document.querySelectorAll('.content-area, .home-page').forEach(el => {
-        el.classList.remove('active');
-    });
-    document.querySelectorAll('.page').forEach(el => {
-        el.style.display = 'none';
-    });
-};
-
-window.showHomePage = function() {
+function showHomePage() {
     hideAllPages();
     document.getElementById('homePage').classList.add('active');
     document.getElementById('currentPageBadge').textContent = '首页';
-    currentPage = 'home';
-};
+}
 
-window.showLevelSelector = function() {
-    console.log('showLevelSelector called');
+function showLevelSelector() {
+    console.log('➡️ showLevelSelector');
     hideAllPages();
     document.getElementById('levelSelectorPage').classList.add('active');
     document.getElementById('currentPageBadge').textContent = '级别选择';
-    currentPage = 'level';
-};
+}
 
-window.showPracticeList = function() {
+function showPracticeList() {
+    console.log('➡️ showPracticeList');
     hideAllPages();
     document.getElementById('practiceListPage').classList.add('active');
     document.getElementById('currentPageBadge').textContent = '专项练习';
-    currentPage = 'practice_list';
     renderPracticeList();
-};
+}
 
-window.showGrammarGuide = function() {
+function showGrammarGuide() {
+    console.log('➡️ showGrammarGuide');
     hideAllPages();
-    
-    // 创建语法列表视图（如果不存在）
-    let listView = document.getElementById('grammarListView');
-    if (!listView) {
-        const container = document.querySelector('#grammarDetailPage .grammar-detail');
-        const listHTML = `
-            <h2 style="text-align:center;color:#1f2937;margin:20px 0 30px;">语法指南</h2>
-            <div id="grammarListView" class="grammar-list"></div>
-        `;
-        container.insertAdjacentHTML('afterbegin', listHTML);
-        listView = document.getElementById('grammarListView');
-    }
-    
-    const detailView = document.getElementById('grammarDetailView');
-    if (detailView) detailView.style.display = 'none';
-    listView.style.display = 'block';
-    
-    renderGrammarList();
-    
+    document.getElementById('grammarDetailPage').classList.add('active');
     document.getElementById('currentPageBadge').textContent = '语法指南';
-    currentPage = 'grammar_list';
-};
+    renderGrammarList();
+}
 
-// 全局暴露的启动课程函数
-window.startLesson = function(index, fromLevel = false) {
-    console.log('startLesson called with index:', index, 'fromLevel:', fromLevel);
-    
-    let lessons;
-    if (fromLevel) {
-        lessons = getLessonsByLevel(currentLevel);
-        currentLessonIndex = index;
-    } else {
-        lessons = COMPLETE_DB.allLessons || [];
-        currentLessonIndex = index;
-    }
-    
-    console.log('Lessons loaded:', lessons.length);
-    currentLesson = lessons[index];
-    
-    if (!currentLesson) {
-        console.error('Lesson not found at index:', index);
-        alert('课程加载失败');
-        return;
-    }
-    
-    // 重置状态
-    learnedWords = [];
-    wordIndex = 0;
-    correctCount = 0;
-    totalAttempts = 0;
-    
-    // 显示学习页面
-    hideAllPages();
-    document.getElementById('lessonLearnPage').classList.add('active');
-    document.getElementById('currentPageBadge').textContent = `第${currentLesson.lesson}课 - ${currentLesson.title}`;
-    currentPage = 'lesson';
-    
-    showPage('word');
-    loadWord(wordIndex);
-};
-
-window.selectLevel = function(level) {
-    console.log('selectLevel called with:', level);
+function selectLevel(level) {
+    console.log('➡️ selectLevel:', level);
     currentLevel = level;
     
-    // 更新按钮样式
     document.querySelectorAll('.level-btn').forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.dataset.level === level) btn.classList.add('active');
+        btn.classList.toggle('active', btn.dataset.level === level);
     });
     
-    // 获取对应级别的课程
     const lessons = getLessonsByLevel(level);
-    console.log(`Level ${level} has ${lessons.length} lessons`);
+    console.log(`Level ${level}: ${lessons.length} lessons`);
     
     const container = document.getElementById('lessonListContainer');
     const listEl = document.getElementById('lessonList');
     const titleEl = document.getElementById('selectedLevelTitle');
     
-    if (container && listEl && titleEl) {
-        container.style.display = 'block';
-        titleEl.textContent = `${level} 级课程 - ${lessons.length} 课`;
-        
-        listEl.innerHTML = lessons.map((l, idx) => `
-            <div class="lesson-item" onclick="window.startLesson(${idx}, true)">
-                <div class="lesson-number">${l.lesson}</div>
-                <div class="lesson-info">
-                    <div class="lesson-title">${l.title}</div>
-                    <div class="lesson-level">${l.words.length} 个单词 + 1 个句子</div>
-                </div>
-            </div>
-        `).join('');
+    if (!container || !listEl || !titleEl) {
+        console.error('Elements not found!');
+        return;
     }
-};
-
-function getLessonsByLevel(level) {
-    const dbMap = {
-        'A1': 'level_a1',
-        'A2': 'level_a2',
-        'B1': 'level_b1',
-        'B2': 'level_b2',
-        'C1': 'level_c1',
-        'C2': 'level_c2'
-    };
-    return ENGLISH_DB[dbMap[level]] || [];
+    
+    container.style.display = 'block';
+    titleEl.textContent = `${level} 级课程 - ${lessons.length} 课`;
+    
+    listEl.innerHTML = lessons.map((l, i) => `
+        <div class="lesson-item" onclick="startLesson(${i}, true)">
+            <div class="lesson-number">${l.lesson}</div>
+            <div class="lesson-info">
+                <div class="lesson-title">${l.title}</div>
+                <div class="lesson-level">${l.words.length} 词 + 1 句</div>
+            </div>
+        </div>
+    `).join('');
 }
 
-// ========== 课程学习函数 ==========
+function startLesson(index, fromLevel) {
+    console.log('➡️ startLesson:', index, fromLevel);
+    
+    let lessons = fromLevel ? getLessonsByLevel(currentLevel) : (COMPLETE_DB.allLessons || []);
+    currentLessonIndex = index;
+    currentLesson = lessons[index];
+    
+    if (!currentLesson) {
+        alert('课程加载失败！');
+        console.error('No lesson at index:', index);
+        return;
+    }
+    
+    learnedWords = [];
+    wordIndex = 0;
+    correctCount = 0;
+    totalAttempts = 0;
+    
+    hideAllPages();
+    document.getElementById('lessonLearnPage').classList.add('active');
+    document.getElementById('currentPageBadge').textContent = `第${currentLesson.lesson}课`;
+    
+    showPage('word');
+    loadWord(0);
+}
 
-function showPage(pageName) {
-    const pages = ['word', 'sentence', 'complete'];
-    pages.forEach(p => {
-        const el = document.getElementById(`page-${p}`);
-        if (el) el.style.display = p === pageName ? 'block' : 'none';
+function getLessonsByLevel(level) {
+    const map = {'A1':'level_a1','A2':'level_a2','B1':'level_b1','B2':'level_b2','C1':'level_c1','C2':'level_c2'};
+    return ENGLISH_DB[map[level]] || [];
+}
+
+// ========== 课程学习 ==========
+
+function showPage(name) {
+    ['word','sentence','complete'].forEach(p => {
+        const el = document.getElementById('page-' + p);
+        if (el) el.style.display = p === name ? 'block' : 'none';
     });
     
-    // 更新步骤指示器
-    const steps = ['step1', 'step2', 'step3'];
-    steps.forEach((id, idx) => {
-        const el = document.getElementById(id);
+    ['step1','step2','step3'].forEach((sid, idx) => {
+        const el = document.getElementById(sid);
         if (el) {
-            el.classList.remove('active', 'completed');
-            if (idx + 1 === (pageName === 'word' ? 1 : pageName === 'sentence' ? 2 : 3)) {
-                el.classList.add('active');
-            } else if (idx + 1 < (pageName === 'word' ? 1 : pageName === 'sentence' ? 2 : 3)) {
-                el.classList.add('completed');
-            }
+            el.className = 'step';
+            if (idx + 1 === (name === 'word' ? 1 : name === 'sentence' ? 2 : 3)) el.classList.add('active');
+            else if (idx + 1 < (name === 'word' ? 1 : name === 'sentence' ? 2 : 3)) el.classList.add('completed');
         }
     });
 }
@@ -268,23 +162,20 @@ function loadWord(idx) {
     const words = currentLesson.words || [];
     
     if (idx >= words.length) {
-        setTimeout(() => {
-            showPage('sentence');
-            setupSentencePractice();
-        }, 300);
+        setTimeout(() => { showPage('sentence'); setupSentence(); }, 300);
         return;
     }
     
-    const wordData = words[idx];
     wordIndex = idx;
+    const w = words[idx];
     
     const input = document.getElementById('wordInput');
     input.value = '';
     input.className = 'input-large';
     input.focus();
     
-    document.getElementById('chineseHint').textContent = `请输入：${wordData.chinese}`;
-    document.getElementById('phoneticDisplay').textContent = `${wordData.word} [${wordData.phonetic}]`;
+    document.getElementById('chineseHint').textContent = '请输入：' + w.chinese;
+    document.getElementById('phoneticDisplay').textContent = w.word + ' [' + w.phonetic + ']';
     document.getElementById('feedback').textContent = '';
     document.getElementById('feedback').className = 'feedback';
     
@@ -296,104 +187,80 @@ function loadWord(idx) {
 }
 
 function playCurrentWord() {
-    const words = currentLesson.words || [];
-    if (wordIndex >= words.length) return;
-    speakText(words[wordIndex].word);
+    const w = currentLesson.words[wordIndex];
+    if (w) speak(w.word);
 }
 
-function speakText(text) {
+function speak(text) {
     if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'en-US';
-        utterance.rate = 0.8;
-        const voices = window.speechSynthesis.getVoices();
-        const enVoice = voices.find(v => v.lang.startsWith('en'));
-        if (enVoice) utterance.voice = enVoice;
-        window.speechSynthesis.speak(utterance);
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = 'en-US';
+        window.speechSynthesis.speak(u);
     }
 }
 
-window.playAnyWord = function(word) {
-    speakText(word);
-};
+window.playAnyWord = function(word) { speak(word); };
 
 function checkWord() {
-    const words = currentLesson.words || [];
-    if (wordIndex >= words.length) return;
+    const w = currentLesson.words[wordIndex];
+    if (!w) return;
     
     const input = document.getElementById('wordInput');
-    const userText = input.value.trim().toLowerCase();
-    const targetWord = words[wordIndex].word.toLowerCase();
-    
-    const normalizeText = str => str.replace(/[.,!?;:'"()-]/g, '').trim().toLowerCase();
+    const user = input.value.trim().toLowerCase().replace(/[.,!?;:'"()-]/g, '');
+    const target = w.word.toLowerCase();
     
     totalAttempts++;
     
-    if (normalizeText(userText) === normalizeText(targetWord)) {
+    if (user === target) {
         input.className = 'input-large correct';
-        document.getElementById('feedback').textContent = '✓ 正确！Excellent! 🎉';
+        document.getElementById('feedback').textContent = '✓ 正确！🎉';
         document.getElementById('feedback').className = 'feedback correct';
         
-        if (!learnedWords.includes(words[wordIndex])) {
-            learnedWords.push(words[wordIndex]);
-        }
-        
+        if (!learnedWords.includes(w)) learnedWords.push(w);
         correctCount++;
-        playSound('correct');
-        speakText(words[wordIndex].word);
+        playSound('ok');
+        speak(w.word);
         
         document.getElementById('checkWordBtn').style.display = 'none';
         document.getElementById('nextWordBtn').style.display = 'inline-block';
         document.getElementById('skipBtn').style.display = 'none';
         
-        setTimeout(() => {
-            document.getElementById('nextWordBtn').click();
-        }, 600);
+        setTimeout(nextWord, 600);
     } else {
         input.className = 'input-large wrong';
-        document.getElementById('feedback').textContent = `✗ 正确答案：${words[wordIndex].word}`;
+        document.getElementById('feedback').textContent = '✗ 答案：' + w.word;
         document.getElementById('feedback').className = 'feedback wrong';
-        playSound('wrong');
-        setTimeout(() => {
-            input.className = 'input-large';
-        }, 500);
+        playSound('err');
+        setTimeout(() => input.className = 'input-large', 500);
     }
 }
 
-function skipWord() {
-    nextWord();
-}
+function skipWord() { nextWord(); }
 
-function nextWord() {
-    loadWord(wordIndex + 1);
-}
+function nextWord() { loadWord(wordIndex + 1); }
 
 function updateLearnedList() {
-    const listEl = document.getElementById('learnedList');
-    const chipsEl = document.getElementById('learnedChips');
+    const list = document.getElementById('learnedList');
+    const chips = document.getElementById('learnedChips');
     
-    if (learnedWords.length === 0) {
-        listEl.style.display = 'none';
+    if (!learnedWords.length) {
+        list.style.display = 'none';
         return;
     }
     
-    listEl.style.display = 'block';
-    chipsEl.innerHTML = learnedWords.map(w => `
-        <div class="learned-chip">
-            ${w.word}
-            <button class="play-btn" onclick="window.playAnyWord('${w.word}')" title="播放发音">
-                <i class="fas fa-volume-up"></i>
-            </button>
-        </div>
-    `).join('');
+    list.style.display = 'block';
+    chips.innerHTML = learnedWords.map(w => 
+        '<div class="learned-chip">' + w.word + 
+        '<button class="play-btn" onclick="playAnyWord(\'' + w.word + '\')"><i class="fas fa-volume-up"></i></button></div>'
+    ).join('');
 }
 
-function setupSentencePractice() {
-    const sentence = currentLesson.sentence;
-    if (!sentence) return;
+function setupSentence() {
+    const s = currentLesson.sentence;
+    if (!s) return;
     
-    document.getElementById('sentenceChinese').textContent = sentence.chinese;
+    document.getElementById('sentenceChinese').textContent = s.chinese;
     const input = document.getElementById('sentenceInput');
     input.value = '';
     input.className = 'practice-input';
@@ -406,48 +273,36 @@ function setupSentencePractice() {
 }
 
 function checkSentence() {
-    const sentence = currentLesson.sentence;
-    if (!sentence) return;
+    const s = currentLesson.sentence;
+    if (!s) return;
     
     const input = document.getElementById('sentenceInput');
-    const userText = input.value.trim();
-    const target = sentence.english;
-    
-    const normalizeText = str => str
-        .replace(/[.,!?;:'"()-]/g, '')
-        .replace(/\s+/g, ' ')
-        .trim()
-        .toLowerCase();
+    const user = input.value.trim().toLowerCase().replace(/[.,!?;:'"()-]/g, '').replace(/\s+/g, ' ');
+    const target = s.english.toLowerCase().replace(/[.,!?;:'"()-]/g, '').replace(/\s+/g, ' ');
     
     totalAttempts++;
     
-    if (normalizeText(userText) === normalizeText(target)) {
+    if (user === target) {
         input.className = 'practice-input correct';
-        document.getElementById('sentenceFeedback').textContent = '✓ 完美！You did it! 🎊';
+        document.getElementById('sentenceFeedback').textContent = '✓ 完美！🎊';
         document.getElementById('sentenceFeedback').className = 'feedback correct';
-        playSound('correct');
+        playSound('ok');
         
         document.getElementById('checkSentenceBtn').style.display = 'none';
         document.getElementById('finishLessonBtn').style.display = 'inline-block';
         document.getElementById('resetSentenceBtn').style.display = 'none';
         
-        setTimeout(() => {
-            document.getElementById('finishLessonBtn').click();
-        }, 800);
+        setTimeout(showCompletion, 800);
     } else {
         input.className = 'practice-input wrong';
-        document.getElementById('sentenceFeedback').textContent = `✗ 试试这个句子：${target}`;
+        document.getElementById('sentenceFeedback').textContent = '✗ 试试：' + s.english;
         document.getElementById('sentenceFeedback').className = 'feedback wrong';
-        playSound('wrong');
-        setTimeout(() => {
-            input.className = 'practice-input';
-        }, 500);
+        playSound('err');
+        setTimeout(() => input.className = 'practice-input', 500);
     }
 }
 
-function resetSentence() {
-    setupSentencePractice();
-}
+function resetSentence() { setupSentence(); }
 
 function showCompletion() {
     showPage('complete');
@@ -455,11 +310,10 @@ function showCompletion() {
     document.getElementById('step2').classList.add('completed');
     document.getElementById('step3').classList.add('active');
     
-    const accuracy = totalAttempts > 0 ? Math.round((correctCount / totalAttempts) * 100) : 100;
-    
+    const acc = totalAttempts > 0 ? Math.round(correctCount / totalAttempts * 100) : 100;
     document.getElementById('wordsLearnedCount').textContent = learnedWords.length;
     document.getElementById('correctCountVal').textContent = correctCount;
-    document.getElementById('accuracyRateVal').textContent = `${accuracy}%`;
+    document.getElementById('accuracyRateVal').textContent = acc + '%';
     
     playSound('success');
 }
@@ -468,76 +322,63 @@ function goToNextLesson() {
     if (currentLevel) {
         const lessons = getLessonsByLevel(currentLevel);
         if (currentLessonIndex < lessons.length - 1) {
-            window.startLesson(currentLessonIndex + 1, true);
+            startLesson(currentLessonIndex + 1, true);
         } else {
-            alert('🎉 恭喜完成此级别所有课程！');
-            window.showLevelSelector();
+            alert('恭喜完成本级别！🎉');
+            showLevelSelector();
         }
     } else {
-        window.showLevelSelector();
+        showLevelSelector();
     }
 }
 
-// ========== 专项练习函数 ==========
+// ========== 专项练习 ==========
 
 function renderPracticeList() {
     const practices = ENGLISH_DB.special_practices || [];
+    const cats = {};
     
-    // 按分类组织
-    const categories = {};
     practices.forEach(p => {
-        if (!categories[p.category]) categories[p.category] = [];
-        categories[p.category].push(p);
+        if (!cats[p.category]) cats[p.category] = [];
+        cats[p.category].push(p);
     });
     
-    const container = document.getElementById('practiceCategories');
-    if (!container) return;
-    
-    container.innerHTML = Object.entries(categories).map(([cat, items]) => `
+    document.getElementById('practiceCategories').innerHTML = Object.entries(cats).map(([cat, items]) => `
         <div class="category-section">
-            <div class="category-title">
-                <i class="fas fa-tag" style="color:#6366f1;"></i> ${cat}
-            </div>
-            ${items.map(p => `
-                <div class="practice-item" onclick="window.startPractice('${p.id}')">
-                    <div class="practice-title">${p.title}</div>
-                    <div class="practice-desc">${p.description}</div>
-                </div>
-            `).join('')}
+            <div class="category-title"><i class="fas fa-tag" style="color:#6366f1;"></i> ${cat}</div>
+            ${items.map(p => `<div class="practice-item" onclick="startPractice('${p.id}')">
+                <div class="practice-title">${p.title}</div>
+                <div class="practice-desc">${p.description}</div>
+            </div>`).join('')}
         </div>
     `).join('');
 }
 
-window.startPractice = function(practiceId) {
-    currentPractice = ENGLISH_DB.special_practices.find(p => p.id === practiceId);
-    if (!currentPractice) {
-        console.error('Practice not found:', practiceId);
-        return;
-    }
+function startPractice(id) {
+    currentPractice = ENGLISH_DB.special_practices.find(p => p.id === id);
+    if (!currentPractice) return;
     
     practiceItemIndex = 0;
-    
     hideAllPages();
     document.getElementById('practiceRunPage').classList.add('active');
     document.getElementById('currentPageBadge').textContent = currentPractice.title;
-    currentPage = 'practice_run';
     
     loadPracticeItem(0);
-};
+}
 
 function loadPracticeItem(idx) {
     const items = currentPractice.items || [];
     if (idx >= items.length) {
-        alert('恭喜完成本组练习！🎉');
-        window.showPracticeList();
+        alert('完成！🎉');
+        showPracticeList();
         return;
     }
     
-    const item = items[idx];
     practiceItemIndex = idx;
+    const item = items[idx];
     
     document.getElementById('practiceTitleDisplay').textContent = currentPractice.title;
-    document.getElementById('practiceProgress').textContent = `第${idx+1}/${items.length}题`;
+    document.getElementById('practiceProgress').textContent = `第${idx+1}/${items.length}`;
     document.getElementById('practiceQuestion').textContent = item.question;
     
     const input = document.getElementById('practiceInput');
@@ -547,186 +388,149 @@ function loadPracticeItem(idx) {
     
     document.getElementById('practiceExplanation').style.display = 'none';
     document.getElementById('practiceFeedback').textContent = '';
-    
     document.getElementById('checkPracticeBtn').style.display = 'inline-block';
     document.getElementById('showAnswerBtn').style.display = 'inline-block';
     document.getElementById('nextPracticeBtn').style.display = 'none';
     
-    // 显示帮助信息
-    const helpEl = document.getElementById('practiceHelp');
-    helpEl.style.display = 'block';
-    document.getElementById('helpContent').innerHTML = `
-        <strong>知识点：</strong>${currentPractice.description}<br>
-        <strong>语法规则：</strong>${item.grammar_point || item.explanation}
-    `;
+    document.getElementById('practiceHelp').style.display = 'block';
+    document.getElementById('helpContent').innerHTML = `<strong>提示：</strong>${item.explanation}`;
 }
 
 function checkPractice() {
     const item = currentPractice.items[practiceItemIndex];
     const input = document.getElementById('practiceInput');
-    const userAns = input.value.trim().toLowerCase();
-    const targetAns = item.answer.toLowerCase();
+    const user = input.value.trim().toLowerCase();
     
-    if (userAns === targetAns) {
+    if (user === item.answer.toLowerCase()) {
         input.className = 'practice-input correct';
-        document.getElementById('practiceFeedback').textContent = '✓ 正确！Great job! 🎉';
+        document.getElementById('practiceFeedback').textContent = '✓ 正确！🎉';
         document.getElementById('practiceFeedback').className = 'feedback correct';
-        playSound('correct');
+        playSound('ok');
         
         document.getElementById('practiceExplanation').style.display = 'block';
-        document.getElementById('practiceExplanation').innerHTML = `
-            <div class="explanation-title"><i class="fas fa-check-circle"></i> 答案解析</div>
-            <strong>正确答案：</strong>${item.answer}<br>
-            <strong>解析：</strong>${item.explanation}
-        `;
+        document.getElementById('practiceExplanation').innerHTML = 
+            '<div class="explanation-title">✅ 解析</div><strong>答案：</strong>' + item.answer + '<br><strong>解释：</strong>' + item.explanation;
         
         document.getElementById('checkPracticeBtn').style.display = 'none';
         document.getElementById('showAnswerBtn').style.display = 'none';
         document.getElementById('nextPracticeBtn').style.display = 'inline-block';
         
-        setTimeout(() => {
-            document.getElementById('nextPracticeBtn').click();
-        }, 800);
+        setTimeout(nextPracticeItem, 800);
     } else {
         input.className = 'practice-input wrong';
-        document.getElementById('practiceFeedback').textContent = `✗ 不对，再想想`;
+        document.getElementById('practiceFeedback').textContent = '✗ 不对';
         document.getElementById('practiceFeedback').className = 'feedback wrong';
-        playSound('wrong');
-        setTimeout(() => {
-            input.className = 'practice-input';
-        }, 500);
+        playSound('err');
+        setTimeout(() => input.className = 'practice-input', 500);
     }
 }
 
 function showPracticeAnswer() {
     const item = currentPractice.items[practiceItemIndex];
     document.getElementById('practiceExplanation').style.display = 'block';
-    document.getElementById('practiceExplanation').innerHTML = `
-        <div class="explanation-title"><i class="fas fa-lightbulb"></i> 答案提示</div>
-        <strong>正确答案：</strong>${item.answer}<br>
-        <strong>解析：</strong>${item.explanation}
-    `;
+    document.getElementById('practiceExplanation').innerHTML = 
+        '<div class="explanation-title">💡 答案</div><strong>' + item.answer + '</strong><br>' + item.explanation;
 }
 
-function nextPracticeItem() {
-    loadPracticeItem(practiceItemIndex + 1);
-}
+function nextPracticeItem() { loadPracticeItem(practiceItemIndex + 1); }
 
-// ========== 语法讲解函数 ==========
+// ========== 语法指南 ==========
 
 function renderGrammarList() {
     const grammars = ENGLISH_DB.grammar_guide || [];
-    const listEl = document.getElementById('grammarListView');
-    if (!listEl) return;
-    
-    listEl.innerHTML = grammars.map(g => `
-        <div class="grammar-item" onclick="window.viewGrammarDetail('${g.id}')">
+    document.getElementById('grammarListView').innerHTML = grammars.map(g => `
+        <div class="grammar-item" onclick="viewGrammar('${g.id}')">
             <div class="grammar-title">${g.title}</div>
             <div class="grammar-summary">${g.summary}</div>
         </div>
     `).join('');
 }
 
-window.viewGrammarDetail = function(grammarId) {
-    currentGrammar = ENGLISH_DB.grammar_guide.find(g => g.id === grammarId);
-    if (!currentGrammar) return;
+function viewGrammar(id) {
+    const g = ENGLISH_DB.grammar_guide.find(x => x.id === id);
+    if (!g) return;
     
-    const listView = document.getElementById('grammarListView');
-    const detailView = document.getElementById('grammarDetailView');
+    document.getElementById('grammarListView').style.display = 'none';
+    document.getElementById('grammarDetailView').style.display = 'block';
     
-    if (!detailView) {
-        const html = `
-            <div id="grammarDetailView" style="display:none;">
-                <button class="back-btn" onclick="document.getElementById('grammarListView').style.display='block';document.getElementById('grammarDetailView').style.display='none';return false;">
-                    <i class="fas fa-arrow-left"></i> 返回列表
-                </button>
-                <div class="grammar-detail">
-                    <div class="grammar-header">
-                        <h2 id="detTitle"></h2>
-                        <span class="grammar-level-badge" id="detLevel"></span>
-                    </div>
-                    <div class="grammar-summary" id="detSummary"></div>
-                    <div class="grammar-rules" id="detRules"></div>
-                    <div class="common-mistakes" id="detMistakes"></div>
-                    <h3 style="color:#1f2937;margin:30px 0 15px;">📝 实战练习</h3>
-                    <div class="exercise-list" id="detExercises"></div>
-                </div>
-            </div>
-        `;
-        document.querySelector('#grammarDetailPage .grammar-detail').insertAdjacentHTML('beforeend', html);
-    }
+    document.getElementById('detTitle').textContent = g.title;
+    document.getElementById('detLevel').textContent = g.level;
+    document.getElementById('detSummary').textContent = g.summary;
     
-    const detView = document.getElementById('grammarDetailView');
-    if (listView) listView.style.display = 'none';
-    if (detView) detView.style.display = 'block';
-    
-    document.getElementById('detTitle').textContent = currentGrammar.title;
-    document.getElementById('detLevel').textContent = currentGrammar.level;
-    document.getElementById('detSummary').textContent = currentGrammar.summary;
-    
-    // 渲染规则
-    if (currentGrammar.rules) {
-        const rulesHTML = currentGrammar.rules.map(rule => `
+    if (g.rules) {
+        document.getElementById('detRules').innerHTML = g.rules.map(r => `
             <div class="rule-card">
-                <div class="rule-title">${rule.rule}</div>
-                <div class="rule-example">${rule.example}</div>
+                <div class="rule-title">${r.rule}</div>
+                <div class="rule-example">${r.example}</div>
             </div>
         `).join('');
-        document.getElementById('detRules').innerHTML = rulesHTML;
     }
     
-    // 渲染常见错误
-    if (currentGrammar.common_mistakes) {
-        const mistakesHTML = currentGrammar.common_mistakes.map(m => 
-            `<div class="mistake-item">${m}</div>`
-        ).join('');
-        document.getElementById('detMistakes').innerHTML = `
-            <div class="mistake-title"><i class="fas fa-exclamation-triangle"></i> 常见错误</div>
-            ${mistakesHTML}
-        `;
+    if (g.common_mistakes) {
+        document.getElementById('detMistakes').innerHTML = 
+            '<div class="mistake-title">⚠️ 常见错误</div>' + 
+            g.common_mistakes.map(m => '<div class="mistake-item">'+m+'</div>').join('');
     }
     
-    // 渲染练习
-    if (currentGrammar.exercises) {
-        const exercisesHTML = currentGrammar.exercises.map(ex => `
+    if (g.exercises) {
+        document.getElementById('detExercises').innerHTML = g.exercises.map(ex => `
             <div class="exercise-item">
                 <div class="exercise-q">${ex.q}</div>
                 <div class="exercise-answer"><strong>答案：</strong>${ex.a} — ${ex.exp}</div>
             </div>
         `).join('');
-        document.getElementById('detExercises').innerHTML = exercisesHTML;
     }
-};
+}
 
-// ========== 音效播放 ==========
+// ========== 音效 ==========
 
 function playSound(type) {
     try {
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
         
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        
-        if (type === 'correct' || type === 'success') {
-            oscillator.type = 'sine';
-            oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(783.99, audioContext.currentTime + 0.2);
-            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.3);
+        if (type === 'ok' || type === 'success') {
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(523, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(784, ctx.currentTime + 0.2);
+            gain.gain.setValueAtTime(0.3, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.3);
         } else {
-            oscillator.type = 'sawtooth';
-            oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.2);
-            gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.2);
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(200, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.2);
+            gain.gain.setValueAtTime(0.2, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.2);
         }
-    } catch(e) {
-        console.log('Audio not supported');
-    }
+    } catch(e) {}
 }
+
+// 回车键支持
+document.addEventListener('keypress', function(e) {
+    if (e.key !== 'Enter') return;
+    
+    const tag = e.target.tagName.toLowerCase();
+    if (tag !== 'input') return;
+    
+    const id = e.target.id;
+    if (id === 'wordInput') {
+        const btn = document.getElementById('nextWordBtn').style.display !== 'none' 
+            ? document.getElementById('nextWordBtn') : document.getElementById('checkWordBtn');
+        btn.click();
+    } else if (id === 'sentenceInput') {
+        const btn = document.getElementById('finishLessonBtn').style.display !== 'none'
+            ? document.getElementById('finishLessonBtn') : document.getElementById('checkSentenceBtn');
+        btn.click();
+    } else if (id === 'practiceInput') {
+        const btn = document.getElementById('nextPracticeBtn').style.display !== 'none'
+            ? document.getElementById('nextPracticeBtn') : document.getElementById('checkPracticeBtn');
+        btn.click();
+    }
+});

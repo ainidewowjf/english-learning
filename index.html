@@ -845,24 +845,21 @@
         
         <!-- 语法详解页 -->
         <div id="grammarDetailPage" class="content-area">
-            <button class="back-btn" onclick="showGrammarGuide()"><i class="fas fa-arrow-left"></i> 返回语法指南</button>
-            <div class="grammar-detail">
-                <div class="grammar-header">
-                    <h2 id="grammarTitle"></h2>
-                    <span class="grammar-level-badge" id="grammarLevel"></span>
-                </div>
-                
-                <div class="grammar-summary" id="grammarSummary"></div>
-                
-                <div class="grammar-rules" id="grammarRules"></div>
-                
-                <div class="common-mistakes" id="commonMistakes"></div>
-                
-                <h3 style="color:#1f2937;margin:30px 0 15px;">📝 实战练习</h3>
-                <div class="exercise-list" id="grammarExercises"></div>
-                
-                <div class="buttons" style="margin-top:30px;">
-                    <button class="btn btn-primary" id="tryGrammarExerciseBtn">我开始练习 →</button>
+            <button class="back-btn" onclick="showHomePage()"><i class="fas fa-arrow-left"></i> 返回首页</button>
+            <h2 style="text-align:center;color:#1f2937;margin:20px 0 30px;">语法指南</h2>
+            <div id="grammarListView" class="grammar-list"></div>
+            
+            <div id="grammarDetailView" style="display:none;">
+                <div class="grammar-detail">
+                    <div class="grammar-header">
+                        <h2 id="detTitle"></h2>
+                        <span class="grammar-level-badge" id="detLevel"></span>
+                    </div>
+                    <div class="grammar-summary" id="detSummary"></div>
+                    <div class="grammar-rules" id="detRules"></div>
+                    <div class="common-mistakes" id="detMistakes"></div>
+                    <h3 style="color:#1f2937;margin:30px 0 15px;">📝 实战练习</h3>
+                    <div class="exercise-list" id="detExercises"></div>
                 </div>
             </div>
         </div>
