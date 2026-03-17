@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>英语单词→句子学习系统</title>
+    <title>英语大师 - 从 A1 到 C2 完整学习</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -29,20 +30,72 @@
         .header {
             background: linear-gradient(135deg, #6366f1, #8b5cf6);
             color: white;
-            padding: 25px 30px;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         
         .header h1 {
             font-size: 24px;
-            margin-bottom: 5px;
+            font-weight: 700;
         }
         
-        .header p {
-            opacity: 0.9;
+        .level-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        /* 课程选择器 */
+        .lesson-selector {
+            padding: 20px 30px;
+            background: #f9fafb;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        .selector-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .selector-btn {
+            padding: 10px 20px;
+            background: #6366f1;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .selector-btn:hover {
+            background: #4f46e5;
+            transform: translateY(-2px);
+        }
+        
+        .current-lesson-info {
+            flex: 1;
+            text-align: center;
+        }
+        
+        .current-lesson-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        
+        .current-lesson-level {
             font-size: 13px;
+            color: #6b7280;
+            margin-top: 3px;
         }
         
-        /* 进度指示器 */
+        /* 步骤指示器 */
         .steps {
             display: flex;
             background: #f3f4f6;
@@ -60,6 +113,7 @@
             background: #e5e7eb;
             color: #6b7280;
             position: relative;
+            transition: all 0.3s;
         }
         
         .step.active {
@@ -91,24 +145,51 @@
             display: block;
         }
         
-        /* 单词学习页 */
+        /* 单词卡片 */
         .word-card {
             text-align: center;
             margin-bottom: 30px;
         }
         
+        .word-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
         .chinese-hint {
-            font-size: 28px;
+            font-size: 32px;
             color: #1f2937;
             font-weight: 700;
-            margin-bottom: 15px;
+        }
+        
+        .speech-btn {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .speech-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4);
         }
         
         .input-large {
             width: 100%;
             max-width: 500px;
             padding: 20px;
-            font-size: 32px;
+            font-size: 28px;
             text-align: center;
             border: 3px solid #e5e7eb;
             border-radius: 15px;
@@ -137,14 +218,21 @@
         
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-15px); }
-            40%, 80% { transform: translateX(15px); }
+            20%, 60% { transform: translateX(-20px); }
+            40%, 80% { transform: translateX(20px); }
         }
         
         @keyframes bounceIn {
             0% { transform: scale(0.9); }
             50% { transform: scale(1.1); }
             100% { transform: scale(1); }
+        }
+        
+        .phonetic {
+            font-size: 18px;
+            color: #6b7280;
+            margin: 10px 0;
+            font-style: italic;
         }
         
         .feedback {
@@ -157,10 +245,43 @@
         .feedback.correct { color: #10b981; }
         .feedback.wrong { color: #ef4444; }
         
-        .phonetic {
-            font-size: 16px;
-            color: #6b7280;
-            margin-top: 10px;
+        .learned-list {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 25px 0;
+        }
+        
+        .learned-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .learned-chip {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .learned-chip .play-btn {
+            background: rgba(255,255,255,0.3);
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 12px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .buttons {
@@ -201,36 +322,7 @@
             transform: none;
         }
         
-        /* 已学单词展示 */
-        .learned-list {
-            background: #f9fafb;
-            padding: 20px;
-            border-radius: 12px;
-            margin: 25px 0;
-        }
-        
-        .learned-list h4 {
-            color: #374151;
-            margin-bottom: 15px;
-            font-size: 14px;
-        }
-        
-        .learned-chips {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        
-        .learned-chip {
-            padding: 8px 16px;
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: white;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 14px;
-        }
-        
-        /* 组句练习页 */
+        /* 组句练习 */
         .sentence-practice {
             max-width: 700px;
             margin: 0 auto;
@@ -258,33 +350,11 @@
             margin-bottom: 10px;
         }
         
-        .sentence-hint {
-            font-size: 14px;
-            color: #6b7280;
-            margin-top: 10px;
-        }
-        
-        .used-words {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            justify-content: center;
-            margin: 20px 0;
-        }
-        
-        .used-word-tag {
-            padding: 6px 14px;
-            background: #d1d5db;
-            color: #374151;
-            border-radius: 18px;
-            font-size: 13px;
-        }
-        
         .sentence-input {
             width: 100%;
             max-width: 600px;
             padding: 18px;
-            font-size: 24px;
+            font-size: 22px;
             text-align: center;
             border: 3px solid #e5e7eb;
             border-radius: 12px;
@@ -357,57 +427,66 @@
             margin-top: 5px;
         }
         
-        .review-list {
+        .review-section {
             background: #f9fafb;
             padding: 25px;
             border-radius: 15px;
             margin: 25px 0;
-            max-height: 300px;
-            overflow-y: auto;
+        }
+        
+        .review-grid {
+            display: grid;
+            gap: 15px;
+            margin-top: 15px;
         }
         
         .review-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
             display: flex;
             justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid #e5e7eb;
+            align-items: center;
         }
         
-        .review-item:last-child {
-            border-bottom: none;
+        .review-word {
+            font-weight: 700;
+            color: #6366f1;
+            font-size: 18px;
         }
         
-        .review-chinese {
-            font-size: 14px;
+        .review-meaning {
             color: #6b7280;
         }
         
-        .review-english {
-            font-size: 16px;
-            font-weight: 600;
-            color: #1f2937;
-        }
-        
-        .progress-bar {
-            height: 6px;
-            background: #e5e7eb;
-            border-radius: 3px;
-            margin: 20px 0;
-            overflow: hidden;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #6366f1, #10b981);
-            transition: width 0.3s;
+        .play-small {
+            background: #6366f1;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>📖 英语单词→句子学习系统</h1>
-            <p>学完单词后立即组句，真正掌握英语表达</p>
+            <h1><i class="fas fa-graduation-cap"></i> 英语大师 Pro</h1>
+            <div class="level-badge" id="currentLevelBadge">A1 入门级</div>
+        </div>
+        
+        <div class="lesson-selector">
+            <div class="selector-controls">
+                <button class="selector-btn" id="prevLessonBtn"><i class="fas fa-chevron-left"></i> 上一课</button>
+                <div class="current-lesson-info">
+                    <div class="current-lesson-title" id="lessonTitle">加载中...</div>
+                    <div class="current-lesson-level" id="lessonInfo">第 1 课 / 共 51 课</div>
+                </div>
+                <button class="selector-btn" id="nextLessonBtn">下一课 <i class="fas fa-chevron-right"></i></button>
+            </div>
         </div>
         
         <div class="steps">
@@ -426,13 +505,18 @@
         </div>
         
         <div class="content">
-            <!-- 第 1 步：学习单词 -->
+            <!-- 单词学习页 -->
             <div id="page-word" class="page active">
                 <div class="word-card">
-                    <div class="chinese-hint" id="chineseHint">请点击开始学习</div>
+                    <div class="word-header">
+                        <button class="speech-btn" id="playWordBtn" title="播放发音">
+                            <i class="fas fa-volume-up"></i>
+                        </button>
+                        <div class="chinese-hint" id="chineseHint">请点击开始</div>
+                    </div>
                     
                     <div class="learned-list" id="learnedList" style="display:none;">
-                        <h4>✅ 已掌握的单词：</h4>
+                        <h4 style="margin-bottom: 15px; color: #374151;">✅ 已掌握的单词：</h4>
                         <div class="learned-chips" id="learnedChips"></div>
                     </div>
                     
@@ -450,30 +534,28 @@
                     
                     <div class="buttons">
                         <button class="btn btn-secondary" id="skipBtn">跳过</button>
-                        <button class="btn btn-primary" id="checkWordBtn">✓ 检查</button>
-                        <button class="btn btn-primary" id="nextWordBtn" style="display:none">下一个 →</button>
+                        <button class="btn btn-primary" id="checkWordBtn">✓ 检查 (回车)</button>
+                        <button class="btn btn-primary" id="nextWordBtn" style="display:none">下一个 (回车) →</button>
                     </div>
                 </div>
             </div>
             
-            <!-- 第 2 步：组成句子 -->
+            <!-- 组句练习页 -->
             <div id="page-sentence" class="page">
                 <div class="sentence-practice">
-                    <div class="lesson-title">使用刚才学过的单词组成句子</div>
+                    <div class="lesson-title">用刚学的单词组成完整句子</div>
                     
                     <div class="sentence-info">
                         <div class="sentence-chinese" id="sentenceChinese"></div>
-                        <div class="sentence-hint">提示：用上方学习过的单词填空</div>
-                    </div>
-                    
-                    <div class="used-words" id="usedWords">
-                        <!-- 已使用的单词标签 -->
+                        <div style="font-size: 14px; color: #6b7280; margin-top: 10px;">
+                            <i class="fas fa-lightbulb"></i> 提示：用上方学习过的单词填空
+                        </div>
                     </div>
                     
                     <input type="text" 
                            class="sentence-input" 
                            id="sentenceInput" 
-                           placeholder="请输入完整句子"
+                           placeholder="请输入完整句子 (按回车提交)"
                            autocomplete="off"
                            autocorrect="off"
                            autocapitalize="off"
@@ -483,20 +565,20 @@
                     
                     <div class="buttons">
                         <button class="btn btn-secondary" id="resetSentenceBtn">🔄 重置</button>
-                        <button class="btn btn-primary" id="checkSentenceBtn">✓ 检查句子</button>
+                        <button class="btn btn-primary" id="checkSentenceBtn">✓ 检查 (回车)</button>
                         <button class="btn btn-primary" id="finishBtn" style="display:none">完成学习 🎉</button>
                     </div>
                 </div>
             </div>
             
-            <!-- 第 3 步：完成 -->
+            <!-- 完成页 -->
             <div id="page-complete" class="page completion-page">
                 <div class="completion-icon">🎉</div>
-                <div class="completion-title">恭喜完成本节课！</div>
+                <div class="completion-title">恭喜完成本课！</div>
                 
                 <div class="completion-stats">
                     <div class="stat-box">
-                        <div class="value" id="totalWordsLearned">0</div>
+                        <div class="value" id="wordsLearned">0</div>
                         <div class="label">学习单词</div>
                     </div>
                     <div class="stat-box">
@@ -509,19 +591,20 @@
                     </div>
                 </div>
                 
-                <div class="review-list">
-                    <h4 style="margin-bottom: 15px;">📝 学习内容回顾</h4>
-                    <div id="reviewItems"></div>
+                <div class="review-section">
+                    <h4 style="color: #374151; margin-bottom: 15px;">📝 学习内容回顾</h4>
+                    <div class="review-grid" id="reviewGrid"></div>
                 </div>
                 
                 <div class="buttons">
-                    <button class="btn btn-secondary" onclick="location.reload()">🔁 重新开始</button>
+                    <button class="btn btn-secondary" onclick="location.reload()">🔁 重学本课</button>
                     <button class="btn btn-primary" id="anotherLessonBtn">下一课 →</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <script src="data.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
