@@ -1,18 +1,20 @@
 // ============================================
-// 英语大师 - 主应用程序
+// 英语大师 Pro - 完整学习系统
 // ============================================
 
-class EnglishLearningApp {
+class EnglishLearningPro {
     constructor() {
         this.state = {
-            currentPage: 'home',
-            currentLevel: 'beginner',
+            currentPage: 'dashboard',
+            currentLevel: 'level1',
+            currentCategory: 'all',
             stats: this.loadStats(),
+            wordQueue: [],
+            wordIndex: 0,
             sentenceQueue: [],
-            currentSentenceIndex: 0,
-            buildLevel: 1,
-            learnQueue: [],
-            learnIndex: 0
+            sentenceIndex: 0,
+            selectedDifficulty: 1,
+            rootsType: 'roots'
         };
         
         this.init();
@@ -22,290 +24,305 @@ class EnglishLearningApp {
         this.bindEvents();
         this.updateStatsDisplay();
         this.checkAchievements();
+        this.renderDashboard();
     }
     
-    // ========== 事件绑定 ==========
-    bindEvents() {
-        // 导航菜单
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.addEventListener('click', () => {
-                const page = item.dataset.page;
-                this.navigateTo(page);
-            });
-        });
-        
-        // 级别选择
-        document.getElementById('levelSelect').addEventListener('change', (e) => {
-            this.state.currentLevel = e.target.value;
-            this.loadCurrentLevelData();
-        });
-        
-        // 快速操作
-        document.querySelectorAll('.action-card').forEach(card => {
-            card.addEventListener('click', () => {
-                const action = card.dataset.action;
-                this.handleQuickAction(action);
-            });
-        });
-        
-        // 句子练习页面
-        document.getElementById('hintBtn').addEventListener('click', () => this.showHint());
-        document.getElementById('soundBtn').addEventListener('click', () => this.playSound());
-        document.getElementById('checkBtn').addEventListener('click', () => this.checkSentence());
-        document.getElementById('nextBtn').addEventListener('click', () => this.nextSentence());
-        
-        // 组句挑战
-        document.getElementById('resetBuildBtn').addEventListener('click', () => this.resetBuild());
-        document.getElementById('submitBuildBtn').addEventListener('click', () => this.submitBuild());
-        document.getElementById('nextLevelBtn').addEventListener('click', () => this.nextBuildLevel());
-        
-        // 单词学习弹窗
-        document.getElementById('closeModal').addEventListener('click', () => this.closeModal());
-        document.getElementById('prevWord').addEventListener('click', () => this.prevWord());
-        document.getElementById('nextWord').addEventListener('click', () => this.nextWord());
-        document.querySelectorAll('.mastery-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => this.markWordMastery(e.target.dataset.level));
-        });
-        
-        // 结果弹窗
-        document.getElementById('reviewWrongBtn').addEventListener('click', () => this.closeResultModal());
-        document.getElementById('continueBtn').addEventListener('click', () => this.closeResultModal());
-        
-        // 模式切换
-        document.querySelectorAll('.mode-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-                e.target.classList.add('active');
-            });
-        });
-        
-        // 筛选按钮
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                e.target.classList.add('active');
-            });
-        });
-        
-        // 分类卡片
-        document.querySelectorAll('.category-card').forEach(card => {
-            card.addEventListener('click', () => {
-                const category = card.dataset.category;
-                this.startLearnWords(category);
-            });
-        });
-    }
-    
-    // ========== 导航 ==========
-    navigateTo(pageId) {
-        // 更新侧边栏
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.classList.toggle('active', item.dataset.page === pageId);
-        });
-        
-        // 切换页面
-        document.querySelectorAll('.page').forEach(page => {
-            page.classList.remove('active');
-        });
-        document.getElementById(pageId).classList.add('active');
-        
-        this.state.currentPage = pageId;
-        
-        // 页面加载时的初始化
-        if (pageId === 'sentences') {
-            this.loadSentencePractice();
-        } else if (pageId === 'build') {
-            this.loadBuildChallenge();
-        } else if (pageId === 'progress') {
-            this.updateProgressPage();
-        } else if (pageId === 'words') {
-            this.updateWordCategories();
-        }
-    }
-    
-    // ========== 统计管理 ==========
     loadStats() {
-        const saved = localStorage.getItem('englishAppStats');
-        if (saved) {
-            return JSON.parse(saved);
-        }
-        return {
-            totalWords: 0,
-            totalSentences: 0,
+        const saved = localStorage.getItem('englishProStats');
+        return saved ? JSON.parse(saved) : {
+            totalWordsLearned: 0,
+            totalSentencesCompleted: 0,
+            totalStudyTime: 0,
             streak: 0,
             points: 0,
-            lastLogin: null,
-            learnedWords: [],
+            learnedWords: {},
             completedSentences: [],
-            achievements: []
+            achievements: [],
+            lastLogin: null
         };
     }
     
     saveStats() {
-        localStorage.setItem('englishAppStats', JSON.stringify(this.state.stats));
+        localStorage.setItem('englishProStats', JSON.stringify(this.state.stats));
+    }
+    
+    bindEvents() {
+        // 导航
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                this.navigateTo(item.dataset.page);
+            });
+        });
+        
+        // 级别选择
+        document.getElementById('currentLevel').addEventListener('change', (e) => {
+            this.state.currentLevel = e.target.value;
+            this.handleLevelChange();
+        });
+        
+        // 词汇分类筛选
+        document.querySelectorAll('.tab-btn[data-category]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.tab-btn[data-category]').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                this.state.currentCategory = e.target.dataset.category;
+                this.renderVocabularyList();
+            });
+        });
+        
+        // 词根类型切换
+        document.querySelectorAll('.root-tab').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.root-tab').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                this.state.rootsType = e.target.dataset.type;
+                this.renderRootsList();
+            });
+        });
+        
+        // 难度选择
+        document.querySelectorAll('.diff-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                this.state.selectedDifficulty = parseInt(e.target.dataset.level);
+                this.startSentences();
+            });
+        });
+    }
+    
+    navigateTo(pageId) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+        this.state.currentPage = pageId;
+        
+        if (pageId === 'vocabulary') this.renderVocabularyList();
+        else if (pageId === 'roots') this.renderRootsList();
+        else if (pageId === 'sentences') this.startSentences();
+        else if (pageId === 'grammar') this.renderGrammar();
+        else if (pageId === 'listening') this.renderListening();
+        else if (pageId === 'progress') this.renderProgress();
+        else if (pageId === 'dashboard') this.renderDashboard();
+    }
+    
+    handleLevelChange() {
+        if (this.state.currentPage === 'vocabulary') this.renderVocabularyList();
+        else if (this.state.currentPage === 'roots') this.renderRootsList();
     }
     
     updateStatsDisplay() {
-        document.getElementById('totalWords').textContent = this.state.stats.totalWords;
-        document.getElementById('totalSentences').textContent = this.state.stats.totalSentences;
-        document.getElementById('streak').textContent = this.state.stats.streak;
-        document.getElementById('points').textContent = this.state.stats.points;
+        document.getElementById('miniWords').textContent = Object.keys(this.state.stats.learnedWords).length;
+        document.getElementById('miniStreak').textContent = this.state.stats.streak;
+        document.getElementById('totalWordsLearned').textContent = Object.keys(this.state.stats.learnedWords).length;
+        document.getElementById('totalSentencesCompleted').textContent = this.state.stats.completedSentences.length;
+        document.getElementById('totalStudyTime').textContent = Math.round(this.state.stats.totalStudyTime / 60);
+        document.getElementById('currentStreak').textContent = this.state.stats.streak;
+        
+        const totalWords = 150; // 总单词数
+        const percent = Math.min(100, Math.round((Object.keys(this.state.stats.learnedWords).length / totalWords) * 100));
+        document.getElementById('overallPercent').textContent = `${percent}%`;
+        document.getElementById('overallProgressRing').style.strokeDashoffset = 283 - (283 * percent / 100);
+        
+        document.getElementById('achievementCount').textContent = this.state.stats.achievements?.length || 0;
     }
     
-    addPoints(points) {
-        this.state.stats.points += points;
-        this.saveStats();
+    renderDashboard() {
         this.updateStatsDisplay();
     }
     
-    // ========== 快速操作 ==========
-    handleQuickAction(action) {
-        switch(action) {
-            case 'learn-words':
-                this.navigateAndStart('words');
-                break;
-            case 'practice-sentences':
-                this.navigateAndStart('sentences');
-                break;
-            case 'review':
-                this.navigateAndStart('words');
-                break;
-            case 'challenge':
-                this.navigateAndStart('build');
-                break;
+    // ========== 词汇学习 ==========
+    renderVocabularyList() {
+        const levelData = ENGLISH_DB.vocabulary[this.state.currentLevel];
+        const container = document.getElementById('wordList');
+        container.innerHTML = '';
+        
+        let words = [];
+        if (this.state.currentCategory === 'all') {
+            Object.values(levelData).flat().forEach(w => words.push(w));
+        } else {
+            words = levelData[this.state.currentCategory] || [];
+        }
+        
+        words.forEach(wordObj => {
+            const card = document.createElement('div');
+            card.className = 'word-card';
+            card.innerHTML = `
+                <div class="word">${wordObj.word}</div>
+                <div class="phonetic">${wordObj.phonetic}</div>
+                <div class="chinese">${wordObj.chinese}</div>
+            `;
+            card.onclick = () => this.openWordModal(wordObj);
+            container.appendChild(card);
+        });
+    }
+    
+    openWordModal(wordObj) {
+        document.getElementById('modalWord').textContent = wordObj.word;
+        document.getElementById('modalPhonetic').textContent = wordObj.phonetic;
+        document.getElementById('modalPos').textContent = wordObj.pos;
+        document.getElementById('modalChinese').textContent = wordObj.chinese;
+        document.getElementById('modalExample').innerHTML = `<em>${wordObj.example}</em>`;
+        
+        const rootsDiv = document.getElementById('modalRoots');
+        rootsDiv.innerHTML = wordObj.roots && wordObj.roots.length > 0 
+            ? `<strong>词根:</strong> ${wordObj.roots.join(', ')}`
+            : '';
+        
+        const synonymsDiv = document.getElementById('modalSynonyms');
+        synonymsDiv.innerHTML = wordObj.synonyms && wordObj.synonyms.length > 0
+            ? `<strong>同义词:</strong> ${wordObj.synonyms.join(', ')}`
+            : '';
+        
+        document.getElementById('wordModal').classList.add('show');
+        this.currentWordObj = wordObj;
+    }
+    
+    closeWordModal() {
+        document.getElementById('wordModal').classList.remove('show');
+    }
+    
+    playWordAudio() {
+        if (this.currentWordObj) {
+            const utterance = new SpeechSynthesisUtterance(this.currentWordObj.word);
+            utterance.lang = 'en-US';
+            speechSynthesis.speak(utterance);
         }
     }
     
-    navigateAndStart(page) {
-        this.navigateTo(page);
+    rateWord(score) {
+        if (!this.currentWordObj) return;
+        
+        const wordName = this.currentWordObj.word;
+        if (!this.state.stats.learnedWords[wordName]) {
+            this.state.stats.learnedWords[wordName] = { score, count: 1 };
+            this.state.stats.totalWordsLearned++;
+        } else {
+            this.state.stats.learnedWords[wordName].score = score;
+            this.state.stats.learnedWords[wordName].count++;
+        }
+        
+        this.state.stats.points += score * 5;
+        this.state.stats.totalStudyTime += 30;
+        this.saveStats();
+        this.updateStatsDisplay();
+        this.checkAchievements();
+        
+        this.closeWordModal();
+    }
+    
+    // ========== 词根词缀 ==========
+    renderRootsList() {
+        const type = this.state.rootsType;
+        const data = ENGLISH_DB[type] || [];
+        const container = document.getElementById('rootsContent');
+        container.innerHTML = '';
+        
+        data.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'word-card';
+            const key = type === 'roots' ? 'root' : (type === 'prefixes' ? 'prefix' : 'suffix');
+            card.innerHTML = `
+                <div class="word" style="color: var(--secondary)">${item[key]}</div>
+                <div class="chinese">${item.meaning}</div>
+                <div style="margin-top: 10px; font-size: 13px; color: #666;">
+                    ${item.examples.map(e => `📌 ${e}`).join('<br>')}
+                </div>
+            `;
+            container.appendChild(card);
+        });
     }
     
     // ========== 句子练习 ==========
-    loadSentencePractice() {
-        const sentences = sentenceData[this.state.currentLevel] || sentenceData.beginner;
-        this.state.sentenceQueue = [...sentences];
-        this.state.currentSentenceIndex = 0;
+    startSentences() {
+        const sentences = ENGLISH_DB.sentences['intermediate'] || ENGLISH_DB.sentences['beginner'];
+        this.state.sentenceQueue = [...sentences].sort(() => Math.random() - 0.5).slice(0, 5);
+        this.state.sentenceIndex = 0;
         this.showSentence();
     }
     
     showSentence() {
-        const sentence = this.state.sentenceQueue[this.state.currentSentenceIndex];
-        if (!sentence) {
-            this.showResult();
-            return;
-        }
+        const sentence = this.state.sentenceQueue[this.state.sentenceIndex];
+        document.getElementById('chineseSentence').textContent = sentence.chinese;
         
-        // 更新进度条
-        const progress = ((this.state.currentSentenceIndex) / this.state.sentenceQueue.length) * 100;
-        document.querySelector('.progress-fill').style.width = `${progress}%`;
-        document.querySelector('.progress-text').textContent = 
-            `${this.state.currentSentenceIndex + 1}/${this.state.sentenceQueue.length}`;
+        const shuffled = [...sentence.words].sort(() => Math.random() - 0.5);
+        const wordBank = document.getElementById('wordBank');
+        wordBank.innerHTML = '';
         
-        // 显示中文
-        document.getElementById('sentenceChinese').textContent = sentence.chinese;
-        
-        // 打乱单词顺序
-        const shuffledWords = [...sentence.words].sort(() => Math.random() - 0.5);
-        
-        // 显示单词块
-        const wordsContainer = document.getElementById('sentenceWords');
-        wordsContainer.innerHTML = '';
-        shuffledWords.forEach((word, index) => {
-            const chip = document.createElement('div');
-            chip.className = 'word-chip';
+        shuffled.forEach(word => {
+            const chip = document.createElement('button');
+            chip.className = 'btn btn-secondary';
             chip.textContent = word;
-            chip.dataset.word = word;
-            chip.dataset.index = index;
-            chip.onclick = () => this.selectWord(word, chip);
-            wordsContainer.appendChild(chip);
+            chip.onclick = () => this.addWordToAnswer(word, chip);
+            wordBank.appendChild(chip);
         });
         
-        // 清空用户答案区
-        document.getElementById('userAnswer').innerHTML = '';
-        document.getElementById('feedback').textContent = '';
-        document.getElementById('feedback').className = 'feedback';
-        
-        // 控制按钮
-        document.getElementById('checkBtn').style.display = 'inline-block';
-        document.getElementById('nextBtn').style.display = 'none';
+        document.getElementById('answerZone').innerHTML = '<span class="placeholder">点击单词组成句子</span>';
+        document.getElementById('sentenceFeedback').textContent = '';
+        document.getElementById('nextSentenceBtn').style.display = 'none';
     }
     
-    selectWord(word, chipElement) {
-        const answerDiv = document.getElementById('userAnswer');
+    addWordToAnswer(word, chip) {
+        const answerZone = document.getElementById('answerZone');
+        const placeholder = answerZone.querySelector('.placeholder');
+        if (placeholder) placeholder.remove();
         
-        // 如果已经在答案区，移除它
-        if (chipElement.parentElement.classList.contains('sentence-words')) {
-            const existingChip = Array.from(answerDiv.children).find(
-                c => c.textContent === word && !c.classList.contains('used')
-            );
-            if (existingChip) {
-                existingChip.remove();
-                chipElement.classList.remove('selected');
-                return;
-            }
-        }
-        
-        // 添加到答案区
-        const newChip = document.createElement('div');
-        newChip.className = 'word-chip';
+        const newChip = document.createElement('button');
+        newChip.className = 'btn btn-primary';
         newChip.textContent = word;
         newChip.onclick = () => {
-            chipElement.classList.remove('selected');
             newChip.remove();
+            chip.style.display = 'inline-flex';
         };
-        answerDiv.appendChild(newChip);
-        chipElement.classList.add('selected');
+        answerZone.appendChild(newChip);
+        chip.style.display = 'none';
     }
     
     checkSentence() {
-        const userWords = Array.from(document.getElementById('userAnswer').children)
+        const userWords = Array.from(document.getElementById('answerZone').children)
+            .filter(c => c.tagName === 'BUTTON')
             .map(c => c.textContent);
-        const correctSentence = this.state.sentenceQueue[this.state.currentSentenceIndex];
-        const correctWords = correctSentence.words.filter(w => w !== '.' && w !== '?');
         
-        const isCorrect = JSON.stringify(userWords) === JSON.stringify(correctWords);
+        const current = this.state.sentenceQueue[this.state.sentenceIndex];
+        const correct = current.words.filter(w => w !== '.' && w !== '?');
         
-        const feedback = document.getElementById('feedback');
+        const isCorrect = JSON.stringify(userWords) === JSON.stringify(correct);
+        const feedback = document.getElementById('sentenceFeedback');
+        
         if (isCorrect) {
-            feedback.textContent = '🎉 正确！太棒了！';
-            feedback.className = 'feedback correct';
-            
-            // 添加积分
-            this.addPoints(10);
-            
-            // 记录完成
-            this.state.stats.totalSentences++;
-            this.state.stats.learnedWords.push(...correctWords);
-            this.saveStats();
-            this.updateStatsDisplay();
+            feedback.textContent = '✅ 正确！太棒了！';
+            feedback.style.color = 'var(--secondary)';
+            this.state.stats.points += 15;
+            this.state.stats.completedSentences.push(current.english);
+            this.state.stats.totalSentencesCompleted++;
         } else {
-            feedback.textContent = `❌ 错误！正确答案：${correctSentence.english}`;
-            feedback.className = 'feedback wrong';
+            feedback.textContent = `❌ 错误！正确答案：${current.english}`;
+            feedback.style.color = 'var(--danger)';
         }
         
-        // 禁用点击
-        document.querySelectorAll('#sentenceWords .word-chip').forEach(chip => {
-            chip.style.pointerEvents = 'none';
-        });
-        
-        // 显示下一题按钮
-        document.getElementById('checkBtn').style.display = 'none';
-        document.getElementById('nextBtn').style.display = 'inline-block';
+        this.saveStats();
+        this.updateStatsDisplay();
+        document.getElementById('nextSentenceBtn').style.display = 'inline-flex';
     }
     
     nextSentence() {
-        this.state.currentSentenceIndex++;
-        this.showSentence();
+        this.state.sentenceIndex++;
+        if (this.state.sentenceIndex >= this.state.sentenceQueue.length) {
+            this.showResult();
+        } else {
+            this.showSentence();
+        }
     }
     
     showHint() {
-        const sentence = this.state.sentenceQueue[this.state.currentSentenceIndex];
-        alert(`提示：${sentence.english.substring(0, 5)}...`);
+        const current = this.state.sentenceQueue[this.state.sentenceIndex];
+        alert(`提示：${current.english.substring(0, 10)}...`);
     }
     
-    playSound() {
-        const sentence = this.state.sentenceQueue[this.state.currentSentenceIndex];
-        const utterance = new SpeechSynthesisUtterance(sentence.english);
+    playAudio() {
+        const current = this.state.sentenceQueue[this.state.sentenceIndex];
+        const utterance = new SpeechSynthesisUtterance(current.english);
         utterance.lang = 'en-US';
         speechSynthesis.speak(utterance);
     }
@@ -314,291 +331,117 @@ class EnglishLearningApp {
         const modal = document.getElementById('resultModal');
         modal.classList.add('show');
         
-        const score = Math.round((this.state.currentSentenceIndex / this.state.sentenceQueue.length) * 100);
-        document.getElementById('resultIcon').textContent = score >= 70 ? '🎉' : '💪';
-        document.getElementById('resultTitle').textContent = score >= 70 ? '练习完成！' : '继续加油！';
-        document.getElementById('resultCorrect').textContent = this.state.currentSentenceIndex;
-        document.getElementById('resultWrong').textContent = 
-            this.state.sentenceQueue.length - this.state.currentSentenceIndex;
-        document.getElementById('resultAccuracy').textContent = `${score}%`;
+        document.getElementById('resultIcon').textContent = '🎉';
+        document.getElementById('resultTitle').textContent = '练习完成!';
+        document.getElementById('resultCorrect').textContent = this.state.sentenceQueue.length;
+        document.getElementById('resultWrong').textContent = 0;
+        document.getElementById('resultAccuracy').textContent = '100%';
+        document.getElementById('earnedPoints').textContent = this.state.sentenceQueue.length * 15;
     }
     
-    closeResultModal() {
+    continueLearning() {
         document.getElementById('resultModal').classList.remove('show');
-        this.navigateTo('home');
+        this.navigateTo('dashboard');
     }
     
-    // ========== 单词学习 ==========
-    startLearnWords(category) {
-        const levelData = wordData[this.state.currentLevel];
-        if (!levelData || !levelData[category]) {
-            alert('这个类别的单词还没有录入，请稍后再试！');
-            return;
+    reviewMistakes() {
+        this.continueLearning();
+    }
+    
+    // ========== 语法和听力 ==========
+    renderGrammar() {
+        const renderList = (listId, data) => {
+            const container = document.getElementById(listId);
+            container.innerHTML = data.map(item => `
+                <div class="word-card">
+                    <h4>${item.topic}</h4>
+                    <p><strong>公式:</strong> ${item.formula}</p>
+                    <p><strong>用法:</strong> ${item.usage}</p>
+                    <p><strong>例句:</strong> ${item.examples.slice(0, 2).join('; ')}</p>
+                </div>
+            `).join('');
+        };
+        
+        renderList('tensesList', ENGLISH_DB.grammar.tenses);
+        renderList('clausesList', ENGLISH_DB.grammar.clauses);
+        renderList('conditionsList', ENGLISH_DB.grammar.conditions);
+    }
+    
+    renderListening() {
+        const container = document.getElementById('listeningList');
+        container.innerHTML = ENGLISH_DB.listening.short_dialogues.map((item, idx) => `
+            <div class="word-card">
+                <h4>对话 ${idx + 1}</h4>
+                <pre style="white-space: pre-wrap; font-size: 14px;">${item.dialogue}</pre>
+                ${item.questions.map(q => `
+                    <div style="margin-top: 15px;">
+                        <p><strong>问题:</strong> ${q.question}</p>
+                        <div style="margin-top: 10px;">
+                            ${q.options.map((opt, i) => `
+                                <button class="btn btn-secondary" style="margin-right: 10px;" onclick="app.checkListeningAnswer(this, ${i}, ${q.answer})">${opt}</button>
+                            `).join('')}
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `).join('');
+    }
+    
+    checkListeningAnswer(btn, selectedIndex, correctIndex) {
+        if (selectedIndex === correctIndex) {
+            btn.style.background = 'var(--secondary)';
+            btn.style.color = 'white';
+            this.state.stats.points += 10;
+        } else {
+            btn.style.background = 'var(--danger)';
+            btn.style.color = 'white';
         }
-        
-        this.state.learnQueue = [...levelData[category]];
-        this.state.learnIndex = 0;
-        
-        document.getElementById('totalWordsInCategory').textContent = this.state.learnQueue.length;
-        this.showLearnCard();
-        document.getElementById('learnModal').classList.add('show');
-    }
-    
-    showLearnCard() {
-        const wordObj = this.state.learnQueue[this.state.learnIndex];
-        
-        document.getElementById('learnWord').textContent = wordObj.word;
-        document.getElementById('learnPhonetic').textContent = wordObj.phonetic;
-        document.getElementById('learnChinese').textContent = wordObj.chinese;
-        document.getElementById('learnExample').innerHTML = 
-            `<span>${wordObj.example.replace(new RegExp(wordObj.word, 'gi'), matched => 
-                `<strong>${matched}</strong>`
-            )}</span>`;
-        document.getElementById('currentWordIndex').textContent = this.state.learnIndex + 1;
-    }
-    
-    prevWord() {
-        if (this.state.learnIndex > 0) {
-            this.state.learnIndex--;
-            this.showLearnCard();
-        }
-    }
-    
-    nextWord() {
-        if (this.state.learnIndex < this.state.learnQueue.length - 1) {
-            this.state.learnIndex++;
-            this.showLearnCard();
-        }
-    }
-    
-    markWordMastery(level) {
-        const wordObj = this.state.learnQueue[this.state.learnIndex];
-        
-        // 增加总词数（不重复计算）
-        if (!this.state.stats.learnedWords.includes(wordObj.word)) {
-            this.state.stats.totalWords++;
-            this.state.stats.learnedWords.push(wordObj.word);
-            this.addPoints(5 * parseInt(level));
-        }
-        
         this.saveStats();
         this.updateStatsDisplay();
-        this.checkAchievements();
-        
-        // 自动跳到下一个或关闭
-        if (this.state.learnIndex < this.state.learnQueue.length - 1) {
-            this.state.learnIndex++;
-            this.showLearnCard();
-        } else {
-            this.closeModal();
-        }
     }
     
-    closeModal() {
-        document.getElementById('learnModal').classList.remove('show');
-    }
-    
-    // ========== 组句挑战 ==========
-    loadBuildChallenge() {
-        this.generateBuildLevel();
-    }
-    
-    generateBuildLevel() {
-        const levelSentences = this.getBuildLevelSentences();
-        const sentence = levelSentences[Math.floor(Math.random() * levelSentences.length)];
-        
-        document.getElementById('buildChinese').textContent = sentence.chinese;
-        document.getElementById('currentLevel').textContent = this.state.buildLevel;
-        
-        // 打乱单词
-        const allWords = [...sentence.words];
-        const shuffled = allWords.sort(() => Math.random() - 0.5);
-        
-        const wordBank = document.getElementById('wordBank');
-        wordBank.innerHTML = '';
-        shuffled.forEach((word, index) => {
-            const chip = document.createElement('div');
-            chip.className = 'word-chip';
-            chip.textContent = word;
-            chip.dataset.word = word;
-            chip.dataset.available = true;
-            chip.onclick = () => this.selectBuildWord(chip);
-            wordBank.appendChild(chip);
-        });
-        
-        // 清空放置区
-        const dropZone = document.getElementById('dropZone');
-        dropZone.innerHTML = '<span class="placeholder">点击单词添加到句子中</span>';
-        dropZone.removeAttribute('data-answer');
-        dropZone.removeAttribute('data-correct');
-        
-        document.getElementById('buildFeedback').textContent = '';
-        document.getElementById('levelComplete').style.display = 'none';
-    }
-    
-    getBuildLevelSentences() {
-        const levels = {
-            1: sentenceData.beginner.slice(0, 3),
-            2: sentenceData.beginner.slice(3, 6),
-            3: sentenceData.beginner.slice(6),
-            4: sentenceData.elementary.slice(0, 3),
-            5: sentenceData.elementary.slice(3),
-            6: sentenceData.intermediate.slice(0, 2),
-            7: sentenceData.intermediate.slice(2),
-            8: sentenceData.advanced.slice(0, 1)
-        };
-        return levels[this.state.buildLevel] || levels[1];
-    }
-    
-    selectBuildWord(chip) {
-        const dropZone = document.getElementById('dropZone');
-        const placeholder = dropZone.querySelector('.placeholder');
-        if (placeholder) placeholder.remove();
-        
-        const newChip = document.createElement('div');
-        newChip.className = 'word-chip';
-        newChip.textContent = chip.textContent;
-        newChip.onclick = () => {
-            newChip.remove();
-            chip.style.display = 'flex';
-            chip.dataset.available = true;
-        };
-        dropZone.appendChild(newChip);
-        chip.style.display = 'none';
-        chip.dataset.available = false;
-    }
-    
-    resetBuild() {
-        this.generateBuildLevel();
-    }
-    
-    submitBuild() {
-        const dropZone = document.getElementById('dropZone');
-        const userWords = Array.from(dropZone.children)
-            .filter(c => c.tagName === 'DIV')
-            .map(c => c.textContent);
-        
-        // 获取当前题目答案
-        const levelSentences = this.getBuildLevelSentences();
-        const currentSentence = levelSentences[Math.floor(Math.random() * levelSentences.length)];
-        const correctWords = currentSentence.words.filter(w => w !== '.' && w !== '?');
-        
-        const feedback = document.getElementById('buildFeedback');
-        const isCorrect = JSON.stringify(userWords) === JSON.stringify(correctWords);
-        
-        if (isCorrect) {
-            feedback.textContent = '🎉 正确！太棒了！';
-            feedback.className = 'feedback correct';
-            this.addPoints(15);
-            
-            setTimeout(() => {
-                this.showLevelComplete();
-            }, 1500);
-        } else {
-            feedback.textContent = `❌ 不对哦！正确答案：${currentSentence.english}`;
-            feedback.className = 'feedback wrong';
-        }
-    }
-    
-    showLevelComplete() {
-        document.getElementById('levelComplete').style.display = 'flex';
-    }
-    
-    nextBuildLevel() {
-        this.state.buildLevel++;
-        this.generateBuildLevel();
-    }
-    
-    // ========== 学习进度页面 ==========
-    updateProgressPage() {
-        // 总体进度
-        const totalLevels = Object.keys(wordData).length;
-        const overallPercent = Math.min(100, Math.round((this.state.stats.totalWords / 200) * 100));
-        document.getElementById('overallProgress').textContent = `${overallPercent}%`;
-        document.getElementById('progressRing').style.strokeDashoffset = 
-            283 - (283 * overallPercent / 100);
-        
-        // 各级别进度
-        const levelProgress = {
-            beginner: Math.min(100, Math.round((this.state.stats.totalWords / 100) * 100)),
-            elementary: Math.min(100, Math.round((this.state.stats.totalWords / 150) * 100)),
-            intermediate: Math.min(100, Math.round((this.state.stats.totalWords / 200) * 100)),
-            advanced: Math.min(100, Math.round((this.state.stats.totalWords / 250) * 100))
-        };
-        
-        Object.entries(levelProgress).forEach(([level, percent]) => {
-            document.getElementById(`${level}Progress`).style.width = `${percent}%`;
-            document.getElementById(`${level}Percent`).textContent = `${percent}%`;
-        });
-        
-        // 成就徽章
-        this.renderAchievements();
-    }
-    
-    renderAchievements() {
-        const grid = document.getElementById('achievementsGrid');
-        grid.innerHTML = '';
-        
-        achievements.forEach(achievement => {
-            const isEarned = this.state.stats.achievements?.includes(achievement.id) || 
-                            achievement.condition(this.state.stats);
-            
-            const div = document.createElement('div');
-            div.className = `achievement ${isEarned ? 'earned' : 'locked'}`;
-            div.innerHTML = `
-                <span class="achievement-icon">${achievement.icon}</span>
-                <span class="achievement-name">${achievement.name}</span>
-            `;
-            grid.appendChild(div);
-        });
-    }
-    
+    // ========== 成就系统 ==========
     checkAchievements() {
-        let newAchievements = [];
+        const achievements = [
+            { id: 'first_word', name: '初学乍练', condition: () => Object.keys(this.state.stats.learnedWords).length >= 1 },
+            { id: 'word_10', name: '词汇入门', condition: () => Object.keys(this.state.stats.learnedWords).length >= 10 },
+            { id: 'sentence_5', name: '句子新星', condition: () => this.state.stats.totalSentencesCompleted >= 5 },
+            { id: 'streak_3', name: '坚持三天', condition: () => this.state.stats.streak >= 3 },
+            { id: 'points_100', name: '积分达人', condition: () => this.state.stats.points >= 100 }
+        ];
         
-        achievements.forEach(achievement => {
-            const hasAchievement = this.state.stats.achievements?.includes(achievement.id);
-            const canAchieve = achievement.condition(this.state.stats);
-            
-            if (canAchieve && !hasAchievement) {
-                newAchievements.push(achievement.id);
-                // 简单提示
-                setTimeout(() => {
-                    alert(`🏆 新成就解锁：${achievement.name}！`);
-                }, 1000);
+        achievements.forEach(ach => {
+            if (ach.condition() && !this.state.stats.achievements?.includes(ach.id)) {
+                this.state.stats.achievements = [...(this.state.stats.achievements || []), ach.id];
+                setTimeout(() => alert(`🏆 新成就解锁：${ach.name}!`), 1000);
             }
         });
         
-        if (newAchievements.length > 0) {
-            this.state.stats.achievements = [
-                ...(this.state.stats.achievements || []),
-                ...newAchievements
-            ];
-            this.saveStats();
-        }
+        this.saveStats();
     }
     
-    // ========== 其他辅助方法 ==========
-    updateWordCategories() {
-        document.querySelectorAll('.category-count').forEach((el, index) => {
-            el.textContent = '进行中';
-        });
+    renderProgress() {
+        this.updateStatsDisplay();
+        // 实现进度渲染逻辑
     }
     
-    loadCurrentLevelData() {
-        // 当级别改变时重新加载数据
-        if (this.state.currentPage === 'sentences') {
-            this.loadSentencePractice();
+    exportData() {
+        const dataStr = JSON.stringify(this.state.stats, null, 2);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'english_learning_data.json';
+        a.click();
+    }
+    
+    resetProgress() {
+        if (confirm('确定要重置所有学习进度吗？此操作不可恢复！')) {
+            localStorage.removeItem('englishProStats');
+            location.reload();
         }
     }
 }
 
-// ========== 启动应用 ==========
-document.addEventListener('DOMContentLoaded', () => {
-    window.app = new EnglishLearningApp();
-});
-
-// ========== 语音合成支持检测 ==========
-if (!window.speechSynthesis) {
-    console.warn('您的浏览器不支持语音合成功能');
-}
+// 启动应用
+window.app = new EnglishLearningPro();
