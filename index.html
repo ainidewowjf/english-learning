@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英语小白到精通 - 单词句子练习</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app">
+        <!-- 侧边栏 -->
+        <nav class="sidebar">
+            <div class="logo">
+                <span class="logo-icon">📚</span>
+                <span class="logo-text">英语大师</span>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item active" data-page="home">
+                    <span class="icon">🏠</span>
+                    <span>首页</span>
+                </li>
+                <li class="nav-item" data-page="words">
+                    <span class="icon">📝</span>
+                    <span>单词学习</span>
+                </li>
+                <li class="nav-item" data-page="sentences">
+                    <span class="icon">💬</span>
+                    <span>句子练习</span>
+                </li>
+                <li class="nav-item" data-page="build">
+                    <span class="icon">🧩</span>
+                    <span>组句挑战</span>
+                </li>
+                <li class="nav-item" data-page="progress">
+                    <span class="icon">📊</span>
+                    <span>学习进度</span>
+                </li>
+            </ul>
+            <div class="level-selector">
+                <label>当前级别</label>
+                <select id="levelSelect">
+                    <option value="beginner">🌱 入门级</option>
+                    <option value="elementary">🌿 初级</option>
+                    <option value="intermediate">🌳 中级</option>
+                    <option value="advanced">🏔️ 高级</option>
+                </select>
+            </div>
+        </nav>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <!-- 首页 -->
+            <section id="home" class="page active">
+                <div class="welcome-card">
+                    <h1>欢迎使用英语大师</h1>
+                    <p>从单词到句子，循序渐进掌握英语</p>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📖</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="totalWords">0</span>
+                            <span class="stat-label">已学单词</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">✍️</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="totalSentences">0</span>
+                            <span class="stat-label">完成句子</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🔥</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="streak">0</span>
+                            <span class="stat-label">连续天数</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⭐</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="points">0</span>
+                            <span class="stat-label">积分</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quick-actions">
+                    <h2>快速开始</h2>
+                    <div class="action-grid">
+                        <div class="action-card" data-action="learn-words">
+                            <span class="action-icon">🎯</span>
+                            <span class="action-title">学习新单词</span>
+                            <span class="action-desc">开始今天的单词学习</span>
+                        </div>
+                        <div class="action-card" data-action="practice-sentences">
+                            <span class="action-icon">🗣️</span>
+                            <span class="action-title">句子练习</span>
+                            <span class="action-desc">用学过的单词造句</span>
+                        </div>
+                        <div class="action-card" data-action="review">
+                            <span class="action-icon">🔄</span>
+                            <span class="action-title">复习巩固</span>
+                            <span class="action-desc">复习不熟悉的单词</span>
+                        </div>
+                        <div class="action-card" data-action="challenge">
+                            <span class="action-icon">🏆</span>
+                            <span class="action-title">每日挑战</span>
+                            <span class="action-desc">完成挑战获得奖励</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 单词学习页 -->
+            <section id="words" class="page">
+                <div class="page-header">
+                    <h1>单词学习</h1>
+                    <div class="filter-bar">
+                        <button class="filter-btn active" data-filter="all">全部</button>
+                        <button class="filter-btn" data-filter="new">新单词</button>
+                        <button class="filter-btn" data-filter="learning">学习中</button>
+                        <button class="filter-btn" data-filter="mastered">已掌握</button>
+                    </div>
+                </div>
+                
+                <div class="word-categories">
+                    <div class="category-card" data-category="greetings">
+                        <span class="category-icon">👋</span>
+                        <span class="category-name">问候语</span>
+                        <span class="category-count">12词</span>
+                    </div>
+                    <div class="category-card" data-category="numbers">
+                        <span class="category-icon">🔢</span>
+                        <span class="category-name">数字</span>
+                        <span class="category-count">20词</span>
+                    </div>
+                    <div class="category-card" data-category="colors">
+                        <span class="category-icon">🎨</span>
+                        <span class="category-name">颜色</span>
+                        <span class="category-count">12词</span>
+                    </div>
+                    <div class="category-card" data-category="family">
+                        <span class="category-icon">👨‍👩‍👧‍👦</span>
+                        <span class="category-name">家庭</span>
+                        <span class="category-count">15词</span>
+                    </div>
+                    <div class="category-card" data-category="food">
+                        <span class="category-icon">🍔</span>
+                        <span class="category-name">食物</span>
+                        <span class="category-count">25词</span>
+                    </div>
+                    <div class="category-card" data-category="animals">
+                        <span class="category-icon">🐱</span>
+                        <span class="category-name">动物</span>
+                        <span class="category-count">20词</span>
+                    </div>
+                    <div class="category-card" data-category="verbs">
+                        <span class="category-icon">🏃</span>
+                        <span class="category-name">常用动词</span>
+                        <span class="category-count">30词</span>
+                    </div>
+                    <div class="category-card" data-category="adjectives">
+                        <span class="category-icon">✨</span>
+                        <span class="category-name">形容词</span>
+                        <span class="category-count">25词</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 句子练习页 -->
+            <section id="sentences" class="page">
+                <div class="page-header">
+                    <h1>句子练习</h1>
+                    <div class="mode-toggle">
+                        <button class="mode-btn active" data-mode="learn">学习模式</button>
+                        <button class="mode-btn" data-mode="test">测试模式</button>
+                    </div>
+                </div>
+                
+                <div class="sentence-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%"></div>
+                        <span class="progress-text">0/10</span>
+                    </div>
+                    
+                    <div class="sentence-card" id="sentenceCard">
+                        <div class="sentence-english" id="sentenceEnglish"></div>
+                        <div class="sentence-chinese" id="sentenceChinese"></div>
+                        <div class="sentence-words" id="sentenceWords"></div>
+                        <div class="user-answer" id="userAnswer"></div>
+                        <div class="feedback" id="feedback"></div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn btn-secondary" id="hintBtn">💡 提示</button>
+                        <button class="btn btn-secondary" id="soundBtn">🔊 发音</button>
+                        <button class="btn btn-primary" id="checkBtn">✓ 检查答案</button>
+                        <button class="btn btn-primary" id="nextBtn" style="display:none">下一题 →</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 组句挑战页 -->
+            <section id="build" class="page">
+                <div class="page-header">
+                    <h1>🧩 组句挑战</h1>
+                    <p class="subtitle">用给定的单词组成正确的句子</p>
+                </div>
+                
+                <div class="build-container">
+                    <div class="build-progress">
+                        <span>当前关卡: </span>
+                        <span id="currentLevel">1</span>
+                        <span class="stars" id="levelStars">⭐</span>
+                    </div>
+                    
+                    <div class="build-card">
+                        <div class="build-chinese" id="buildChinese">请选择单词组成句子</div>
+                        <div class="build-word-bank" id="wordBank"></div>
+                        <div class="build-drop-zone" id="dropZone">
+                            <span class="placeholder">拖拽单词到这里或点击选择</span>
+                        </div>
+                        <div class="build-actions">
+                            <button class="btn btn-secondary" id="resetBuildBtn">🔄 重置</button>
+                            <button class="btn btn-primary" id="submitBuildBtn">✓ 提交答案</button>
+                        </div>
+                        <div class="build-feedback" id="buildFeedback"></div>
+                    </div>
+                    
+                    <div class="level-complete" id="levelComplete" style="display:none">
+                        <div class="complete-content">
+                            <span class="complete-icon">🎉</span>
+                            <h2>恭喜过关！</h2>
+                            <p>你已掌握本关所有句子</p>
+                            <button class="btn btn-primary" id="nextLevelBtn">下一关 →</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 学习进度页 -->
+            <section id="progress" class="page">
+                <div class="page-header">
+                    <h1>学习进度</h1>
+                </div>
+                
+                <div class="progress-overview">
+                    <div class="progress-ring">
+                        <svg viewBox="0 0 100 100">
+                            <circle class="ring-bg" cx="50" cy="50" r="45"/>
+                            <circle class="ring-progress" cx="50" cy="50" r="45" id="progressRing"/>
+                        </svg>
+                        <div class="ring-text">
+                            <span class="ring-value" id="overallProgress">0%</span>
+                            <span class="ring-label">总体进度</span>
+                        </div>
+                    </div>
+                    
+                    <div class="progress-details">
+                        <div class="progress-item">
+                            <span class="label">入门级</span>
+                            <div class="progress-bar-mini">
+                                <div class="fill" style="width: 0%" id="beginnerProgress"></div>
+                            </div>
+                            <span class="value" id="beginnerPercent">0%</span>
+                        </div>
+                        <div class="progress-item">
+                            <span class="label">初级</span>
+                            <div class="progress-bar-mini">
+                                <div class="fill" style="width: 0%" id="elementaryProgress"></div>
+                            </div>
+                            <span class="value" id="elementaryPercent">0%</span>
+                        </div>
+                        <div class="progress-item">
+                            <span class="label">中级</span>
+                            <div class="progress-bar-mini">
+                                <div class="fill" style="width: 0%" id="intermediateProgress"></div>
+                            </div>
+                            <span class="value" id="intermediatePercent">0%</span>
+                        </div>
+                        <div class="progress-item">
+                            <span class="label">高级</span>
+                            <div class="progress-bar-mini">
+                                <div class="fill" style="width: 0%" id="advancedProgress"></div>
+                            </div>
+                            <span class="value" id="advancedPercent">0%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="history-section">
+                    <h2>学习记录</h2>
+                    <div class="history-list" id="historyList">
+                        <!-- 动态填充 -->
+                    </div>
+                </div>
+                
+                <div class="achievements-section">
+                    <h2>成就徽章</h2>
+                    <div class="achievements-grid" id="achievementsGrid">
+                        <!-- 动态填充 -->
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- 学习弹窗 -->
+    <div class="modal" id="learnModal">
+        <div class="modal-content">
+            <button class="modal-close" id="closeModal">×</button>
+            <div class="learn-card">
+                <div class="learn-word" id="learnWord"></div>
+                <div class="learn-phonetic" id="learnPhonetic"></div>
+                <div class="learn-chinese" id="learnChinese"></div>
+                <div class="learn-example" id="learnExample"></div>
+                <div class="learn-progress">
+                    <span>掌握程度</span>
+                    <div class="mastery-buttons">
+                        <button class="mastery-btn" data-level="1">不认识</button>
+                        <button class="mastery-btn" data-level="2">模糊</button>
+                        <button class="mastery-btn" data-level="3">认识</button>
+                        <button class="mastery-btn" data-level="4">熟练</button>
+                    </div>
+                </div>
+            </div>
+            <div class="learn-nav">
+                <button class="btn btn-secondary" id="prevWord">← 上一个</button>
+                <span class="word-counter"><span id="currentWordIndex">1</span>/<span id="totalWordsInCategory">10</span></span>
+                <button class="btn btn-primary" id="nextWord">下一个 →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 结果弹窗 -->
+    <div class="modal" id="resultModal">
+        <div class="modal-content result-content">
+            <div class="result-icon" id="resultIcon">🎉</div>
+            <h2 id="resultTitle">练习完成！</h2>
+            <div class="result-stats">
+                <div class="result-stat">
+                    <span class="result-value" id="resultCorrect">0</span>
+                    <span class="result-label">正确</span>
+                </div>
+                <div class="result-stat">
+                    <span class="result-value" id="resultWrong">0</span>
+                    <span class="result-label">错误</span>
+                </div>
+                <div class="result-stat">
+                    <span class="result-value" id="resultAccuracy">0%</span>
+                    <span class="result-label">正确率</span>
+                </div>
+            </div>
+            <div class="result-points">
+                获得 <span id="earnedPoints">10</span> 积分 ⭐
+            </div>
+            <div class="result-actions">
+                <button class="btn btn-secondary" id="reviewWrongBtn">查看错题</button>
+                <button class="btn btn-primary" id="continueBtn">继续学习</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
