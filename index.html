@@ -670,19 +670,19 @@
             </div>
             
             <div class="nav-cards">
-                <div class="nav-card" onclick="showLevelSelector()">
+                <div class="nav-card" onclick="window.showLevelSelector()">
                     <div class="nav-card-icon">📚</div>
                     <div class="nav-card-title">系统课程</div>
                     <div class="nav-card-desc">按等级学习词汇和句子，从 A1 入门级到 C2 精通级，共 51+ 课</div>
                 </div>
                 
-                <div class="nav-card" onclick="showPracticeList()">
+                <div class="nav-card" onclick="window.showPracticeList()">
                     <div class="nav-card-icon">✍️</div>
                     <div class="nav-card-title">专项练习</div>
                     <div class="nav-card-desc">针对性训练代词、单复数、时态等薄弱环节，快速提升</div>
                 </div>
                 
-                <div class="nav-card" onclick="showGrammarGuide()">
+                <div class="nav-card" onclick="window.showGrammarGuide()">
                     <div class="nav-card-icon">💡</div>
                     <div class="nav-card-title">语法详解</div>
                     <div class="nav-card-desc">深入理解语法规则，为什么这样组句，避免常见错误</div>
@@ -692,15 +692,15 @@
         
         <!-- 级别选择页 -->
         <div id="levelSelectorPage" class="level-selector content-area">
-            <button class="back-btn" onclick="showHomePage()"><i class="fas fa-arrow-left"></i> 返回首页</button>
+            <button class="back-btn" onclick="window.showHomePage()"><i class="fas fa-arrow-left"></i> 返回首页</button>
             <h2 style="text-align: center; color: #1f2937;">选择级别</h2>
             <div class="level-grid">
-                <button class="level-btn" data-level="A1" onclick="selectLevel('A1')">A1<br><small style="font-size:12px;">入门级</small></button>
-                <button class="level-btn" data-level="A2" onclick="selectLevel('A2')">A2<br><small style="font-size:12px;">初级</small></button>
-                <button class="level-btn" data-level="B1" onclick="selectLevel('B1')">B1<br><small style="font-size:12px;">中级</small></button>
-                <button class="level-btn" data-level="B2" onclick="selectLevel('B2')">B2<br><small style="font-size:12px;">中高级</small></button>
-                <button class="level-btn" data-level="C1" onclick="selectLevel('C1')">C1<br><small style="font-size:12px;">高级</small></button>
-                <button class="level-btn" data-level="C2" onclick="selectLevel('C2')">C2<br><small style="font-size:12px;">精通级</small></button>
+                <button class="level-btn" data-level="A1" onclick="window.selectLevel('A1')">A1<br><small style="font-size:12px;">入门级</small></button>
+                <button class="level-btn" data-level="A2" onclick="window.selectLevel('A2')">A2<br><small style="font-size:12px;">初级</small></button>
+                <button class="level-btn" data-level="B1" onclick="window.selectLevel('B1')">B1<br><small style="font-size:12px;">中级</small></button>
+                <button class="level-btn" data-level="B2" onclick="window.selectLevel('B2')">B2<br><small style="font-size:12px;">中高级</small></button>
+                <button class="level-btn" data-level="C1" onclick="window.selectLevel('C1')">C1<br><small style="font-size:12px;">高级</small></button>
+                <button class="level-btn" data-level="C2" onclick="window.selectLevel('C2')">C2<br><small style="font-size:12px;">精通级</small></button>
             </div>
             
             <div id="lessonListContainer" style="display:none;">
@@ -804,14 +804,14 @@
         
         <!-- 专项练习列表页 -->
         <div id="practiceListPage" class="practice-categories content-area">
-            <button class="back-btn" onclick="showHomePage()"><i class="fas fa-arrow-left"></i> 返回首页</button>
+            <button class="back-btn" onclick="window.showHomePage()"><i class="fas fa-arrow-left"></i> 返回首页</button>
             <h2 style="text-align: center; color: #1f2937; margin-bottom: 30px;">专项练习</h2>
             <div id="practiceCategories"></div>
         </div>
         
         <!-- 专项练习进行页 -->
         <div id="practiceRunPage" class="content-area">
-            <button class="back-btn" onclick="showPracticeList()"><i class="fas fa-arrow-left"></i> 返回练习列表</button>
+            <button class="back-btn" onclick="window.showPracticeList()"><i class="fas fa-arrow-left"></i> 返回练习列表</button>
             <div class="practice-card">
                 <div style="text-align:center;margin-bottom:20px;">
                     <span id="practiceTitleDisplay" style="font-size:20px;font-weight:700;color:#6366f1;"></span>
@@ -845,7 +845,7 @@
         
         <!-- 语法详解页 -->
         <div id="grammarDetailPage" class="content-area">
-            <button class="back-btn" onclick="showHomePage()"><i class="fas fa-arrow-left"></i> 返回首页</button>
+            <button class="back-btn" onclick="window.showHomePage()"><i class="fas fa-arrow-left"></i> 返回首页</button>
             <h2 style="text-align:center;color:#1f2937;margin:20px 0 30px;">语法指南</h2>
             <div id="grammarListView" class="grammar-list"></div>
             
