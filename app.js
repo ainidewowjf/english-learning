@@ -1,446 +1,397 @@
-// 完整单词和句子数据
-const VOCABULARY = [
-    { word: "hello", phonetic: "/həˈloʊ/", chinese: "你好", example: "Hello, how are you?" },
-    { word: "goodbye", phonetic: "/ɡʊdˈbaɪ/", chinese: "再见", example: "Goodbye, see you tomorrow!" },
-    { word: "thank", phonetic: "/θæŋk/", chinese: "感谢", example: "Thank you very much!" },
-    { word: "please", phonetic: "/pliːz/", chinese: "请", example: "Please help me." },
-    { word: "sorry", phonetic: "/ˈsɑːri/", chinese: "抱歉", example: "I'm sorry for being late." },
-    { word: "friend", phonetic: "/frend/", chinese: "朋友", example: "She is my best friend." },
-    { word: "family", phonetic: "/ˈfæməli/", chinese: "家庭", example: "I love my family." },
-    { word: "house", phonetic: "/haʊs/", chinese: "房子", example: "This is a big house." },
-    { word: "school", phonetic: "/skuːl/", chinese: "学校", example: "I go to school every day." },
-    { word: "teacher", phonetic: "/ˈtiːtʃər/", chinese: "老师", example: "My teacher is very kind." },
-    { word: "student", phonetic: "/ˈstuːdnt/", chinese: "学生", example: "He is a good student." },
-    { word: "book", phonetic: "/bʊk/", chinese: "书", example: "I read a book yesterday." },
-    { word: "water", phonetic: "/ˈwɔːtər/", chinese: "水", example: "Drink more water." },
-    { word: "food", phonetic: "/fuːd/", chinese: "食物", example: "The food is delicious." },
-    { word: "apple", phonetic: "/ˈæpl/", chinese: "苹果", example: "Apples are healthy." },
-    { word: "cat", phonetic: "/kæt/", chinese: "猫", example: "The cat is cute." },
-    { word: "dog", phonetic: "/dɔːɡ/", chinese: "狗", example: "Dogs are loyal pets." },
-    { word: "happy", phonetic: "/ˈhæpi/", chinese: "开心", example: "I feel very happy today." },
-    { word: "beautiful", phonetic: "/ˈbjuːtɪfl/", chinese: "美丽", example: "The flowers are beautiful." },
-    { word: "important", phonetic: "/ɪmˈpɔːrtnt/", chinese: "重要", example: "Time is important." }
-];
-
-const SENTENCES = [
-    { 
-        chinese: "你好，很高兴认识你。", 
-        words: ["Hello", ",", "nice", "to", "meet", "you", "."],
-        answer: "Hello, nice to meet you."
+// 课程数据 - 每组单词对应一个句子
+const LESSONS = [
+    {
+        lesson: 1,
+        words: [
+            { word: "hello", phonetic: "/həˈloʊ/", chinese: "你好" },
+            { word: "nice", phonetic: "/naɪs/", chinese: "美好的" },
+            { word: "meet", phonetic: "/miːt/", chinese: "遇见" },
+            { word: "you", phonetic: "/juː/", chinese: "你" }
+        ],
+        sentence: {
+            chinese: "你好，很高兴认识你。",
+            english: "Hello, nice to meet you.",
+            hints: ["打招呼"]
+        }
     },
-    { 
-        chinese: "谢谢你帮助我。", 
-        words: ["Thank", "you", "for", "helping", "me", "."],
-        answer: "Thank you for helping me."
+    {
+        lesson: 2,
+        words: [
+            { word: "thank", phonetic: "/θæŋk/", chinese: "感谢" },
+            { word: "you", phonetic: "/juː/", chinese: "你" },
+            { word: "help", phonetic: "/help/", chinese: "帮助" },
+            { word: "me", phonetic: "/miː/", chinese: "我" }
+        ],
+        sentence: {
+            chinese: "谢谢你帮助我。",
+            english: "Thank you for helping me.",
+            hints: ["表达感谢"]
+        }
     },
-    { 
-        chinese: "我明天要去学校。", 
-        words: ["I", "will", "go", "to", "school", "tomorrow", "."],
-        answer: "I will go to school tomorrow."
+    {
+        lesson: 3,
+        words: [
+            { word: "I", phonetic: "/aɪ/", chinese: "我" },
+            { word: "like", phonetic: "/laɪk/", chinese: "喜欢" },
+            { word: "apples", phonetic: "/ˈæplz/", chinese: "苹果" },
+            { word: "very", phonetic: "/ˈveri/", chinese: "非常" }
+        ],
+        sentence: {
+            chinese: "我非常喜欢苹果。",
+            english: "I like apples very much.",
+            hints: ["表达喜好"]
+        }
     },
-    { 
-        chinese: "这是我的好朋友。", 
-        words: ["This", "is", "my", "good", "friend", "."],
-        answer: "This is my good friend."
+    {
+        lesson: 4,
+        words: [
+            { word: "my", phonetic: "/maɪ/", chinese: "我的" },
+            { word: "friend", phonetic: "/frend/", chinese: "朋友" },
+            { word: "is", phonetic: "/ɪz/", chinese: "是" },
+            { word: "kind", phonetic: "/kaɪnd/", chinese: "善良的" }
+        ],
+        sentence: {
+            chinese: "我的朋友很善良。",
+            english: "My friend is very kind.",
+            hints: ["描述朋友"]
+        }
     },
-    { 
-        chinese: "她是一名优秀的老师。", 
-        words: ["She", "is", "an", "excellent", "teacher", "."],
-        answer: "She is an excellent teacher."
-    },
-    { 
-        chinese: "我喜欢吃苹果。", 
-        words: ["I", "like", "eating", "apples", "."],
-        answer: "I like eating apples."
-    },
-    { 
-        chinese: "今天天气很好。", 
-        words: ["The", "weather", "is", "very", "nice", "today", "."],
-        answer: "The weather is very nice today."
-    },
-    { 
-        chinese: "我的家人都很健康。", 
-        words: ["My", "family", "are", "all", "healthy", "."],
-        answer: "My family are all healthy."
-    },
-    { 
-        chinese: "这本书很有趣。", 
-        words: ["This", "book", "is", "very", "interesting", "."],
-        answer: "This book is very interesting."
-    },
-    { 
-        chinese: "小猫很可爱。", 
-        words: ["The", "kitten", "is", "very", "cute", "."],
-        answer: "The kitten is very cute."
+    {
+        lesson: 5,
+        words: [
+            { word: "she", phonetic: "/ʃiː/", chinese: "她" },
+            { word: "teacher", phonetic: "/ˈtiːtʃər/", chinese: "老师" },
+            { word: "is", phonetic: "/ɪz/", chinese: "是" },
+            { word: "good", phonetic: "/ɡʊd/", chinese: "好的" }
+        ],
+        sentence: {
+            chinese: "她是一位好老师。",
+            english: "She is a good teacher.",
+            hints: ["介绍职业"]
+        }
     }
 ];
 
-class EnglishLearningApp {
+class LearningApp {
     constructor() {
         this.state = {
-            learnedWords: JSON.parse(localStorage.getItem('learnedWords') || '[]'),
-            correctAnswers: parseInt(localStorage.getItem('correctAnswers') || '0'),
-            totalAttempts: parseInt(localStorage.getItem('totalAttempts') || '0'),
-            completedSentences: parseInt(localStorage.getItem('completedSentences') || '0'),
+            currentLesson: 0,
             currentWordIndex: 0,
-            currentSentenceIndex: 0,
-            showChinese: false
+            learnedWords: [],
+            correctAnswers: 0,
+            totalAttempts: 0,
+            currentSentenceAnswer: "",
+            lessonComplete: false
         };
         
         this.init();
     }
     
     init() {
+        this.loadLesson(this.state.currentLesson);
         this.bindEvents();
+    }
+    
+    loadLesson(lessonIndex) {
+        if (lessonIndex >= LESSONS.length) {
+            lessonIndex = 0; // 循环学习
+        }
+        
+        this.state.currentLesson = lessonIndex;
+        this.state.currentWordIndex = 0;
+        this.state.learnedWords = [];
+        this.state.lessonComplete = false;
+        
+        // 更新步骤指示器
+        this.updateSteps();
+        
+        // 显示第 1 步
+        this.showPage('word');
         this.loadCurrentWord();
-        this.updateStats();
+    }
+    
+    updateSteps() {
+        const steps = ['step1', 'step2', 'step3'];
+        steps.forEach((step, index) => {
+            const el = document.getElementById(step);
+            el.className = 'step';
+            if (index === 0) el.classList.add('active');
+        });
+    }
+    
+    showPage(pageName) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(`page-${pageName}`).classList.add('active');
+        
+        // 更新步骤状态
+        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+        if (pageName === 'word') {
+            document.getElementById('step1').classList.add('active');
+        } else if (pageName === 'sentence') {
+            document.getElementById('step1').classList.add('completed');
+            document.getElementById('step1').classList.remove('active');
+            document.getElementById('step2').classList.add('active');
+        } else if (pageName === 'complete') {
+            document.getElementById('step2').classList.add('completed');
+            document.getElementById('step2').classList.remove('active');
+            document.getElementById('step3').classList.add('active');
+        }
     }
     
     bindEvents() {
-        // 标签切换
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', (e) => {
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                e.target.classList.add('active');
-                
-                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-                document.getElementById(e.target.dataset.tab).classList.add('active');
-                
-                if (e.target.dataset.tab === 'sentence' && !this.currentSentence) {
-                    this.loadSentence();
-                } else if (e.target.dataset.tab === 'summary') {
-                    this.showSummary();
-                }
-            });
-        });
-        
         // 单词学习
-        document.getElementById('checkBtn').addEventListener('click', () => this.checkWord());
-        document.getElementById('nextBtn').addEventListener('click', () => this.nextWord());
-        document.getElementById('hintBtn').addEventListener('click', () => this.showHint());
+        document.getElementById('checkWordBtn').addEventListener('click', () => this.checkWord());
+        document.getElementById('nextWordBtn').addEventListener('click', () => this.nextWord());
+        document.getElementById('skipBtn').addEventListener('click', () => this.skipWord());
         
-        // 输入框回车检查
         document.getElementById('wordInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') this.checkWord();
         });
         
-        // 组句练习
-        document.getElementById('submitBtn').addEventListener('click', () => this.checkSentence());
-        document.getElementById('nextSentenceBtn').addEventListener('click', () => this.nextSentence());
-        document.getElementById('clearBtn').addEventListener('click', () => this.clearAnswer());
+        // 句子练习
+        document.getElementById('checkSentenceBtn').addEventListener('click', () => this.checkSentence());
+        document.getElementById('resetSentenceBtn').addEventListener('click', () => this.resetSentence());
+        document.getElementById('finishBtn').addEventListener('click', () => this.showCompletion());
+        document.getElementById('anotherLessonBtn').addEventListener('click', () => this.startNextLesson());
+        
+        document.getElementById('sentenceInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') this.checkSentence();
+        });
     }
     
-    // ========== 单词学习功能 ==========
+    // ========== 单词学习逻辑 ==========
     loadCurrentWord() {
-        const word = VOCABULARY[this.state.currentWordIndex];
-        document.getElementById('wordDisplay').textContent = this.state.learnedWords.includes(word.word) ? '✓ ' + word.word : word.word;
-        document.getElementById('phoneticDisplay').textContent = word.phonetic;
-        document.getElementById('chineseHint').textContent = this.state.showChinese ? `提示：${word.chinese}` : '';
-        document.getElementById('currentNum').textContent = this.state.currentWordIndex + 1;
-        document.getElementById('totalCount').textContent = VOCABULARY.length;
+        const lesson = LESSONS[this.state.currentLesson];
+        const wordObj = lesson.words[this.state.currentWordIndex];
         
-        // 更新进度条
-        const progress = ((this.state.currentWordIndex) / VOCABULARY.length) * 100;
-        document.getElementById('progressFill').style.width = `${progress}%`;
+        document.getElementById('chineseHint').textContent = `请输入：${wordObj.chinese}`;
+        document.getElementById('phoneticDisplay').textContent = wordObj.phonetic;
+        document.getElementById('feedback').textContent = '';
         
         // 重置输入框
         const input = document.getElementById('wordInput');
         input.value = '';
-        input.className = 'input-field';
+        input.className = 'input-large';
         input.disabled = false;
         input.focus();
         
-        // 重置按钮
-        document.getElementById('feedback').textContent = '';
-        document.getElementById('feedback').className = 'feedback';
-        document.getElementById('checkBtn').style.display = 'inline-block';
-        document.getElementById('nextBtn').style.display = 'none';
-        document.getElementById('hintBtn').disabled = this.state.showChinese;
+        // 按钮状态
+        document.getElementById('checkWordBtn').style.display = 'inline-block';
+        document.getElementById('nextWordBtn').style.display = 'none';
         
-        this.state.showChinese = false;
+        // 显示已学单词
+        this.updateLearnedList();
     }
     
     checkWord() {
         const input = document.getElementById('wordInput');
         const userAnswer = input.value.trim().toLowerCase();
-        const currentWord = VOCABULARY[this.state.currentWordIndex].word.toLowerCase();
         
-        if (!userAnswer) return;
+        const lesson = LESSONS[this.state.currentLesson];
+        const currentWord = lesson.words[this.state.currentWordIndex].word.toLowerCase();
+        
+        if (!userAnswer) {
+            alert('请输入单词！');
+            return;
+        }
         
         this.state.totalAttempts++;
         const isCorrect = userAnswer === currentWord;
         
         if (isCorrect) {
-            input.className = 'input-field correct';
+            input.className = 'input-large correct';
             document.getElementById('feedback').textContent = '✅ 正确！太棒了！';
             document.getElementById('feedback').className = 'feedback correct';
             
+            // 记录已学单词
             if (!this.state.learnedWords.includes(currentWord)) {
                 this.state.learnedWords.push(currentWord);
-                this.state.correctAnswers++;
             }
             
+            this.state.correctAnswers++;
             this.playSuccessSound();
+            
+            // 禁用输入框，显示下一个按钮
+            input.disabled = true;
+            document.getElementById('checkWordBtn').style.display = 'none';
+            document.getElementById('nextWordBtn').style.display = 'inline-block';
         } else {
-            input.className = 'input-field wrong';
-            document.getElementById('feedback').textContent = `❌ 错误！正确答案是：${VOCABULARY[this.state.currentWordIndex].word}`;
+            input.className = 'input-large wrong';
+            document.getElementById('feedback').textContent = `❌ 错误！正确答案是：${currentWord}`;
             document.getElementById('feedback').className = 'feedback wrong';
             
             // 震动动画
             input.animate([
                 { transform: 'translateX(0)' },
-                { transform: 'translateX(-10px)' },
-                { transform: 'translateX(10px)' },
+                { transform: 'translateX(-20px)' },
+                { transform: 'translateX(20px)' },
                 { transform: 'translateX(0)' }
-            ], { duration: 300 });
+            ], { duration: 400 });
         }
         
-        // 保存数据
-        localStorage.setItem('learnedWords', JSON.stringify(this.state.learnedWords));
-        localStorage.setItem('correctAnswers', this.state.correctAnswers);
-        localStorage.setItem('totalAttempts', this.state.totalAttempts);
-        
-        this.updateStats();
-        
-        // 禁用输入，显示下一题按钮
-        input.disabled = true;
-        document.getElementById('checkBtn').style.display = 'none';
-        document.getElementById('nextBtn').style.display = 'inline-block';
+        this.updateLearnedList();
     }
     
     nextWord() {
+        const lesson = LESSONS[this.state.currentLesson];
         this.state.currentWordIndex++;
-        if (this.state.currentWordIndex >= VOCABULARY.length) {
-            // 完成所有单词，显示结果
-            this.showWordResult();
+        
+        if (this.state.currentWordIndex >= lesson.words.length) {
+            // 所有单词学完，进入组句环节
+            this.goToSentencePractice();
         } else {
             this.loadCurrentWord();
         }
     }
     
-    showHint() {
-        const word = VOCABULARY[this.state.currentWordIndex];
-        document.getElementById('chineseHint').textContent = `提示：${word.chinese}`;
-        this.state.showChinese = true;
-        document.getElementById('hintBtn').disabled = true;
+    skipWord() {
+        const lesson = LESSONS[this.state.currentLesson];
+        const currentWord = lesson.words[this.state.currentWordIndex].word;
+        
+        // 跳过也算作学过
+        if (!this.state.learnedWords.includes(currentWord.toLowerCase())) {
+            this.state.learnedWords.push(currentWord.toLowerCase());
+        }
+        
+        this.nextWord();
     }
     
-    showWordResult() {
-        const modal = document.getElementById('resultModal');
-        modal.classList.add('show');
+    updateLearnedList() {
+        const listContainer = document.getElementById('learnedList');
+        const chipsContainer = document.getElementById('learnedChips');
         
-        const accuracy = this.state.totalAttempts > 0 
-            ? Math.round((this.state.correctAnswers / this.state.totalAttempts) * 100) 
-            : 0;
-        
-        document.getElementById('resultIcon').textContent = accuracy >= 80 ? '🎉' : '💪';
-        document.getElementById('resultTitle').textContent = accuracy >= 80 ? '恭喜完成！' : '继续加油！';
-        document.getElementById('resultCorrect').textContent = this.state.correctAnswers;
-        document.getElementById('resultTotal').textContent = this.state.totalAttempts;
-        document.getElementById('resultPercent').textContent = `${accuracy}%`;
+        if (this.state.learnedWords.length > 0) {
+            listContainer.style.display = 'block';
+            chipsContainer.innerHTML = this.state.learnedWords
+                .map(word => `<span class="learned-chip">${word}</span>`)
+                .join('');
+        }
     }
     
-    // ========== 组句练习功能 ==========
-    loadSentence() {
-        const sentence = SENTENCES[this.state.currentSentenceIndex];
-        this.currentSentence = sentence;
+    // ========== 组句练习逻辑 ==========
+    goToSentencePractice() {
+        this.showPage('sentence');
         
-        document.getElementById('sentenceNum').textContent = this.state.currentSentenceIndex + 1;
+        const lesson = LESSONS[this.state.currentLesson];
+        const sentence = lesson.sentence;
+        
         document.getElementById('sentenceChinese').textContent = sentence.chinese;
-        
-        // 打乱单词顺序
-        const shuffled = [...sentence.words].sort(() => Math.random() - 0.5);
-        
-        const wordBank = document.getElementById('wordBank');
-        wordBank.innerHTML = '';
-        
-        shuffled.forEach((word, index) => {
-            const chip = document.createElement('div');
-            chip.className = 'word-chip';
-            chip.textContent = word;
-            chip.dataset.word = word;
-            chip.onclick = () => this.addToAnswer(chip, word);
-            wordBank.appendChild(chip);
-        });
-        
-        // 清空答案区
-        const answerArea = document.getElementById('answerArea');
-        answerArea.innerHTML = '';
-        answerArea.classList.add('empty');
-        
-        // 重置反馈和按钮
         document.getElementById('sentenceFeedback').textContent = '';
-        document.getElementById('submitBtn').style.display = 'inline-block';
-        document.getElementById('nextSentenceBtn').style.display = 'none';
         
-        // 更新进度
-        const progress = ((this.state.currentSentenceIndex) / SENTENCES.length) * 100;
-        document.getElementById('sentenceProgress').style.width = `${progress}%`;
-    }
-    
-    addToAnswer(chip, word) {
-        const answerArea = document.getElementById('answerArea');
-        answerArea.classList.remove('empty');
+        // 清空输入框
+        const input = document.getElementById('sentenceInput');
+        input.value = '';
+        input.className = 'sentence-input';
+        input.disabled = false;
+        input.focus();
         
-        const newChip = document.createElement('div');
-        newChip.className = 'word-chip';
-        newChip.style.background = '#6366f1';
-        newChip.style.color = 'white';
-        newChip.textContent = word;
-        newChip.onclick = () => {
-            newChip.remove();
-            chip.style.display = 'block';
-            if (answerArea.children.length === 0) {
-                answerArea.classList.add('empty');
-            }
-        };
+        // 清空已使用单词标签
+        document.getElementById('usedWords').innerHTML = '';
         
-        answerArea.appendChild(newChip);
-        chip.style.display = 'none';
-    }
-    
-    clearAnswer() {
-        const answerArea = document.getElementById('answerArea');
-        const selected = answerArea.querySelectorAll('.word-chip');
-        const wordBank = document.getElementById('wordBank');
-        
-        selected.forEach(chip => {
-            const text = chip.textContent;
-            const original = Array.from(wordBank.children).find(
-                c => c.textContent === text && c.style.display !== 'none'
-            );
-            if (original) original.style.display = 'block';
-        });
-        
-        answerArea.innerHTML = '';
-        answerArea.classList.add('empty');
-        document.getElementById('sentenceFeedback').textContent = '';
+        // 按钮状态
+        document.getElementById('checkSentenceBtn').style.display = 'inline-block';
+        document.getElementById('finishBtn').style.display = 'none';
     }
     
     checkSentence() {
-        const answerArea = document.getElementById('answerArea');
-        const userWords = Array.from(answerArea.children).map(c => c.textContent);
+        const input = document.getElementById('sentenceInput');
+        const userAnswer = input.value.trim();
         
-        if (userWords.length === 0) {
-            alert('请先选择单词组成句子！');
+        if (!userAnswer) {
+            alert('请输入完整的句子！');
             return;
         }
         
-        const userSentence = userWords.join(' ');
-        const correctSentence = this.currentSentence.answer;
+        const lesson = LESSONS[this.state.currentLesson];
+        const correctSentence = lesson.sentence.english;
         
-        const feedback = document.getElementById('sentenceFeedback');
-        const isCorrect = userSentence === correctSentence;
+        // 标准化比较（忽略大小写和多余空格）
+        const normalizedUser = userAnswer.replace(/\s+/g, ' ').trim().toLowerCase();
+        const normalizedCorrect = correctSentence.replace(/\s+/g, ' ').trim().toLowerCase();
+        
+        const isCorrect = normalizedUser === normalizedCorrect;
         
         if (isCorrect) {
-            feedback.textContent = '✅ 正确！非常棒！';
-            feedback.style.color = '#10b981';
+            input.className = 'sentence-input correct';
+            document.getElementById('sentenceFeedback').textContent = '✅ 完美！句子正确！';
+            document.getElementById('sentenceFeedback').className = 'feedback correct';
             
-            this.state.completedSentences++;
-            localStorage.setItem('completedSentences', this.state.completedSentences);
+            this.state.correctAnswers++;
+            this.state.totalAttempts++;
             
             this.playSuccessSound();
+            
+            // 禁用输入框，显示完成按钮
+            input.disabled = true;
+            document.getElementById('checkSentenceBtn').style.display = 'none';
+            document.getElementById('finishBtn').style.display = 'inline-block';
+            
+            // 标记句子环节完成
+            this.state.lessonComplete = true;
         } else {
-            feedback.textContent = `❌ 不对哦！正确答案：${correctSentence}`;
-            feedback.style.color = '#ef4444';
+            input.className = 'sentence-input wrong';
+            document.getElementById('sentenceFeedback').textContent = 
+                `❌ 不对哦！正确答案是：${correctSentence}`;
+            document.getElementById('sentenceFeedback').className = 'feedback wrong';
+            
+            this.state.totalAttempts++;
+            
+            // 震动动画
+            input.animate([
+                { transform: 'translateX(0)' },
+                { transform: 'translateX(-15px)' },
+                { transform: 'translateX(15px)' },
+                { transform: 'translateX(0)' }
+            ], { duration: 400 });
         }
-        
-        document.getElementById('submitBtn').style.display = 'none';
-        document.getElementById('nextSentenceBtn').style.display = 'inline-block';
     }
     
-    nextSentence() {
-        this.state.currentSentenceIndex++;
-        if (this.state.currentSentenceIndex >= SENTENCES.length) {
-            this.showSentenceResult();
-        } else {
-            this.loadSentence();
-        }
+    resetSentence() {
+        const input = document.getElementById('sentenceInput');
+        input.value = '';
+        input.className = 'sentence-input';
+        document.getElementById('sentenceFeedback').textContent = '';
+        input.focus();
+        
+        document.getElementById('checkSentenceBtn').style.display = 'inline-block';
+        document.getElementById('finishBtn').style.display = 'none';
     }
     
-    showSentenceResult() {
-        const modal = document.getElementById('resultModal');
-        modal.classList.add('show');
+    // ========== 完成页面 ==========
+    showCompletion() {
+        this.showPage('complete');
+        document.getElementById('step2').classList.add('completed');
+        document.getElementById('step2').classList.remove('active');
+        document.getElementById('step3').classList.add('active');
         
-        document.getElementById('resultIcon').textContent = '🎉';
-        document.getElementById('resultTitle').textContent = '完成所有句子练习！';
-        document.getElementById('resultCorrect').textContent = SENTENCES.length;
-        document.getElementById('resultTotal').textContent = SENTENCES.length;
-        document.getElementById('resultPercent').textContent = '100%';
-    }
-    
-    // ========== 统计功能 ==========
-    updateStats() {
-        document.getElementById('learnedCount').textContent = this.state.learnedWords.length;
-        document.getElementById('correctCount').textContent = this.state.correctAnswers;
-        
-        const accuracy = this.state.totalAttempts > 0 
-            ? Math.round((this.state.correctAnswers / this.state.totalAttempts) * 100) 
+        const accuracy = this.state.totalAttempts > 0
+            ? Math.round((this.state.correctAnswers / this.state.totalAttempts) * 100)
             : 0;
-        document.getElementById('accuracy').textContent = `${accuracy}%`;
         
-        document.getElementById('totalLearned').textContent = this.state.learnedWords.length;
-        document.getElementById('totalSentences').textContent = this.state.completedSentences;
-        document.getElementById('avgAccuracy').textContent = `${accuracy}%`;
+        document.getElementById('totalWordsLearned').textContent = this.state.learnedWords.length;
+        document.getElementById('correctCount').textContent = this.state.correctAnswers;
+        document.getElementById('accuracyRate').textContent = `${accuracy}%`;
+        
+        // 生成回顾列表
+        const lesson = LESSONS[this.state.currentLesson];
+        const reviewItems = document.getElementById('reviewItems');
+        
+        let html = '<div style="margin-bottom: 15px;"><strong>📚 学到的单词：</strong></div>';
+        html += '<div class="learned-chips" style="margin-bottom: 20px;">';
+        html += lesson.words.map(w => 
+            `<span class="learned-chip">${w.word} (${w.chinese})</span>`
+        ).join('');
+        html += '</div>';
+        
+        html += `<div><strong>✍️ 组成的句子：</strong><br>`;
+        html += `<span style="color: #6b7280;">${lesson.sentence.chinese}</span><br>`;
+        html += `<span style="font-weight: 600; color: #6366f1;">${lesson.sentence.english}</span></div>`;
+        
+        reviewItems.innerHTML = html;
     }
     
-    showSummary() {
-        this.updateStats();
-        
-        const container = document.getElementById('masteredWords');
-        container.innerHTML = '';
-        
-        if (this.state.learnedWords.length === 0) {
-            container.innerHTML = '<p style="color: #6b7280;">还没有掌握任何单词，快去学习吧！</p>';
-            return;
-        }
-        
-        this.state.learnedWords.forEach(word => {
-            const chip = document.createElement('span');
-            chip.className = 'word-chip';
-            chip.style.background = '#10b981';
-            chip.style.color = 'white';
-            chip.style.borderColor = '#10b981';
-            chip.textContent = word;
-            container.appendChild(chip);
-        });
-    }
-    
-    resetData() {
-        if (confirm('确定要重置所有学习数据吗？此操作不可恢复！')) {
-            localStorage.removeItem('learnedWords');
-            localStorage.removeItem('correctAnswers');
-            localStorage.removeItem('totalAttempts');
-            localStorage.removeItem('completedSentences');
-            
-            this.state.learnedWords = [];
-            this.state.correctAnswers = 0;
-            this.state.totalAttempts = 0;
-            this.state.completedSentences = 0;
-            this.state.currentWordIndex = 0;
-            this.state.currentSentenceIndex = 0;
-            
-            this.loadCurrentWord();
-            this.updateStats();
-            this.showSummary();
-            
-            alert('数据已重置！');
-        }
-    }
-    
-    closeResult() {
-        document.getElementById('resultModal').classList.remove('show');
-        
-        // 返回学习页面
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelector('.tab[data-tab="learn"]').classList.add('active');
-        
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById('learn').classList.add('active');
-        
-        // 重新开始学习
-        this.state.currentWordIndex = 0;
-        this.loadCurrentWord();
+    startNextLesson() {
+        this.loadLesson(this.state.currentLesson + 1);
     }
     
     playSuccessSound() {
@@ -452,19 +403,19 @@ class EnglishLearningApp {
             oscillator.connect(gainNode);
             gainNode.connect(audioContext.destination);
             
-            oscillator.frequency.value = 800;
-            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(500, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.1);
             
-            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
             
             oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.5);
+            oscillator.stop(audioContext.currentTime + 0.3);
         } catch (e) {
-            // 静音模式下不播放声音
+            // 静音模式
         }
     }
 }
 
 // 启动应用
-const app = new EnglishLearningApp();
+const app = new LearningApp();
