@@ -878,12 +878,13 @@ const ALL_LESSONS = [
     ...ENGLISH_DB.level_c2
 ];
 
-// 导出完整数据库
-const COMPLETE_DB = {
+// 导出完整数据库到全局
+window.COMPLETE_DB = {
     ...ENGLISH_DB,
     allLessons: ALL_LESSONS
 };
 
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = COMPLETE_DB;
+// 确保 ENGLISH_DB 全局可访问
+if (typeof window !== 'undefined') {
+    window.ENGLISH_DB = ENGLISH_DB;
 }
