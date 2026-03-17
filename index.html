@@ -3,390 +3,550 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>英语大师 Pro - 完整英语学习平台</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>英语单词组句练习</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 800px;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .tabs {
+            display: flex;
+            background: #f3f4f6;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            background: transparent;
+            font-size: 16px;
+        }
+        
+        .tab:hover {
+            background: #e5e7eb;
+        }
+        
+        .tab.active {
+            background: white;
+            color: #6366f1;
+            border-bottom: 3px solid #6366f1;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .page {
+            display: none;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        /* 单词学习页面 */
+        .word-section {
+            text-align: center;
+        }
+        
+        .word-display {
+            margin-bottom: 30px;
+        }
+        
+        .current-word {
+            font-size: 48px;
+            font-weight: 700;
+            color: #6366f1;
+            margin-bottom: 10px;
+        }
+        
+        .phonetic {
+            font-size: 18px;
+            color: #6b7280;
+            margin-bottom: 15px;
+        }
+        
+        .chinese-hint {
+            font-size: 20px;
+            color: #10b981;
+            font-weight: 600;
+            margin-bottom: 20px;
+            min-height: 30px;
+        }
+        
+        .input-area {
+            margin: 30px 0;
+        }
+        
+        .input-field {
+            width: 100%;
+            max-width: 400px;
+            padding: 15px 20px;
+            font-size: 24px;
+            text-align: center;
+            border: 3px solid #e5e7eb;
+            border-radius: 12px;
+            outline: none;
+            transition: all 0.3s;
+        }
+        
+        .input-field:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+        
+        .input-field.correct {
+            border-color: #10b981;
+            background: #d1fae5;
+        }
+        
+        .input-field.wrong {
+            border-color: #ef4444;
+            background: #fee2e2;
+        }
+        
+        .feedback {
+            min-height: 30px;
+            font-size: 18px;
+            font-weight: 600;
+            margin: 20px 0;
+        }
+        
+        .feedback.correct {
+            color: #10b981;
+        }
+        
+        .feedback.wrong {
+            color: #ef4444;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #6366f1;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #4f46e5;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+        
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* 进度显示 */
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            color: #6b7280;
+            font-size: 14px;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            transition: width 0.3s;
+        }
+        
+        /* 组句练习页面 */
+        .sentence-practice {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .sentence-chinese {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .word-bank {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 30px;
+            min-height: 60px;
+            padding: 15px;
+            background: #f9fafb;
+            border-radius: 12px;
+        }
+        
+        .word-chip {
+            padding: 12px 20px;
+            background: white;
+            border: 2px solid #6366f1;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #6366f1;
+            cursor: pointer;
+            transition: all 0.3s;
+            user-select: none;
+        }
+        
+        .word-chip:hover {
+            background: #6366f1;
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        .answer-area {
+            min-height: 80px;
+            padding: 20px;
+            background: #eff6ff;
+            border: 3px dashed #6366f1;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .answer-area.empty::before {
+            content: "点击单词组成句子";
+            color: #9ca3af;
+            font-size: 16px;
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+        }
+        
+        .stat-label {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        
+        .result-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .result-modal.show {
+            display: flex;
+        }
+        
+        .result-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            animation: popIn 0.3s;
+        }
+        
+        @keyframes popIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        
+        .result-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+        
+        .result-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        
+        .result-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+        }
+        
+        .result-stat {
+            text-align: center;
+        }
+        
+        .result-stat .value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #6366f1;
+        }
+        
+        .result-stat .label {
+            font-size: 14px;
+            color: #6b7280;
+        }
+    </style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- 侧边栏导航 -->
-        <nav class="sidebar">
-            <div class="logo-section">
-                <div class="logo">
-                    <i class="fas fa-graduation-cap"></i>
-                    <h1>英语大师 Pro</h1>
-                </div>
-                <p class="tagline">从单词到精通的完整路径</p>
-            </div>
-            
-            <div class="user-stats-mini">
-                <div class="stat-mini">
-                    <span class="icon">📚</span>
-                    <div>
-                        <strong id="miniWords">0</strong>
-                        <small>已学单词</small>
-                    </div>
-                </div>
-                <div class="stat-mini">
-                    <span class="icon">🔥</span>
-                    <div>
-                        <strong id="miniStreak">0</strong>
-                        <small>连续学习</small>
-                    </div>
-                </div>
-            </div>
-            
-            <ul class="nav-menu">
-                <li class="nav-item active" data-page="dashboard">
-                    <i class="fas fa-home"></i>
-                    <span>学习中心</span>
-                </li>
-                <li class="nav-item" data-page="vocabulary">
-                    <i class="fas fa-book"></i>
-                    <span>词汇学习</span>
-                </li>
-                <li class="nav-item" data-page="roots">
-                    <i class="fas fa-root"></i>
-                    <span>词根词缀</span>
-                </li>
-                <li class="nav-item" data-page="sentences">
-                    <i class="fas fa-language"></i>
-                    <span>句子练习</span>
-                </li>
-                <li class="nav-item" data-page="grammar">
-                    <i class="fas fa-ellipsis-h"></i>
-                    <span>语法讲解</span>
-                </li>
-                <li class="nav-item" data-page="listening">
-                    <i class="fas fa-headphones"></i>
-                    <span>听力训练</span>
-                </li>
-                <li class="nav-item" data-page="progress">
-                    <i class="fas fa-chart-line"></i>
-                    <span>学习进度</span>
-                </li>
-                <li class="nav-item" data-page="settings">
-                    <i class="fas fa-cog"></i>
-                    <span>设置</span>
-                </li>
-            </ul>
-        </nav>
-
-        <!-- 主内容区 -->
-        <main class="main-content">
-            <!-- 顶部信息栏 -->
-            <header class="top-bar">
-                <div class="welcome-msg">
-                    <h2>欢迎回来，学习者！</h2>
-                    <p>准备好今天的学习了吗？</p>
-                </div>
-                <div class="level-selector">
-                    <label>当前级别：</label>
-                    <select id="currentLevel">
-                        <option value="level1">🌱 入门级 (A1)</option>
-                        <option value="level2">🌿 初级 (A2)</option>
-                        <option value="level3">🌳 中级 (B1-B2)</option>
-                        <option value="level4">🏔️ 高级 (C1-C2)</option>
-                    </select>
-                </div>
-                <div class="achievements-badge">
-                    <span>🏆</span>
-                    <span id="achievementCount">0</span> 个成就
-                </div>
-            </header>
-
-            <!-- 页面内容容器 -->
-            <div id="pageContainer">
-                <!-- 仪表盘页面 -->
-                <section id="dashboard" class="page active">
-                    <div class="dashboard-grid">
-                        <div class="stats-card large">
-                            <h3><i class="fas fa-chart-pie"></i> 学习概览</h3>
-                            <div class="stats-overview">
-                                <div class="stat-item">
-                                    <div class="stat-value" id="totalWordsLearned">0</div>
-                                    <div class="stat-label">已掌握单词</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-value" id="totalSentencesCompleted">0</div>
-                                    <div class="stat-label">完成句子</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-value" id="totalStudyTime">0</div>
-                                    <div class="stat-label">学习时长 (分钟)</div>
-                                </div>
-                                <div class="stat-item">
-                                    <div class="stat-value" id="currentStreak">0</div>
-                                    <div class="stat-label">连续天数 🔥</div>
-                                </div>
-                            </div>
-                            <div class="progress-ring-container">
-                                <svg viewBox="0 0 100 100">
-                                    <circle class="ring-bg" cx="50" cy="50" r="45"/>
-                                    <circle class="ring-progress" cx="50" cy="50" r="45" id="overallProgressRing"/>
-                                </svg>
-                                <div class="ring-center">
-                                    <span class="ring-percent" id="overallPercent">0%</span>
-                                    <span class="ring-label">总进度</span>
-                                </div>
-                            </div>
+    <div class="container">
+        <div class="header">
+            <h1>📚 英语单词组句练习</h1>
+            <p>通过输入单词 + 组成句子，彻底掌握英语</p>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" data-tab="learn">单词输入学习</button>
+            <button class="tab" data-tab="sentence">组句练习</button>
+            <button class="tab" data-tab="summary">学习统计</button>
+        </div>
+        
+        <!-- 单词学习页面 -->
+        <div id="learn" class="page active">
+            <div class="content">
+                <div class="stats-card">
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value" id="learnedCount">0</div>
+                            <div class="stat-label">已学单词</div>
                         </div>
-
-                        <div class="quick-start">
-                            <h3><i class="fas fa-bolt"></i> 快速开始</h3>
-                            <div class="action-buttons">
-                                <button class="action-btn primary" onclick="app.startVocabulary()">
-                                    <i class="fas fa-book-open"></i>
-                                    <span>学习新单词</span>
-                                </button>
-                                <button class="action-btn secondary" onclick="app.startRoots()">
-                                    <i class="fas fa-project-diagram"></i>
-                                    <span>探索词根</span>
-                                </button>
-                                <button class="action-btn tertiary" onclick="app.startSentences()">
-                                    <i class="fas fa-comment-dots"></i>
-                                    <span>句子练习</span>
-                                </button>
-                                <button class="action-btn quaternary" onclick="app.startListening()">
-                                    <i class="fas fa-headphones-alt"></i>
-                                    <span>听力训练</span>
-                                </button>
-                            </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="correctCount">0</div>
+                            <div class="stat-label">正确次数</div>
                         </div>
-
-                        <div class="daily-recommendations">
-                            <h3><i class="fas fa-star"></i> 今日推荐</h3>
-                            <div class="recommendation-cards">
-                                <div class="rec-card">
-                                    <div class="rec-icon">📖</div>
-                                    <h4>5 个新单词</h4>
-                                    <p>基础生活词汇</p>
-                                </div>
-                                <div class="rec-card">
-                                    <div class="rec-icon">🧩</div>
-                                    <h4>3 个词根</h4>
-                                    <p>掌握构词规律</p>
-                                </div>
-                                <div class="rec-card">
-                                    <div class="rec-icon">💬</div>
-                                    <h4>5 个句子</h4>
-                                    <p>日常对话练习</p>
-                                </div>
-                            </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="accuracy">0%</div>
+                            <div class="stat-label">准确率</div>
                         </div>
-                    </div>
-                </section>
-
-                <!-- 词汇学习页面 -->
-                <section id="vocabulary" class="page">
-                    <div class="vocabulary-header">
-                        <h2><i class="fas fa-book"></i> 词汇学习</h2>
-                        <div class="filter-tabs">
-                            <button class="tab-btn active" data-category="all">全部</button>
-                            <button class="tab-btn" data-category="greeting">问候语</button>
-                            <button class="tab-btn" data-category="numbers">数字</button>
-                            <button class="tab-btn" data-category="colors">颜色</button>
-                            <button class="tab-btn" data-category="family">家庭</button>
-                            <button class="tab-btn" data-category="animals">动物</button>
-                            <button class="tab-btn" data-category="food">食物</button>
-                            <button class="tab-btn" data-category="verbs">动词</button>
-                            <button class="tab-btn" data-category="adjectives">形容词</button>
-                        </div>
-                    </div>
-                    
-                    <div class="word-list-container">
-                        <div id="wordList" class="word-grid">
-                            <!-- 动态生成单词卡片 -->
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 词根词缀页面 -->
-                <section id="roots" class="page">
-                    <div class="roots-header">
-                        <h2><i class="fas fa-project-diagram"></i> 词根词缀学习</h2>
-                        <p class="subtitle">掌握词根，轻松记住 1000+ 单词</p>
-                    </div>
-                    
-                    <div class="roots-tabs">
-                        <button class="root-tab active" data-type="roots">词根</button>
-                        <button class="root-tab" data-type="prefixes">前缀</button>
-                        <button class="root-tab" data-type="suffixes">后缀</button>
-                    </div>
-                    
-                    <div id="rootsContent" class="roots-grid">
-                        <!-- 动态生成词根卡片 -->
-                    </div>
-                </section>
-
-                <!-- 句子练习页面 -->
-                <section id="sentences" class="page">
-                    <div class="sentence-practice-container">
-                        <div class="practice-info">
-                            <h2><i class="fas fa-language"></i> 句子练习</h2>
-                            <div class="difficulty-selector">
-                                <span>难度:</span>
-                                <button class="diff-btn active" data-level="1">⭐</button>
-                                <button class="diff-btn" data-level="2">⭐⭐</button>
-                                <button class="diff-btn" data-level="3">⭐⭐⭐</button>
-                                <button class="diff-btn" data-level="4">⭐⭐⭐⭐</button>
-                            </div>
-                        </div>
-                        
-                        <div class="sentence-card" id="sentenceCard">
-                            <div class="chinese-sentence" id="chineseSentence"></div>
-                            <div class="word-bank" id="wordBank">
-                                <!-- 打乱的单词 -->
-                            </div>
-                            <div class="answer-zone" id="answerZone">
-                                <span class="placeholder">点击单词组成句子</span>
-                            </div>
-                            <div class="feedback" id="sentenceFeedback"></div>
-                        </div>
-                        
-                        <div class="practice-controls">
-                            <button class="btn btn-secondary" onclick="app.showHint()"><i class="fas fa-lightbulb"></i> 提示</button>
-                            <button class="btn btn-secondary" onclick="app.playAudio()"><i class="fas fa-volume-up"></i> 发音</button>
-                            <button class="btn btn-primary" onclick="app.checkSentence()"><i class="fas fa-check"></i> 检查</button>
-                            <button class="btn btn-primary" onclick="app.nextSentence()" style="display:none" id="nextSentenceBtn">下一题 <i class="fas fa-arrow-right"></i></button>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 语法讲解页面 -->
-                <section id="grammar" class="page">
-                    <h2><i class="fas fa-ellipsis-h"></i> 语法知识点</h2>
-                    <div class="grammar-categories">
-                        <div class="grammar-section">
-                            <h3><i class="fas fa-clock"></i> 时态</h3>
-                            <div id="tensesList" class="grammar-list"></div>
-                        </div>
-                        <div class="grammar-section">
-                            <h3><i class="fas fa-code-branch"></i> 从句</h3>
-                            <div id="clausesList" class="grammar-list"></div>
-                        </div>
-                        <div class="grammar-section">
-                            <h3><i class="fas fa-conditioning"></i> 条件句</h3>
-                            <div id="conditionsList" class="grammar-list"></div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 听力训练页面 -->
-                <section id="listening" class="page">
-                    <h2><i class="fas fa-headphones"></i> 听力训练</h2>
-                    <div class="listening-exercises">
-                        <div id="listeningList" class="listening-items"></div>
-                    </div>
-                </section>
-
-                <!-- 学习进度页面 -->
-                <section id="progress" class="page">
-                    <h2><i class="fas fa-chart-line"></i> 学习进度</h2>
-                    <div class="progress-dashboard">
-                        <div class="progress-by-level">
-                            <h3>各级别完成情况</h3>
-                            <div id="levelProgressList" class="level-progress"></div>
-                        </div>
-                        <div class="achievements-display">
-                            <h3>成就徽章</h3>
-                            <div id="achievementsGrid" class="achievements-grid"></div>
-                        </div>
-                        <div class="learning-history">
-                            <h3>学习历史</h3>
-                            <div id="historyList" class="history-list"></div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 设置页面 -->
-                <section id="settings" class="page">
-                    <h2><i class="fas fa-cog"></i> 设置</h2>
-                    <div class="settings-panel">
-                        <div class="setting-group">
-                            <h3>偏好设置</h3>
-                            <label>
-                                <input type="checkbox" id="enableSound" checked>
-                                启用语音朗读
-                            </label>
-                            <label>
-                                <input type="checkbox" id="darkMode">
-                                深色模式
-                            </label>
-                        </div>
-                        <div class="setting-group">
-                            <h3>数据管理</h3>
-                            <button class="btn btn-warning" onclick="app.exportData()">导出学习数据</button>
-                            <button class="btn btn-danger" onclick="app.resetProgress()">重置所有进度</button>
-                        </div>
-                    </div>
-                </section>
-            </div>
-        </main>
-    </div>
-
-    <!-- 单词学习模态框 -->
-    <div class="modal" id="wordModal">
-        <div class="modal-content word-modal-content">
-            <button class="modal-close" onclick="app.closeWordModal()">×</button>
-            <div class="learn-card">
-                <div class="word-main" id="modalWord"></div>
-                <div class="word-phonetic" id="modalPhonetic"></div>
-                <div class="word-pos" id="modalPos"></div>
-                <div class="word-chinese" id="modalChinese"></div>
-                <div class="word-example" id="modalExample"></div>
-                <div class="word-roots" id="modalRoots"></div>
-                <div class="word-synonyms" id="modalSynonyms"></div>
-                
-                <div class="mastery-rating">
-                    <p>掌握程度：</p>
-                    <div class="rating-buttons">
-                        <button class="rating-btn" data-score="1" onclick="app.rateWord(1)">😫 完全不会</button>
-                        <button class="rating-btn" data-score="2" onclick="app.rateWord(2)">😕 有点模糊</button>
-                        <button class="rating-btn" data-score="3" onclick="app.rateWord(3)">🙂 认识</button>
-                        <button class="rating-btn" data-score="4" onclick="app.rateWord(4)">😎 熟练</button>
                     </div>
                 </div>
                 
-                <div class="modal-actions">
-                    <button class="btn btn-secondary" onclick="app.playWordAudio()"><i class="fas fa-volume-up"></i> 听发音</button>
-                    <button class="btn btn-primary" onclick="app.nextWord()">下一个 <i class="fas fa-arrow-right"></i></button>
+                <div class="word-section">
+                    <div class="progress-info">
+                        <span>进度：<span id="currentNum">1</span>/<span id="totalCount">20</span></span>
+                        <span>难度：入门级</span>
+                    </div>
+                    
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                    </div>
+                    
+                    <div class="word-display">
+                        <div class="current-word" id="wordDisplay">hello</div>
+                        <div class="phonetic" id="phoneticDisplay">/həˈloʊ/</div>
+                        <div class="chinese-hint" id="chineseHint">提示：你好</div>
+                    </div>
+                    
+                    <div class="input-area">
+                        <input type="text" 
+                               class="input-field" 
+                               id="wordInput" 
+                               placeholder="请输入英文单词"
+                               autocomplete="off"
+                               autocorrect="off"
+                               autocapitalize="off"
+                               spellcheck="false">
+                    </div>
+                    
+                    <div class="feedback" id="feedback"></div>
+                    
+                    <div class="buttons">
+                        <button class="btn btn-secondary" id="hintBtn">💡 显示中文</button>
+                        <button class="btn btn-primary" id="checkBtn">✓ 检查答案</button>
+                        <button class="btn btn-primary" id="nextBtn" style="display:none">下一题 →</button>
+                    </div>
                 </div>
             </div>
         </div>
+        
+        <!-- 组句练习页面 -->
+        <div id="sentence" class="page">
+            <div class="content">
+                <div class="sentence-practice">
+                    <div class="progress-info">
+                        <span>第 <span id="sentenceNum">1</span> 题</span>
+                        <span>共 10 题</span>
+                    </div>
+                    
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="sentenceProgress" style="width: 0%"></div>
+                    </div>
+                    
+                    <div class="sentence-chinese" id="sentenceChinese">
+                        你好，很高兴认识你。
+                    </div>
+                    
+                    <div class="word-bank" id="wordBank">
+                        <!-- 动态生成 -->
+                    </div>
+                    
+                    <div class="answer-area empty" id="answerArea">
+                        <!-- 答案区域 -->
+                    </div>
+                    
+                    <div class="feedback" id="sentenceFeedback"></div>
+                    
+                    <div class="buttons">
+                        <button class="btn btn-secondary" id="clearBtn">🔄 清空</button>
+                        <button class="btn btn-primary" id="submitBtn">✓ 提交答案</button>
+                        <button class="btn btn-primary" id="nextSentenceBtn" style="display:none">下一题 →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 统计页面 -->
+        <div id="summary" class="page">
+            <div class="content">
+                <div class="stats-card">
+                    <h2 style="margin-bottom: 20px;">学习总览</h2>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value" id="totalLearned">0</div>
+                            <div class="stat-label">已学单词</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="totalSentences">0</div>
+                            <div class="stat-label">完成句子</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="avgAccuracy">0%</div>
+                            <div class="stat-label">平均准确率</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="background: #f9fafb; padding: 20px; border-radius: 12px; margin-top: 20px;">
+                    <h3 style="margin-bottom: 15px;">已掌握的单词</h3>
+                    <div id="masteredWords" style="display: flex; flex-wrap: wrap; gap: 10px;">
+                        <!-- 动态生成 -->
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" onclick="app.resetData()" style="margin-top: 20px;">
+                    🗑️ 重置所有数据
+                </button>
+            </div>
+        </div>
     </div>
-
-    <!-- 结果模态框 -->
-    <div class="modal" id="resultModal">
-        <div class="modal-content result-content">
+    
+    <!-- 结果弹窗 -->
+    <div class="result-modal" id="resultModal">
+        <div class="result-content">
             <div class="result-icon" id="resultIcon">🎉</div>
-            <h2 id="resultTitle">练习完成!</h2>
+            <div class="result-title" id="resultTitle">练习完成！</div>
             <div class="result-stats">
-                <div class="stat-box">
+                <div class="result-stat">
                     <div class="value" id="resultCorrect">0</div>
                     <div class="label">正确</div>
                 </div>
-                <div class="stat-box">
-                    <div class="value" id="resultWrong">0</div>
-                    <div class="label">错误</div>
+                <div class="result-stat">
+                    <div class="value" id="resultTotal">10</div>
+                    <div class="label">总数</div>
                 </div>
-                <div class="stat-box">
-                    <div class="value" id="resultAccuracy">0%</div>
+                <div class="result-stat">
+                    <div class="value" id="resultPercent">0%</div>
                     <div class="label">正确率</div>
                 </div>
             </div>
-            <div class="result-points">
-                获得 <span id="earnedPoints">0</span> 积分 ⭐
-            </div>
-            <div class="result-actions">
-                <button class="btn btn-secondary" onclick="app.reviewMistakes()">查看错题</button>
-                <button class="btn btn-primary" onclick="app.continueLearning()">继续学习</button>
-            </div>
+            <button class="btn btn-primary" onclick="app.closeResult()">继续学习</button>
         </div>
     </div>
 
-    <script src="data.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
