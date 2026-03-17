@@ -1,5 +1,5 @@
 // ============================================
-// 英语大师 Pro - 完整学习系统 v6.0
+// 英语大师 Pro - 完整学习系统 v6.1 (修复版)
 // 新增：级别选择、专项练习、语法讲解
 // ============================================
 
@@ -19,7 +19,16 @@ let currentGrammar = {};
 
 // 初始化应用
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('App initialized');
     bindEvents();
+    
+    // 确保数据已加载
+    if (typeof ENGLISH_DB === 'undefined') {
+        console.error('ENGLISH_DB not loaded!');
+        alert('数据加载失败，请刷新页面重试');
+        return;
+    }
+    console.log('Data loaded successfully');
 });
 
 // 绑定所有事件
@@ -47,133 +56,127 @@ function bindEvents() {
 
 // 设置回车键处理
 function setupEnterKeyHandlers() {
-    document.getElementById('wordInput').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            const btn = document.getElementById('nextWordBtn').style.display !== 'none' 
-                ? document.getElementById('nextWordBtn') 
-                : document.getElementById('checkWordBtn');
-            btn.click();
-        }
-    });
+    const wordInput = document.getElementById('wordInput');
+    const sentenceInput = document.getElementById('sentenceInput');
+    const practiceInput = document.getElementById('practiceInput');
     
-    document.getElementById('sentenceInput').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            const btn = document.getElementById('finishLessonBtn').style.display !== 'none'
-                ? document.getElementById('finishLessonBtn')
-                : document.getElementById('checkSentenceBtn');
-            btn.click();
-        }
-    });
+    if (wordInput) {
+        wordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const btn = document.getElementById('nextWordBtn').style.display !== 'none' 
+                    ? document.getElementById('nextWordBtn') 
+                    : document.getElementById('checkWordBtn');
+                btn.click();
+            }
+        });
+    }
     
-    document.getElementById('practiceInput').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            const btn = document.getElementById('nextPracticeBtn').style.display !== 'none'
-                ? document.getElementById('nextPracticeBtn')
-                : document.getElementById('checkPracticeBtn');
-            btn.click();
-        }
-    });
+    if (sentenceInput) {
+        sentenceInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const btn = document.getElementById('finishLessonBtn').style.display !== 'none'
+                    ? document.getElementById('finishLessonBtn')
+                    : document.getElementById('checkSentenceBtn');
+                btn.click();
+            }
+        });
+    }
+    
+    if (practiceInput) {
+        practiceInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const btn = document.getElementById('nextPracticeBtn').style.display !== 'none'
+                    ? document.getElementById('nextPracticeBtn')
+                    : document.getElementById('checkPracticeBtn');
+                btn.click();
+            }
+        });
+    }
 }
 
 // ========== 页面导航函数 ==========
 
-function hideAllPages() {
+window.hideAllPages = function() {
     document.querySelectorAll('.content-area, .home-page').forEach(el => {
         el.classList.remove('active');
     });
     document.querySelectorAll('.page').forEach(el => {
         el.style.display = 'none';
     });
-}
+};
 
-function showHomePage() {
+window.showHomePage = function() {
     hideAllPages();
     document.getElementById('homePage').classList.add('active');
     document.getElementById('currentPageBadge').textContent = '首页';
     currentPage = 'home';
-}
+};
 
-function showLevelSelector() {
+window.showLevelSelector = function() {
+    console.log('showLevelSelector called');
     hideAllPages();
     document.getElementById('levelSelectorPage').classList.add('active');
     document.getElementById('currentPageBadge').textContent = '级别选择';
     currentPage = 'level';
-}
+};
 
-function showPracticeList() {
+window.showPracticeList = function() {
     hideAllPages();
     document.getElementById('practiceListPage').classList.add('active');
     document.getElementById('currentPageBadge').textContent = '专项练习';
     currentPage = 'practice_list';
     renderPracticeList();
-}
+};
 
-function showGrammarGuide() {
+window.showGrammarGuide = function() {
     hideAllPages();
-    document.getElementById('grammarDetailPage').classList.add('active');
+    
+    // 创建语法列表视图（如果不存在）
+    let listView = document.getElementById('grammarListView');
+    if (!listView) {
+        const container = document.querySelector('#grammarDetailPage .grammar-detail');
+        const listHTML = `
+            <h2 style="text-align:center;color:#1f2937;margin:20px 0 30px;">语法指南</h2>
+            <div id="grammarListView" class="grammar-list"></div>
+        `;
+        container.insertAdjacentHTML('afterbegin', listHTML);
+        listView = document.getElementById('grammarListView');
+    }
+    
+    const detailView = document.getElementById('grammarDetailView');
+    if (detailView) detailView.style.display = 'none';
+    listView.style.display = 'block';
+    
+    renderGrammarList();
+    
     document.getElementById('currentPageBadge').textContent = '语法指南';
     currentPage = 'grammar_list';
-    renderGrammarList();
-}
+};
 
-function selectLevel(level) {
-    currentLevel = level;
+// 全局暴露的启动课程函数
+window.startLesson = function(index, fromLevel = false) {
+    console.log('startLesson called with index:', index, 'fromLevel:', fromLevel);
     
-    // 更新按钮样式
-    document.querySelectorAll('.level-btn').forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.dataset.level === level) btn.classList.add('active');
-    });
-    
-    // 获取对应级别的课程
-    const lessons = getLessonsByLevel(level);
-    const container = document.getElementById('lessonListContainer');
-    const listEl = document.getElementById('lessonList');
-    const titleEl = document.getElementById('selectedLevelTitle');
-    
-    container.style.display = 'block';
-    titleEl.textContent = `${level} 级课程 - ${lessons.length} 课`;
-    
-    listEl.innerHTML = lessons.map((l, idx) => `
-        <div class="lesson-item" onclick="startLesson(${idx}, true)">
-            <div class="lesson-number">${l.lesson}</div>
-            <div class="lesson-info">
-                <div class="lesson-title">${l.title}</div>
-                <div class="lesson-level">${l.words.length} 个单词 + 1 个句子</div>
-            </div>
-        </div>
-    `).join('');
-}
-
-function getLessonsByLevel(level) {
-    const dbMap = {
-        'A1': 'level_a1',
-        'A2': 'level_a2',
-        'B1': 'level_b1',
-        'B2': 'level_b2',
-        'C1': 'level_c1',
-        'C2': 'level_c2'
-    };
-    return ENGLISH_DB[dbMap[level]] || [];
-}
-
-// ========== 课程学习函数 ==========
-
-function startLesson(index, fromLevel = false) {
     let lessons;
     if (fromLevel) {
         lessons = getLessonsByLevel(currentLevel);
         currentLessonIndex = index;
     } else {
-        lessons = COMPLETE_DB.allLessons;
+        lessons = COMPLETE_DB.allLessons || [];
         currentLessonIndex = index;
     }
     
+    console.log('Lessons loaded:', lessons.length);
     currentLesson = lessons[index];
-    if (!currentLesson) return;
+    
+    if (!currentLesson) {
+        console.error('Lesson not found at index:', index);
+        alert('课程加载失败');
+        return;
+    }
     
     // 重置状态
     learnedWords = [];
@@ -189,10 +192,59 @@ function startLesson(index, fromLevel = false) {
     
     showPage('word');
     loadWord(wordIndex);
+};
+
+window.selectLevel = function(level) {
+    console.log('selectLevel called with:', level);
+    currentLevel = level;
+    
+    // 更新按钮样式
+    document.querySelectorAll('.level-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.level === level) btn.classList.add('active');
+    });
+    
+    // 获取对应级别的课程
+    const lessons = getLessonsByLevel(level);
+    console.log(`Level ${level} has ${lessons.length} lessons`);
+    
+    const container = document.getElementById('lessonListContainer');
+    const listEl = document.getElementById('lessonList');
+    const titleEl = document.getElementById('selectedLevelTitle');
+    
+    if (container && listEl && titleEl) {
+        container.style.display = 'block';
+        titleEl.textContent = `${level} 级课程 - ${lessons.length} 课`;
+        
+        listEl.innerHTML = lessons.map((l, idx) => `
+            <div class="lesson-item" onclick="window.startLesson(${idx}, true)">
+                <div class="lesson-number">${l.lesson}</div>
+                <div class="lesson-info">
+                    <div class="lesson-title">${l.title}</div>
+                    <div class="lesson-level">${l.words.length} 个单词 + 1 个句子</div>
+                </div>
+            </div>
+        `).join('');
+    }
+};
+
+function getLessonsByLevel(level) {
+    const dbMap = {
+        'A1': 'level_a1',
+        'A2': 'level_a2',
+        'B1': 'level_b1',
+        'B2': 'level_b2',
+        'C1': 'level_c1',
+        'C2': 'level_c2'
+    };
+    return ENGLISH_DB[dbMap[level]] || [];
 }
 
+// ========== 课程学习函数 ==========
+
 function showPage(pageName) {
-    ['word', 'sentence', 'complete'].forEach(p => {
+    const pages = ['word', 'sentence', 'complete'];
+    pages.forEach(p => {
         const el = document.getElementById(`page-${p}`);
         if (el) el.style.display = p === pageName ? 'block' : 'none';
     });
@@ -200,11 +252,14 @@ function showPage(pageName) {
     // 更新步骤指示器
     const steps = ['step1', 'step2', 'step3'];
     steps.forEach((id, idx) => {
-        document.getElementById(id).classList.remove('active', 'completed');
-        if (idx + 1 === (pageName === 'word' ? 1 : pageName === 'sentence' ? 2 : 3)) {
-            document.getElementById(id).classList.add('active');
-        } else if (idx + 1 < (pageName === 'word' ? 1 : pageName === 'sentence' ? 2 : 3)) {
-            document.getElementById(id).classList.add('completed');
+        const el = document.getElementById(id);
+        if (el) {
+            el.classList.remove('active', 'completed');
+            if (idx + 1 === (pageName === 'word' ? 1 : pageName === 'sentence' ? 2 : 3)) {
+                el.classList.add('active');
+            } else if (idx + 1 < (pageName === 'word' ? 1 : pageName === 'sentence' ? 2 : 3)) {
+                el.classList.add('completed');
+            }
         }
     });
 }
@@ -223,9 +278,10 @@ function loadWord(idx) {
     const wordData = words[idx];
     wordIndex = idx;
     
-    document.getElementById('wordInput').value = '';
-    document.getElementById('wordInput').className = 'input-large';
-    document.getElementById('wordInput').focus();
+    const input = document.getElementById('wordInput');
+    input.value = '';
+    input.className = 'input-large';
+    input.focus();
     
     document.getElementById('chineseHint').textContent = `请输入：${wordData.chinese}`;
     document.getElementById('phoneticDisplay').textContent = `${wordData.word} [${wordData.phonetic}]`;
@@ -272,12 +328,9 @@ function checkWord() {
     
     const normalizeText = str => str.replace(/[.,!?;:'"()-]/g, '').trim().toLowerCase();
     
-    const normalizedUser = normalizeText(userText);
-    const normalizedTarget = normalizeText(targetWord);
-    
     totalAttempts++;
     
-    if (normalizedUser === normalizedTarget) {
+    if (normalizeText(userText) === normalizeText(targetWord)) {
         input.className = 'input-large correct';
         document.getElementById('feedback').textContent = '✓ 正确！Excellent! 🎉';
         document.getElementById('feedback').className = 'feedback correct';
@@ -329,7 +382,7 @@ function updateLearnedList() {
     chipsEl.innerHTML = learnedWords.map(w => `
         <div class="learned-chip">
             ${w.word}
-            <button class="play-btn" onclick="playAnyWord('${w.word}')" title="播放发音">
+            <button class="play-btn" onclick="window.playAnyWord('${w.word}')" title="播放发音">
                 <i class="fas fa-volume-up"></i>
             </button>
         </div>
@@ -341,11 +394,12 @@ function setupSentencePractice() {
     if (!sentence) return;
     
     document.getElementById('sentenceChinese').textContent = sentence.chinese;
-    document.getElementById('sentenceInput').value = '';
-    document.getElementById('sentenceInput').className = 'practice-input';
-    document.getElementById('sentenceFeedback').textContent = '';
-    document.getElementById('sentenceInput').focus();
+    const input = document.getElementById('sentenceInput');
+    input.value = '';
+    input.className = 'practice-input';
+    input.focus();
     
+    document.getElementById('sentenceFeedback').textContent = '';
     document.getElementById('checkSentenceBtn').style.display = 'inline-block';
     document.getElementById('finishLessonBtn').style.display = 'none';
     document.getElementById('resetSentenceBtn').style.display = 'inline-block';
@@ -365,12 +419,9 @@ function checkSentence() {
         .trim()
         .toLowerCase();
     
-    const normalizedUser = normalizeText(userText);
-    const normalizedTarget = normalizeText(target);
-    
     totalAttempts++;
     
-    if (normalizedUser === normalizedTarget) {
+    if (normalizeText(userText) === normalizeText(target)) {
         input.className = 'practice-input correct';
         document.getElementById('sentenceFeedback').textContent = '✓ 完美！You did it! 🎊';
         document.getElementById('sentenceFeedback').className = 'feedback correct';
@@ -417,35 +468,38 @@ function goToNextLesson() {
     if (currentLevel) {
         const lessons = getLessonsByLevel(currentLevel);
         if (currentLessonIndex < lessons.length - 1) {
-            startLesson(currentLessonIndex + 1, true);
+            window.startLesson(currentLessonIndex + 1, true);
         } else {
             alert('🎉 恭喜完成此级别所有课程！');
-            showLevelSelector();
+            window.showLevelSelector();
         }
     } else {
-        showLevelSelector();
+        window.showLevelSelector();
     }
 }
 
 // ========== 专项练习函数 ==========
 
 function renderPracticeList() {
-    const categories = {};
     const practices = ENGLISH_DB.special_practices || [];
     
+    // 按分类组织
+    const categories = {};
     practices.forEach(p => {
         if (!categories[p.category]) categories[p.category] = [];
         categories[p.category].push(p);
     });
     
     const container = document.getElementById('practiceCategories');
+    if (!container) return;
+    
     container.innerHTML = Object.entries(categories).map(([cat, items]) => `
         <div class="category-section">
             <div class="category-title">
                 <i class="fas fa-tag" style="color:#6366f1;"></i> ${cat}
             </div>
             ${items.map(p => `
-                <div class="practice-item" onclick="startPractice('${p.id}')">
+                <div class="practice-item" onclick="window.startPractice('${p.id}')">
                     <div class="practice-title">${p.title}</div>
                     <div class="practice-desc">${p.description}</div>
                 </div>
@@ -454,9 +508,12 @@ function renderPracticeList() {
     `).join('');
 }
 
-function startPractice(practiceId) {
+window.startPractice = function(practiceId) {
     currentPractice = ENGLISH_DB.special_practices.find(p => p.id === practiceId);
-    if (!currentPractice) return;
+    if (!currentPractice) {
+        console.error('Practice not found:', practiceId);
+        return;
+    }
     
     practiceItemIndex = 0;
     
@@ -466,13 +523,13 @@ function startPractice(practiceId) {
     currentPage = 'practice_run';
     
     loadPracticeItem(0);
-}
+};
 
 function loadPracticeItem(idx) {
     const items = currentPractice.items || [];
     if (idx >= items.length) {
-        alert('恭喜完成本组练习！');
-        showPracticeList();
+        alert('恭喜完成本组练习！🎉');
+        window.showPracticeList();
         return;
     }
     
@@ -483,9 +540,10 @@ function loadPracticeItem(idx) {
     document.getElementById('practiceProgress').textContent = `第${idx+1}/${items.length}题`;
     document.getElementById('practiceQuestion').textContent = item.question;
     
-    document.getElementById('practiceInput').value = '';
-    document.getElementById('practiceInput').className = 'practice-input';
-    document.getElementById('practiceInput').focus();
+    const input = document.getElementById('practiceInput');
+    input.value = '';
+    input.className = 'practice-input';
+    input.focus();
     
     document.getElementById('practiceExplanation').style.display = 'none';
     document.getElementById('practiceFeedback').textContent = '';
@@ -499,7 +557,7 @@ function loadPracticeItem(idx) {
     helpEl.style.display = 'block';
     document.getElementById('helpContent').innerHTML = `
         <strong>知识点：</strong>${currentPractice.description}<br>
-        <strong>语法规则：</strong>${item.grammar_point}
+        <strong>语法规则：</strong>${item.grammar_point || item.explanation}
     `;
 }
 
@@ -558,40 +616,30 @@ function nextPracticeItem() {
 
 function renderGrammarList() {
     const grammars = ENGLISH_DB.grammar_guide || [];
-    const container = document.getElementById('grammarDetailPage');
+    const listEl = document.getElementById('grammarListView');
+    if (!listEl) return;
     
-    // 清空后重新渲染列表
-    if (!document.getElementById('grammarList')) {
-        const listHTML = `
-            <h2 style="text-align:center;color:#1f2937;margin:20px 0 30px;">语法指南</h2>
-            <div id="grammarList" class="grammar-list"></div>
-        `;
-        container.insertAdjacentHTML('afterbegin', listHTML);
-    }
-    
-    const listEl = document.getElementById('grammarList');
     listEl.innerHTML = grammars.map(g => `
-        <div class="grammar-item" onclick="viewGrammarDetail('${g.id}')">
+        <div class="grammar-item" onclick="window.viewGrammarDetail('${g.id}')">
             <div class="grammar-title">${g.title}</div>
             <div class="grammar-summary">${g.summary}</div>
         </div>
     `).join('');
 }
 
-function viewGrammarDetail(grammarId) {
+window.viewGrammarDetail = function(grammarId) {
     currentGrammar = ENGLISH_DB.grammar_guide.find(g => g.id === grammarId);
     if (!currentGrammar) return;
     
-    // 切换到详细视图（在同一个容器内）
-    const detailEl = document.getElementById('grammarDetailView');
+    const listView = document.getElementById('grammarListView');
+    const detailView = document.getElementById('grammarDetailView');
     
-    if (!detailEl) {
-        const listEl = document.getElementById('grammarList');
-        listEl.style.display = 'none';
-        
-        const detailHTML = `
-            <div id="grammarDetailView">
-                <button class="back-btn" onclick="renderGrammarList();"><i class="fas fa-arrow-left"></i> 返回列表</button>
+    if (!detailView) {
+        const html = `
+            <div id="grammarDetailView" style="display:none;">
+                <button class="back-btn" onclick="document.getElementById('grammarListView').style.display='block';document.getElementById('grammarDetailView').style.display='none';return false;">
+                    <i class="fas fa-arrow-left"></i> 返回列表
+                </button>
                 <div class="grammar-detail">
                     <div class="grammar-header">
                         <h2 id="detTitle"></h2>
@@ -605,40 +653,50 @@ function viewGrammarDetail(grammarId) {
                 </div>
             </div>
         `;
-        document.querySelector('#grammarDetailPage .grammar-detail').insertAdjacentHTML('beforebegin', detailHTML);
+        document.querySelector('#grammarDetailPage .grammar-detail').insertAdjacentHTML('beforeend', html);
     }
+    
+    const detView = document.getElementById('grammarDetailView');
+    if (listView) listView.style.display = 'none';
+    if (detView) detView.style.display = 'block';
     
     document.getElementById('detTitle').textContent = currentGrammar.title;
     document.getElementById('detLevel').textContent = currentGrammar.level;
     document.getElementById('detSummary').textContent = currentGrammar.summary;
     
     // 渲染规则
-    const rulesHTML = currentGrammar.rules.map(rule => `
-        <div class="rule-card">
-            <div class="rule-title">${rule.rule}</div>
-            <div class="rule-example">${rule.example}</div>
-        </div>
-    `).join('');
-    document.getElementById('detRules').innerHTML = rulesHTML;
+    if (currentGrammar.rules) {
+        const rulesHTML = currentGrammar.rules.map(rule => `
+            <div class="rule-card">
+                <div class="rule-title">${rule.rule}</div>
+                <div class="rule-example">${rule.example}</div>
+            </div>
+        `).join('');
+        document.getElementById('detRules').innerHTML = rulesHTML;
+    }
     
     // 渲染常见错误
-    const mistakesHTML = currentGrammar.common_mistakes.map(m => 
-        `<div class="mistake-item">${m}</div>`
-    ).join('');
-    document.getElementById('detMistakes').innerHTML = `
-        <div class="mistake-title"><i class="fas fa-exclamation-triangle"></i> 常见错误</div>
-        ${mistakesHTML}
-    `;
+    if (currentGrammar.common_mistakes) {
+        const mistakesHTML = currentGrammar.common_mistakes.map(m => 
+            `<div class="mistake-item">${m}</div>`
+        ).join('');
+        document.getElementById('detMistakes').innerHTML = `
+            <div class="mistake-title"><i class="fas fa-exclamation-triangle"></i> 常见错误</div>
+            ${mistakesHTML}
+        `;
+    }
     
     // 渲染练习
-    const exercisesHTML = currentGrammar.exercises.map(ex => `
-        <div class="exercise-item">
-            <div class="exercise-q">${ex.q}</div>
-            <div class="exercise-answer"><strong>答案：</strong>${ex.a} — ${ex.exp}</div>
-        </div>
-    `).join('');
-    document.getElementById('detExercises').innerHTML = exercisesHTML;
-}
+    if (currentGrammar.exercises) {
+        const exercisesHTML = currentGrammar.exercises.map(ex => `
+            <div class="exercise-item">
+                <div class="exercise-q">${ex.q}</div>
+                <div class="exercise-answer"><strong>答案：</strong>${ex.a} — ${ex.exp}</div>
+            </div>
+        `).join('');
+        document.getElementById('detExercises').innerHTML = exercisesHTML;
+    }
+};
 
 // ========== 音效播放 ==========
 
@@ -668,5 +726,7 @@ function playSound(type) {
             oscillator.start(audioContext.currentTime);
             oscillator.stop(audioContext.currentTime + 0.2);
         }
-    } catch(e) {}
+    } catch(e) {
+        console.log('Audio not supported');
+    }
 }
