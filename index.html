@@ -246,6 +246,77 @@
             </div>
         </div>
 
+        <!-- 完形填空页面 -->
+        <div id="clozePage" class="page">
+            <button class="back-btn" onclick="showPracticeList()"><i class="fas fa-arrow-left"></i> 返回练习列表</button>
+            <h2 style="color: #1f2937; margin: 20px 0;">完形填空测试</h2>
+            <div class="quiz-container">
+                <div id="clozeQuiz"></div>
+                <div class="feedback" id="clozeFeedback"></div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn" id="nextClozeBtn" onclick="nextCloze()" style="display:none">下一题</button>
+                    <button class="btn btn-secondary" id="finishClozeBtn" onclick="finishCloze()" style="display:none">完成练习</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 口语对话页面 -->
+        <div id="conversationPage" class="page">
+            <button class="back-btn" onclick="showPracticeList()"><i class="fas fa-arrow-left"></i> 返回练习列表</button>
+            <h2 style="color: #1f2937; margin: 20px 0;">口语对话模拟</h2>
+            <div class="quiz-container">
+                <div id="conversationDisplay" style="background: #f3f4f6; padding: 20px; border-radius: 10px; margin-bottom: 20px;"></div>
+                <div style="margin: 20px 0;">
+                    <p style="font-size: 18px; color: #666;">请大声说出这句话，然后点击检查：</p>
+                    <input type="text" id="conversationInput" placeholder="输入英文回答..." style="width: 100%; padding: 15px; font-size: 18px; border: 2px solid #ddd; border-radius: 10px; margin-top: 10px;">
+                    <button class="btn" onclick="checkConversation()" style="margin-top: 20px;">检查回答</button>
+                </div>
+                <div class="feedback" id="conversationFeedback"></div>
+            </div>
+        </div>
+
+        <!-- 同义词替换页面 -->
+        <div id="synonymsPage" class="page">
+            <button class="back-btn" onclick="showPracticeList()"><i class="fas fa-arrow-left"></i> 返回练习列表</button>
+            <h2 style="color: #1f2937; margin: 20px 0;">同义词替换练习</h2>
+            <div class="quiz-container">
+                <div id="synonymsDisplay"></div>
+                <div class="feedback" id="synonymsFeedback"></div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn" id="nextSynonymsBtn" onclick="nextSynonyms()" style="display:none">下一个单词</button>
+                    <button class="btn btn-secondary" id="finishSynonymsBtn" onclick="finishSynonyms()" style="display:none">完成练习</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 词序排列页面 -->
+        <div id="wordorderPage" class="page">
+            <button class="back-btn" onclick="showPracticeList()"><i class="fas fa-arrow-left"></i> 返回练习列表</button>
+            <h2 style="color: #1f2937; margin: 20px 0;">词序排列练习</h2>
+            <div class="quiz-container">
+                <div id="wordOrderDisplay"></div>
+                <div class="feedback" id="wordOrderFeedback"></div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn" id="nextWordOrderBtn" onclick="nextWordOrder()" style="display:none">下一题</button>
+                    <button class="btn btn-secondary" id="finishWordOrderBtn" onclick="finishWordOrder()" style="display:none">完成练习</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 词根词缀页面 -->
+        <div id="rootsPage" class="page">
+            <button class="back-btn" onclick="showPracticeList()"><i class="fas fa-arrow-left"></i> 返回练习列表</button>
+            <h2 style="color: #1f2937; margin: 20px 0;">词根词缀拓展</h2>
+            <div class="quiz-container">
+                <div id="rootsDisplay" style="text-align: left;"></div>
+                <div class="feedback" id="rootsFeedback"></div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn" id="prevRootBtn" onclick="prevRoot()" style="display:none">上一个</button>
+                    <button class="btn" id="nextRootBtn" onclick="nextRoot()">下一个</button>
+                </div>
+            </div>
+        </div>
+
         <!-- 完成页面 -->
         <div id="completePage" class="page">
             <div class="complete-page">
@@ -735,9 +806,100 @@
         { question: '将以下句子改为否定句：He goes to school.', answer: 'He does not go to school.', type: 'negation' },
         { question: '将以下句子改为一般疑问句：They are happy.', answer: 'Are they happy?', type: 'question' },
         { question: '将以下句子改为否定句：We can swim.', answer: 'We cannot swim. / We cant swim.', type: 'negation' },
-        { question: '将以下句子改为特殊疑问句（问地点）：He lives in Beijing.', answer: 'Where does he live?', type: 'wh-question' },
-        { question: '将以下句子改为特殊疑问句（问时间）：She arrives at 8 oclock.', answer: 'When does she arrive?', type: 'wh-question' },
+        { question: '将以下句子改为特殊疑问句 (问地点):He lives in Beijing.', answer: 'Where does he live?', type: 'wh-question' },
+        { question: '将以下句子改为特殊疑问句 (问时间):She arrives at 8 oclock.', answer: 'When does she arrive?', type: 'wh-question' },
         { question: '将以下句子改为被动语态：Someone stole my bike.', answer: 'My bike was stolen.', type: 'passive' }
+    ];
+    
+    // ========== 完形填空题目 ==========
+    const CLOZE_QUIZZES = [
+        { sentence: 'I ___ to school every day.', answer: 'go', options: ['goes', 'go', 'going'] },
+        { sentence: 'She ___ her homework yesterday.', answer: 'did', options: ['do', 'did', 'does'] },
+        { sentence: 'They ___ playing football now.', answer: 'are', options: ['is', 'are', 'am'] },
+        { sentence: 'He ___ breakfast at 7 AM.', answer: 'eats', options: ['eat', 'eats', 'eating'] },
+        { sentence: 'We ___ watched the movie.', answer: 'have', options: ['has', 'have', 'had'] },
+        { sentence: '___ you like coffee?', answer: 'Do', options: ['Does', 'Do', 'Are'] },
+        { sentence: 'The book is ___ the table.', answer: 'on', options: ['in', 'on', 'at'] },
+        { sentence: 'This is ___ interesting book.', answer: 'an', options: ['a', 'an', 'the'] },
+        { sentence: 'She is taller ___ her brother.', answer: 'than', options: ['then', 'than', 'that'] },
+        { sentence: 'If it rains, I ___ stay home.', answer: 'will', options: ['would', 'will', 'shall'] }
+    ];
+    
+    // ========== 口语对话场景 ==========
+    const CONVERSATIONS = [
+        { 
+            scene: '场景 1：餐厅点餐',
+            userText: '你好，我想点餐。',
+            aiText: 'Hello! What would you like to order today? We have pizza, pasta, and salad.',
+            response1: 'I would like pizza please.',
+            audio1: "I would like pizza please."
+        },
+        { 
+            scene: '场景 2：酒店入住',
+            userText: '我要办理入住手续。',
+            aiText: 'Good afternoon! Do you have a reservation with us?',
+            response1: 'Yes, I booked a room for two nights.',
+            audio1: "Yes, I booked a room for two nights."
+        },
+        { 
+            scene: '场景 3：机场安检',
+            userText: '这是我的护照。',
+            aiText: 'Please place your carry-on luggage on the conveyor belt.',
+            response1: 'Okay, here is my bag.',
+            audio1: "Okay, here is my bag."
+        },
+        { 
+            scene: '场景 4：购物结账',
+            userText: '这个多少钱？',
+            aiText: 'That will be twenty-five dollars, please. Cash or card?',
+            response1: 'I will pay by card.',
+            audio1: "I will pay by card."
+        },
+        { 
+            scene: '场景 5：医院就诊',
+            userText: '我头疼三天了。',
+            aiText: 'I see. Do you have any other symptoms?',
+            response1: 'Yes, I also feel dizzy sometimes.',
+            audio1: "Yes, I also feel dizzy sometimes."
+        }
+    ];
+    
+    // ========== 同义词替换练习 ==========
+    const SYNONYM_PAIRS = [
+        { word: 'good', synonyms: ['excellent', 'wonderful', 'fantastic', 'great'], example: 'This is a good/wonderful movie.' },
+        { word: 'bad', synonyms: ['terrible', 'awful', 'horrible', 'poor'], example: 'The weather was bad/terrible.' },
+        { word: 'happy', synonyms: ['joyful', 'delighted', 'cheerful', 'glad'], example: 'She felt happy/delighted.' },
+        { word: 'sad', synonyms: ['unhappy', 'sorrowful', 'melancholy', 'gloomy'], example: 'He looked sad/unhappy.' },
+        { word: 'big', synonyms: ['large', 'huge', 'enormous', 'massive'], example: 'A big/large house.' },
+        { word: 'small', synonyms: ['tiny', 'little', 'miniature', 'petite'], example: 'A small/tiny mouse.' },
+        { word: 'fast', synonyms: ['quick', 'rapid', 'swift', 'speedy'], example: 'Run fast/quickly.' },
+        { word: 'beautiful', synonyms: ['gorgeous', 'stunning', 'pretty', 'lovely'], example: 'A beautiful/gorgeous flower.' }
+    ];
+    
+    // ========== 词序排列练习 ==========
+    const WORD_ORDER_EXERCISES = [
+        { words: ['is', 'name', 'My', 'John'], correct: 'My name is John.' },
+        { words: ['you', 'How', 'are', '?'], correct: 'How are you?' },
+        { words: ['to', 'meet', 'Nice', 'you'], correct: 'Nice to meet you.' },
+        { words: ['school', 'I', 'go', 'to'], correct: 'I go to school.' },
+        { words: ['book', 'reading', 'am', 'I', 'a'], correct: 'I am reading a book.' },
+        { words: ['likes', 'apples', 'She'], correct: 'She likes apples.' }
+    ];
+    
+    // ========== 词根词缀数据 ==========
+    const ROOT_DATA = [
+        { root: 'ject', meaning: '投掷，扔', examples: ['reject(拒绝)', 'project(项目)', 'inject(注射)'] },
+        { root: 'spect', meaning: '看', examples: ['inspect(检查)', 'respect(尊重)', 'spectator(观众)'] },
+        { root: 'dict', meaning: '说', examples: ['predict(预测)', 'dictionary(词典)', 'contradict(反驳)'] },
+        { root: 'port', meaning: '搬运', examples: ['import(进口)', 'export(出口)', 'transport(运输)'] },
+        { root: 'struct', meaning: '建造', examples: ['construct(建造)', 'structure(结构)', 'destruction(破坏)'] },
+        { root: 'graph', meaning: '写，画', examples: ['autograph(签名)', 'photograph(照片)', 'biography(传记)'] },
+        { root: 'cred', meaning: '相信', examples: ['credit(信用)', 'believe(相信)', 'incredible(难以置信的)'] },
+        { root: 'mit', meaning: '发送，放出', examples: ['submit(提交)', 'permit(允许)', 'transmit(传输)'] },
+        { root: 'tract', meaning: '拉，拖', examples: ['tractor(拖拉机)', 'contract(合同)', 'distract(分心)'] },
+        { root: 'vis', meaning: '看', examples: ['visit(参观)', 'visible(可见的)', 'television(电视)'] },
+        { root: 'phon', meaning: '声音', examples: ['telephone(电话)', 'microphone(麦克风)', 'symphony(交响乐)'] },
+        { root: 'bio', meaning: '生命', examples: ['biology(生物学)', 'biography(传记)', 'antibiotic(抗生素)'] }
     ];
     
     // 专项练习模块
@@ -745,11 +907,11 @@
         { icon: 'fa-headphones-alt', title: '听力强化训练', desc: '听音频选单词，共8题', page: 'listeningPage' },
         { icon: 'fa-bolt', title: '快速拼写挑战', desc: '限时拼写15个单词', page: 'spellingPage' },
         { icon: 'fa-exchange-alt', title: '句型转换练习', desc: '否定句/疑问句/被动语态转换', page: 'transformationPage' },
-        { icon: 'fa-puzzle-piece', title: '完形填空测试', desc: '根据上下文填空（示例）', action: 'cloze' },
-        { icon: 'fa-comments', title: '口语对话模拟', desc: 'AI语音对话练习', action: 'conversation' },
-        { icon: 'fa-sync-alt', title: '同义词替换', desc: '学习多种方式表达', action: 'synonyms' },
-        { icon: 'fa-sort-amount-down', title: '词序排列练习', desc: '组成正确句子', action: 'wordorder' },
-        { icon: 'fa-lightbulb', title: '词根词缀拓展', desc: '通过词根扩大词汇量', action: 'roots' }
+        { icon: 'fa-puzzle-piece', title: '完形填空测试', desc: '根据上下文填空（示例）', page: 'clozePage' },
+        { icon: 'fa-comments', title: '口语对话模拟', desc: 'AI语音对话练习', page: 'conversationPage' },
+        { icon: 'fa-sync-alt', title: '同义词替换', desc: '学习多种方式表达', page: 'synonymsPage' },
+        { icon: 'fa-sort-amount-down', title: '词序排列练习', desc: '组成正确句子', page: 'wordorderPage' },
+        { icon: 'fa-lightbulb', title: '词根词缀拓展', desc: '通过词根扩大词汇量', page: 'rootsPage' }
     ];
     
     // ============================================
@@ -769,6 +931,13 @@
     let spellingScore = 0;
     let transformationIndex = 0;
     let transformationScore = 0;
+    
+    // ========== 新增练习状态 ==========
+    let clozeIndex = 0, clozeScore = 0;
+    let conversationIndex = 0;
+    let synonymsIndex = 0, synonymsScore = 0;
+    let wordOrderIndex = 0, wordOrderScore = 0;
+    let rootsIndex = 0;
     
     console.log('🚀 英语大师 Pro Max 启动中...');
     console.log('✅ A1:', ENGLISH_DB.level_a1.length, '课');
@@ -860,9 +1029,26 @@
                     console.log('🔄 启动句型转换...');
                     initTransformation();
                     showPage('transformationPage');
-                } else {
-                    // 其他功能也提供简单实现或引导
-                    alert(`${m.title}\n\n${m.desc}\n\n💡 提示：听力、拼写、句型转换三个核心练习已完全可用！`);
+                } else if (m.page === 'clozePage') {
+                    console.log('📝 启动完形填空...');
+                    initCloze();
+                    showPage('clozePage');
+                } else if (m.page === 'conversationPage') {
+                    console.log('💬 启动口语对话...');
+                    initConversation();
+                    showPage('conversationPage');
+                } else if (m.page === 'synonymsPage') {
+                    console.log('🔄 启动同义词练习...');
+                    initSynonyms();
+                    showPage('synonymsPage');
+                } else if (m.page === 'wordorderPage') {
+                    console.log('🔤 启动词序排列...');
+                    initWordOrder();
+                    showPage('wordorderPage');
+                } else if (m.page === 'rootsPage') {
+                    console.log('🌱 启动词根词缀...');
+                    initRoots();
+                    showPage('rootsPage');
                 }
             };
             list.appendChild(div);
@@ -1024,7 +1210,6 @@
     }
     
     let selectedVoice = null;
-    let voicesLoaded = false;
     
     // 加载可用语音并选择最佳美式女声
     function loadBestVoice() {
@@ -1032,35 +1217,38 @@
         
         if (voices.length === 0) return null;
         
-        // 优先选择：Google US English, Microsoft Zira, Siri (女性美声)
+        // 优先选择优质美式英语语音
         const preferredNames = [
             'Google US English',
             'Microsoft Zira', 
             'Samantha',
             'Victoria',
-            'Katherine',
-            'en-US'
+            'Katherine'
         ];
         
-        // 先找明确的女性美声
+        // 先找明确的美式英语语音
         for (const name of preferredNames) {
-            const voice = voices.find(v => 
-                v.name.includes(name) && v.lang.startsWith('en')
-            );
+            const voice = voices.find(v => v.name.includes(name));
             if (voice) {
                 selectedVoice = voice;
                 console.log('✅ 使用语音:', voice.name);
-                voicesLoaded = true;
                 return voice;
             }
         }
         
-        // 如果没找到特定名字，找所有 en-US 音
+        // 其次找 en-US 语音
         const usVoices = voices.filter(v => v.lang === 'en-US');
         if (usVoices.length > 0) {
             selectedVoice = usVoices[0];
             console.log('✅ 使用语音:', selectedVoice.name);
-            voicesLoaded = true;
+            return selectedVoice;
+        }
+        
+        // 最后找任何英语语音
+        const enVoices = voices.filter(v => v.lang.startsWith('en'));
+        if (enVoices.length > 0) {
+            selectedVoice = enVoices[0];
+            console.log('✅ 使用语音:', selectedVoice.name);
             return selectedVoice;
         }
         
@@ -1069,18 +1257,18 @@
     
     // 初始化时加载语音 - 立即执行 + 监听变化
     if ('speechSynthesis' in window) {
-        // 立即尝试加载
+        // Chrome 可能需要用户交互后才有语音列表，所以多次尝试
         selectedVoice = loadBestVoice();
         
-        // 监听语音列表变化（浏览器可能需要时间加载）
+        // 监听语音列表变化
         speechSynthesis.onvoiceschanged = () => {
             selectedVoice = loadBestVoice();
         };
         
-        // 延迟再试一次确保加载
-        setTimeout(() => {
-            selectedVoice = loadBestVoice();
-        }, 500);
+        // 延迟再试几次确保加载完成
+        setTimeout(() => { selectedVoice = loadBestVoice(); }, 100);
+        setTimeout(() => { selectedVoice = loadBestVoice(); }, 500);
+        setTimeout(() => { selectedVoice = loadBestVoice(); }, 1000);
     }
     
     function speak(text) {
@@ -1095,22 +1283,48 @@
         }
         
         try {
-            speechSynthesis.cancel(); // 停止之前的发音
+            // 停止之前的发音
+            speechSynthesis.cancel();
             
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'en-US';
-            utterance.rate = 1.0; // 正常语速
-            utterance.pitch = 1.1; // 稍高音调更清晰
-            utterance.volume = 1.0;
-            
-            if (selectedVoice) {
-                utterance.voice = selectedVoice;
-            }
-            
-            speechSynthesis.speak(utterance);
-            console.log('🔊 正在播放:', text.substring(0, 30));
+            // 等待一小会儿确保 cancel 完成
+            setTimeout(() => {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                utterance.rate = 1.0;
+                utterance.pitch = 1.1;
+                utterance.volume = 1.0;
+                
+                if (selectedVoice) {
+                    utterance.voice = selectedVoice;
+                }
+                
+                // 确保在用户交互上下文中播放
+                utterance.onstart = () => {
+                    console.log('🔊 开始播放:', text.substring(0, 30));
+                };
+                utterance.onend = () => {
+                    console.log('✅ 播放结束');
+                };
+                utterance.onerror = (e) => {
+                    console.error('❌ 播放错误:', e);
+                };
+                
+                speechSynthesis.speak(utterance);
+            }, 10);
         } catch (e) {
             console.error('❌ 语音播放失败:', e);
+        }
+    }
+    
+    // 预加载语音 - 在页面启动时触发一次静音播放来初始化 Chrome 的语音引擎
+    function preloadSpeech() {
+        if ('speechSynthesis' in window) {
+            setTimeout(() => {
+                const test = new SpeechSynthesisUtterance('.');
+                test.volume = 0;
+                test.rate = 2;
+                speechSynthesis.speak(test);
+            }, 1000);
         }
     }
     
@@ -1291,10 +1505,262 @@
         showPage('completePage');
     }
     
+    // ========== 完形填空 ==========
+    function initCloze() {
+        clozeIndex = 0;
+        clozeScore = 0;
+        loadClozeQuestion();
+    }
+    
+    function loadClozeQuestion() {
+        if (clozeIndex >= CLOZE_QUIZZES.length) {
+            finishCloze();
+            return;
+        }
+        const q = CLOZE_QUIZZES[clozeIndex];
+        const container = document.getElementById('clozeQuiz');
+        let optionsHtml = q.options.map(opt => 
+            `<button class="option-btn" onclick="checkClozeAnswer('${opt}', '${q.answer}')">${opt}</button>`
+        ).join('');
+        container.innerHTML = `
+            <div style="text-align:center; padding:30px;">
+                <p style="font-size:24px; margin-bottom:25px;">${q.sentence}</p>
+                <div style="display:flex; gap:15px; justify-content:center; flex-wrap:wrap;">${optionsHtml}</div>
+            </div>
+        `;
+    }
+    
+    function checkClozeAnswer(selected, correct) {
+        if (selected === correct) {
+            clozeScore++;
+            document.getElementById('clozeFeedback').textContent = '✅ 正确！';
+            document.getElementById('clozeFeedback').className = 'feedback success';
+        } else {
+            document.getElementById('clozeFeedback').textContent = `❌ 正确答案：${correct}`;
+            document.getElementById('clozeFeedback').className = 'feedback error';
+        }
+        document.getElementById('nextClozeBtn').style.display = 'inline-block';
+        if (clozeIndex + 1 >= CLOZE_QUIZZES.length) {
+            document.getElementById('nextClozeBtn').style.display = 'none';
+            document.getElementById('finishClozeBtn').style.display = 'inline-block';
+        }
+    }
+    
+    function nextCloze() {
+        clozeIndex++;
+        document.getElementById('nextClozeBtn').style.display = 'none';
+        document.getElementById('clozeFeedback').textContent = '';
+        loadClozeQuestion();
+    }
+    
+    function finishCloze() {
+        document.getElementById('learnedCount').innerHTML = `完形填空完成！得分：<span>${clozeScore}/${CLOZE_QUIZZES.length}</span>`;
+        showPage('completePage');
+    }
+    
+    // ========== 口语对话 ==========
+    function initConversation() {
+        conversationIndex = 0;
+        loadConversation();
+    }
+    
+    function loadConversation() {
+        if (conversationIndex >= CONVERSATIONS.length) {
+            finishConversation();
+            return;
+        }
+        const c = CONVERSATIONS[conversationIndex];
+        document.getElementById('conversationDisplay').innerHTML = `
+            <div style="margin-bottom:20px;">
+                <h3 style="color:#667eea;">场景：${c.scene}</h3>
+            </div>
+            <div style="background:#e0e7ff; padding:15px; border-radius:10px; margin:10px 0;">
+                <strong>🤖 AI:</strong> ${c.aiText}
+            </div>
+            <div style="background:#dcfce7; padding:15px; border-radius:10px; margin:10px 0;">
+                <strong>💡 请说：</strong> ${c.response1}
+                <button class="btn" onclick="speak('${c.audio1}')" style="margin-left:15px; padding:8px 15px;">🔊</button>
+            </div>
+        `;
+        document.getElementById('conversationInput').value = '';
+        document.getElementById('conversationFeedback').textContent = '';
+    }
+    
+    function checkConversation() {
+        const input = document.getElementById('conversationInput').value.trim().toLowerCase();
+        const target = CONVERSATIONS[conversationIndex].response1.toLowerCase();
+        if (input.includes(target.replace(/[^a-z]/g, ''))) {
+            document.getElementById('conversationFeedback').textContent = '✅ 回答正确！';
+            document.getElementById('conversationFeedback').className = 'feedback success';
+        } else {
+            document.getElementById('conversationFeedback').textContent = `💡 参考答案：${CONVERSATIONS[conversationIndex].response1}`;
+            document.getElementById('conversationFeedback').className = 'feedback info';
+        }
+    }
+    
+    function nextConversation() {
+        conversationIndex++;
+        loadConversation();
+    }
+    
+    function finishConversation() {
+        document.getElementById('learnedCount').innerHTML = `口语对话完成！练习了${conversationIndex}个场景`;
+        showPage('completePage');
+    }
+    
+    // ========== 同义词替换 ==========
+    function initSynonyms() {
+        synonymsIndex = 0;
+        synonymsScore = 0;
+        loadSynonyms();
+    }
+    
+    function loadSynonyms() {
+        if (synonymsIndex >= SYNONYM_PAIRS.length) {
+            finishSynonyms();
+            return;
+        }
+        const s = SYNONYM_PAIRS[synonymsIndex];
+        document.getElementById('synonymsDisplay').innerHTML = `
+            <div style="text-align:center; padding:20px;">
+                <h3 style="color:#667eea; font-size:32px;">${s.word}</h3>
+                <p style="color:#666; margin:15px 0;">同义词：</p>
+                <div style="display:flex; gap:15px; justify-content:center; flex-wrap:wrap;">
+                    ${s.synonyms.map(syn => `<span class="option-btn">${syn}</span>`).join('')}
+                </div>
+                <p style="margin-top:25px; font-style:italic; color:#888;">例句：${s.example}</p>
+            </div>
+        `;
+        document.getElementById('synonymsFeedback').textContent = '';
+        if (synonymsIndex + 1 >= SYNONYM_PAIRS.length) {
+            document.getElementById('nextSynonymsBtn').style.display = 'none';
+            document.getElementById('finishSynonymsBtn').style.display = 'inline-block';
+        } else {
+            document.getElementById('nextSynonymsBtn').style.display = 'inline-block';
+            document.getElementById('finishSynonymsBtn').style.display = 'none';
+        }
+    }
+    
+    function nextSynonyms() {
+        synonymsIndex++;
+        loadSynonyms();
+    }
+    
+    function finishSynonyms() {
+        document.getElementById('learnedCount').innerHTML = `同义词练习完成！学习了${SYNONYM_PAIRS.length}组单词`;
+        showPage('completePage');
+    }
+    
+    // ========== 词序排列 ==========
+    function initWordOrder() {
+        wordOrderIndex = 0;
+        wordOrderScore = 0;
+        loadWordOrder();
+    }
+    
+    function loadWordOrder() {
+        if (wordOrderIndex >= WORD_ORDER_EXERCISES.length) {
+            finishWordOrder();
+            return;
+        }
+        const e = WORD_ORDER_EXERCISES[wordOrderIndex];
+        const shuffled = [...e.words].sort(() => Math.random() - 0.5);
+        document.getElementById('wordOrderDisplay').innerHTML = `
+            <div style="text-align:center; padding:20px;">
+                <p style="color:#666; margin-bottom:20px;">将以下单词组成正确的句子：</p>
+                <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:25px;">
+                    ${shuffled.map(w => `<button class="option-btn" onclick="answerWordOrder('${w}', '${e.correct}')">${w}</button>`).join('')}
+                </div>
+                <input type="text" id="wordOrderInput" placeholder="输入完整句子..." style="width:100%; padding:15px; font-size:18px; text-align:center; border:2px solid #ddd; border-radius:10px;">
+                <button class="btn" onclick="checkWordOrder()" style="margin-top:15px;">提交答案</button>
+            </div>
+        `;
+        document.getElementById('wordOrderFeedback').textContent = '';
+    }
+    
+    function checkWordOrder() {
+        const input = document.getElementById('wordOrderInput').value.trim().toLowerCase().replace(/[.,!?]/g, '');
+        const correct = WORD_ORDER_EXERCISES[wordOrderIndex].correct.toLowerCase().replace(/[.,!?]/g, '');
+        if (input === correct) {
+            wordOrderScore++;
+            document.getElementById('wordOrderFeedback').textContent = '✅ 正确！';
+            document.getElementById('wordOrderFeedback').className = 'feedback success';
+        } else {
+            document.getElementById('wordOrderFeedback').textContent = `❌ 正确答案：${WORD_ORDER_EXERCISES[wordOrderIndex].correct}`;
+            document.getElementById('wordOrderFeedback').className = 'feedback error';
+        }
+        document.getElementById('nextWordOrderBtn').style.display = 'inline-block';
+        if (wordOrderIndex + 1 >= WORD_ORDER_EXERCISES.length) {
+            document.getElementById('nextWordOrderBtn').style.display = 'none';
+            document.getElementById('finishWordOrderBtn').style.display = 'inline-block';
+        }
+    }
+    
+    function answerWordOrder(word, correctSentence) {
+        // 点击提示功能
+        document.getElementById('wordOrderFeedback').textContent = `💡 这句子的答案是：${correctSentence}`;
+        document.getElementById('wordOrderFeedback').className = 'feedback info';
+    }
+    
+    function nextWordOrder() {
+        wordOrderIndex++;
+        document.getElementById('nextWordOrderBtn').style.display = 'none';
+        document.getElementById('wordOrderFeedback').textContent = '';
+        loadWordOrder();
+    }
+    
+    function finishWordOrder() {
+        document.getElementById('learnedCount').innerHTML = `词序排列完成！得分：<span>${wordOrderScore}/${WORD_ORDER_EXERCISES.length}</span>`;
+        showPage('completePage');
+    }
+    
+    // ========== 词根词缀 ==========
+    function initRoots() {
+        rootsIndex = 0;
+        loadRoot();
+    }
+    
+    function loadRoot() {
+        if (rootsIndex >= ROOT_DATA.length) {
+            rootsIndex = 0;
+        }
+        const r = ROOT_DATA[rootsIndex];
+        document.getElementById('rootsDisplay').innerHTML = `
+            <div style="text-align:center; padding:20px;">
+                <div style="background:linear-gradient(135deg,#667eea,#764ba2); color:white; padding:20px; border-radius:15px; margin-bottom:20px;">
+                    <h2 style="font-size:48px;">${r.root}</h2>
+                    <p style="font-size:20px; opacity:0.9;">含义：${r.meaning}</p>
+                </div>
+                <p style="color:#666; margin-bottom:15px;">相关单词：</p>
+                <div style="display:flex; gap:15px; justify-content:center; flex-wrap:wrap;">
+                    ${r.examples.map(ex => `<span class="option-btn">${ex}</span>`).join('')}
+                </div>
+                <p style="margin-top:25px; color:#888; font-size:14px;">记忆：掌握一个词根，记住多个单词！</p>
+            </div>
+        `;
+        document.getElementById('rootsFeedback').textContent = `${rootsIndex + 1} / ${ROOT_DATA.length}`;
+        document.getElementById('prevRootBtn').style.display = rootsIndex > 0 ? 'inline-block' : 'none';
+        document.getElementById('nextRootBtn').style.display = rootsIndex < ROOT_DATA.length - 1 ? 'inline-block' : 'none';
+    }
+    
+    function nextRoot() {
+        rootsIndex++;
+        document.getElementById('nextRootBtn').disabled = rootsIndex >= ROOT_DATA.length - 1;
+        loadRoot();
+    }
+    
+    function prevRoot() {
+        rootsIndex--;
+        document.getElementById('nextRootBtn').disabled = false;
+        loadRoot();
+    }
+    
     // 初始化
     function init() {
         console.log('✅ 英语大师 Pro Max 已就绪！所有功能可用！');
         showHomePage();
+        // Chrome 兼容：预加载语音引擎
+        preloadSpeech();
     }
     
     if (document.readyState === 'loading') {
