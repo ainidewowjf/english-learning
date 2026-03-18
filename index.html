@@ -848,13 +848,21 @@
             div.className = 'practice-card';
             div.innerHTML = `<i class="fas ${m.icon}"></i><h3>${m.title}</h3><p>${m.desc}</p>`;
             div.onclick = () => {
-                if (m.page) {
-                    if (m.page === 'listeningPage') initListening();
-                    else if (m.page === 'spellingPage') initSpelling();
-                    else if (m.page === 'transformationPage') initTransformation();
-                    showPage(m.page);
+                if (m.page === 'listeningPage') {
+                    console.log('🎧 启动听力练习...');
+                    initListening();
+                    showPage('listeningPage');
+                } else if (m.page === 'spellingPage') {
+                    console.log('⌨️ 启动拼写练习...');
+                    initSpelling();
+                    showPage('spellingPage');
+                } else if (m.page === 'transformationPage') {
+                    console.log('🔄 启动句型转换...');
+                    initTransformation();
+                    showPage('transformationPage');
                 } else {
-                    alert(`${m.title}\n此功能正在完善中...\n\n听力、拼写、句型转换已经可用！`);
+                    // 其他功能也提供简单实现或引导
+                    alert(`${m.title}\n\n${m.desc}\n\n💡 提示：听力、拼写、句型转换三个核心练习已完全可用！`);
                 }
             };
             list.appendChild(div);
@@ -1016,83 +1024,94 @@
     }
     
     let selectedVoice = null;
+    let voicesLoaded = false;
     
     // 加载可用语音并选择最佳美式女声
     function loadBestVoice() {
-        return new Promise((resolve) => {
-            const voices = speechSynthesis.getVoices();
-            
-            // 优先选择：Google US English, Microsoft Zira, Siri (女性美声)
-            const preferredNames = [
-                'Google US English',
-                'Microsoft Zira',
-                'Samantha',
-                'Victoria',
-                'Katherine',
-                'US English Female'
-            ];
-            
-            // 先找明确的女性美声
-            for (const name of preferredNames) {
-                const voice = voices.find(v => 
-                    v.name.includes(name) || 
-                    (v.lang === 'en-US' && v.name.toLowerCase().includes('female'))
-                );
-                if (voice) {
-                    selectedVoice = voice;
-                    console.log('✅ 使用语音:', voice.name);
-                    resolve(voice);
-                    return;
-                }
+        const voices = speechSynthesis.getVoices();
+        
+        if (voices.length === 0) return null;
+        
+        // 优先选择：Google US English, Microsoft Zira, Siri (女性美声)
+        const preferredNames = [
+            'Google US English',
+            'Microsoft Zira', 
+            'Samantha',
+            'Victoria',
+            'Katherine',
+            'en-US'
+        ];
+        
+        // 先找明确的女性美声
+        for (const name of preferredNames) {
+            const voice = voices.find(v => 
+                v.name.includes(name) && v.lang.startsWith('en')
+            );
+            if (voice) {
+                selectedVoice = voice;
+                console.log('✅ 使用语音:', voice.name);
+                voicesLoaded = true;
+                return voice;
             }
-            
-            // 如果没找到特定名字，找所有 en-US 音中质量最好的
-            const usVoices = voices.filter(v => v.lang === 'en-US');
-            if (usVoices.length > 0) {
-                // 按名字排序，通常排在前面的是高质量的
-                usVoices.sort((a, b) => {
-                    const scoreA = a.name.match(/Google|Microsoft|Siri/i) ? 2 : 1;
-                    const scoreB = b.name.match(/Google|Microsoft|Siri/i) ? 2 : 1;
-                    return scoreB - scoreA;
-                });
-                selectedVoice = usVoices[0];
-                console.log('✅ 使用语音:', selectedVoice.name);
-                resolve(selectedVoice);
-            } else {
-                console.log('⚠️ 未找到优质语音，使用默认');
-                resolve(null);
-            }
-        });
+        }
+        
+        // 如果没找到特定名字，找所有 en-US 音
+        const usVoices = voices.filter(v => v.lang === 'en-US');
+        if (usVoices.length > 0) {
+            selectedVoice = usVoices[0];
+            console.log('✅ 使用语音:', selectedVoice.name);
+            voicesLoaded = true;
+            return selectedVoice;
+        }
+        
+        return null;
     }
     
-    // 初始化时加载语音
+    // 初始化时加载语音 - 立即执行 + 监听变化
     if ('speechSynthesis' in window) {
-        speechSynthesis.onvoiceschanged = () => {
-            loadBestVoice();
-        };
         // 立即尝试加载
-        setTimeout(() => loadBestVoice(), 100);
+        selectedVoice = loadBestVoice();
+        
+        // 监听语音列表变化（浏览器可能需要时间加载）
+        speechSynthesis.onvoiceschanged = () => {
+            selectedVoice = loadBestVoice();
+        };
+        
+        // 延迟再试一次确保加载
+        setTimeout(() => {
+            selectedVoice = loadBestVoice();
+        }, 500);
     }
     
     function speak(text) {
         if (!('speechSynthesis' in window)) {
-            console.log('浏览器不支持语音合成');
+            console.log('❌ 浏览器不支持语音合成');
             return;
         }
         
-        speechSynthesis.cancel(); // 停止之前的发音
-        
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'en-US';
-        utterance.rate = 1.0; // 正常语速，清晰
-        utterance.pitch = 1.1; // 稍高音调，更清晰
-        utterance.volume = 1.0;
-        
-        if (selectedVoice) {
-            utterance.voice = selectedVoice;
+        if (!text || text.trim() === '') {
+            console.log('⚠️ 没有要朗读的文本');
+            return;
         }
         
-        speechSynthesis.speak(utterance);
+        try {
+            speechSynthesis.cancel(); // 停止之前的发音
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            utterance.rate = 1.0; // 正常语速
+            utterance.pitch = 1.1; // 稍高音调更清晰
+            utterance.volume = 1.0;
+            
+            if (selectedVoice) {
+                utterance.voice = selectedVoice;
+            }
+            
+            speechSynthesis.speak(utterance);
+            console.log('🔊 正在播放:', text.substring(0, 30));
+        } catch (e) {
+            console.error('❌ 语音播放失败:', e);
+        }
     }
     
     function speakCurrentWord() { if (currentWord) speak(currentWord); }
