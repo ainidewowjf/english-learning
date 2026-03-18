@@ -1015,14 +1015,84 @@
         if (confirm('确定要退出当前课程吗？')) showLevelSelector();
     }
     
+    let selectedVoice = null;
+    
+    // 加载可用语音并选择最佳美式女声
+    function loadBestVoice() {
+        return new Promise((resolve) => {
+            const voices = speechSynthesis.getVoices();
+            
+            // 优先选择：Google US English, Microsoft Zira, Siri (女性美声)
+            const preferredNames = [
+                'Google US English',
+                'Microsoft Zira',
+                'Samantha',
+                'Victoria',
+                'Katherine',
+                'US English Female'
+            ];
+            
+            // 先找明确的女性美声
+            for (const name of preferredNames) {
+                const voice = voices.find(v => 
+                    v.name.includes(name) || 
+                    (v.lang === 'en-US' && v.name.toLowerCase().includes('female'))
+                );
+                if (voice) {
+                    selectedVoice = voice;
+                    console.log('✅ 使用语音:', voice.name);
+                    resolve(voice);
+                    return;
+                }
+            }
+            
+            // 如果没找到特定名字，找所有 en-US 音中质量最好的
+            const usVoices = voices.filter(v => v.lang === 'en-US');
+            if (usVoices.length > 0) {
+                // 按名字排序，通常排在前面的是高质量的
+                usVoices.sort((a, b) => {
+                    const scoreA = a.name.match(/Google|Microsoft|Siri/i) ? 2 : 1;
+                    const scoreB = b.name.match(/Google|Microsoft|Siri/i) ? 2 : 1;
+                    return scoreB - scoreA;
+                });
+                selectedVoice = usVoices[0];
+                console.log('✅ 使用语音:', selectedVoice.name);
+                resolve(selectedVoice);
+            } else {
+                console.log('⚠️ 未找到优质语音，使用默认');
+                resolve(null);
+            }
+        });
+    }
+    
+    // 初始化时加载语音
+    if ('speechSynthesis' in window) {
+        speechSynthesis.onvoiceschanged = () => {
+            loadBestVoice();
+        };
+        // 立即尝试加载
+        setTimeout(() => loadBestVoice(), 100);
+    }
+    
     function speak(text) {
-        if ('speechSynthesis' in window) {
-            speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'en-US';
-            utterance.rate = 0.85;
-            speechSynthesis.speak(utterance);
+        if (!('speechSynthesis' in window)) {
+            console.log('浏览器不支持语音合成');
+            return;
         }
+        
+        speechSynthesis.cancel(); // 停止之前的发音
+        
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-US';
+        utterance.rate = 1.0; // 正常语速，清晰
+        utterance.pitch = 1.1; // 稍高音调，更清晰
+        utterance.volume = 1.0;
+        
+        if (selectedVoice) {
+            utterance.voice = selectedVoice;
+        }
+        
+        speechSynthesis.speak(utterance);
     }
     
     function speakCurrentWord() { if (currentWord) speak(currentWord); }
