@@ -1210,6 +1210,7 @@
     }
     
     let selectedVoice = null;
+    let isSpeaking = false; // 防止重复调用
     
     // 加载可用语音并选择最佳美式女声
     function loadBestVoice() {
@@ -1282,11 +1283,14 @@
             return;
         }
         
-        try {
-            // 停止之前的发音
+        // 如果正在说话，先停止
+        if (isSpeaking) {
             speechSynthesis.cancel();
-            
-            // 等待一小会儿确保 cancel 完成
+            isSpeaking = false;
+        }
+        
+        try {
+            // 稍等一下确保 cancel 完全生效
             setTimeout(() => {
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = 'en-US';
@@ -1298,21 +1302,32 @@
                     utterance.voice = selectedVoice;
                 }
                 
-                // 确保在用户交互上下文中播放
                 utterance.onstart = () => {
+                    isSpeaking = true;
                     console.log('🔊 开始播放:', text.substring(0, 30));
                 };
+                
                 utterance.onend = () => {
+                    isSpeaking = false;
                     console.log('✅ 播放结束');
                 };
+                
+                // 优化错误处理 - 忽略 interrupted 错误（这是正常行为）
                 utterance.onerror = (e) => {
-                    console.error('❌ 播放错误:', e);
+                    // interrupted 和 cancelled 通常是正常的（比如新的 speak() 调用了 cancel）
+                    if (e.error !== 'interrupted' && e.error !== 'cancelled') {
+                        console.error('❌ 语音错误:', e.error);
+                    } else {
+                        console.log('ℹ️ 语音被中断 (正常):', e.error);
+                    }
+                    isSpeaking = false;
                 };
                 
                 speechSynthesis.speak(utterance);
-            }, 10);
+            }, 50); // 给 cancel 更多时间生效
         } catch (e) {
             console.error('❌ 语音播放失败:', e);
+            isSpeaking = false;
         }
     }
     
