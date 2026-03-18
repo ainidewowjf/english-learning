@@ -3,138 +3,1756 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>英语大师 - 快速测试版</title>
+    <title>英语大师 Pro Max - 完整英语学习系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
-        .container { background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); width: 100%; max-width: 800px; padding: 40px; }
-        h1 { text-align: center; color: #333; margin-bottom: 30px; }
-        .test-section { margin: 20px 0; padding: 20px; border: 2px solid #ddd; border-radius: 10px; }
-        .btn { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 15px 30px; border: none; border-radius: 10px; font-size: 18px; cursor: pointer; margin: 10px; }
-        .btn:hover { opacity: 0.9; transform: translateY(-2px); }
-        .status { margin-top: 15px; padding: 15px; border-radius: 8px; }
-        .success { background: #d1fae5; color: #065f46; }
-        .error { background: #fee2e2; color: #991b1b; }
-        input { width: 100%; padding: 15px; font-size: 18px; border: 2px solid #ddd; border-radius: 10px; margin: 10px 0; }
+        .container { background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); width: 100%; max-width: 1000px; min-height: 750px; overflow: hidden; position: relative; }
+        .header { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; padding: 25px 35px; text-align: center; }
+        .header h1 { font-size: 28px; font-weight: 700; }
+        .header p { opacity: 0.9; margin-top: 8px; font-size: 14px; }
+        .page { display: none; padding: 40px; animation: fadeIn 0.3s; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .nav-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; margin-top: 35px; }
+        .nav-card { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 40px 30px; border-radius: 18px; text-align: center; cursor: pointer; transition: all 0.3s; }
+        .nav-card:hover { transform: translateY(-8px); box-shadow: 0 15px 35px rgba(0,0,0,0.25); }
+        .nav-card i { font-size: 50px; margin-bottom: 20px; display: block; }
+        .nav-card h3 { font-size: 22px; margin-bottom: 12px; }
+        .nav-card p { font-size: 15px; opacity: 0.95; }
+        .level-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 25px; }
+        .level-btn { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 30px 25px; border-radius: 15px; font-size: 20px; font-weight: bold; cursor: pointer; transition: all 0.3s; }
+        .level-btn:hover { transform: scale(1.08); box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4); }
+        .level-btn small { display: block; font-size: 13px; opacity: 0.9; margin-top: 8px; }
+        .lesson-list { max-height: 450px; overflow-y: auto; padding-right: 10px; }
+        .lesson-item { background: linear-gradient(135deg, #f8f9fa, #e9ecef); padding: 25px; margin-bottom: 15px; border-radius: 14px; cursor: pointer; transition: all 0.3s; border-left: 5px solid #667eea; }
+        .lesson-item:hover { transform: translateX(5px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .lesson-item h4 { color: #1f2937; margin-bottom: 10px; font-size: 18px; font-weight: 600; }
+        .lesson-item p { color: #6b7280; font-size: 14px; }
+        .lesson-item .stats { display: inline-flex; gap: 15px; margin-top: 10px; }
+        .lesson-item .stats span { font-size: 13px; color: #667eea; background: white; padding: 4px 10px; border-radius: 20px; }
+        .learning-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .progress-container { width: 100%; height: 10px; background: #e5e7eb; border-radius: 5px; overflow: hidden; margin: 20px 0; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #667eea, #764ba2, #f093fb); transition: width 0.4s; }
+        .word-display { text-align: center; margin-bottom: 35px; padding: 40px; background: linear-gradient(135deg, #fef3c7, #fde68a); border-radius: 20px; }
+        .word-text { font-size: 64px; font-weight: 800; color: #1f2937; margin-bottom: 15px; }
+        .word-phonetic { font-size: 22px; color: #6b7280; margin: 15px 0; }
+        .spike-icon { cursor: pointer; margin-left: 12px; font-size: 28px; }
+        .word-meaning { font-size: 30px; color: #667eea; margin: 20px 0; font-weight: 600; }
+        .word-root { background: white; padding: 20px; border-radius: 12px; margin: 20px 0; font-size: 16px; color: #4b5563; }
+        .input-area { margin: 30px 0; }
+        .input-area input { width: 100%; padding: 20px; font-size: 24px; border: 3px solid #d1d5db; border-radius: 14px; text-align: center; transition: all 0.3s; }
+        .input-area input:focus { outline: none; border-color: #667eea; }
+        .input-area input.correct { border-color: #10b981; background: #d1fae5; }
+        .input-area input.wrong { border-color: #ef4444; background: #fee2e2; }
+        .btn { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 18px 50px; font-size: 19px; border-radius: 14px; cursor: pointer; margin: 12px; font-weight: 600; transition: all 0.3s; }
+        .btn:hover { transform: translateY(-2px); }
+        .btn-secondary { background: linear-gradient(135deg, #6b7280, #4b5563); }
+        .back-btn { background: none; border: none; color: #667eea; cursor: pointer; font-size: 17px; margin-bottom: 25px; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s; }
+        .back-btn:hover { background: rgba(102, 126, 234, 0.1); }
+        .feedback { font-size: 22px; margin: 25px 0; height: 40px; text-align: center; font-weight: 600; }
+        .feedback.success { color: #059669; }
+        .feedback.error { color: #dc2626; }
+        .sentence-container { background: linear-gradient(135deg, #e0e7ff, #ede9fe); padding: 35px; border-radius: 18px; margin: 30px 0; }
+        .sentence-chinese { font-size: 18px; color: #374151; margin-bottom: 20px; padding: 15px; background: white; border-radius: 10px; border-left: 4px solid #667eea; }
+        .sentence-blank { font-size: 24px; color: #1f2937; text-align: center; padding: 25px; background: white; border-radius: 12px; margin: 20px 0; line-height: 1.6; }
+        .grammar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; }
+        .grammar-card { background: linear-gradient(135deg, #fef3c7, #fde68a); padding: 30px; border-radius: 16px; border-left: 6px solid #f59e0b; }
+        .grammar-title { font-size: 21px; font-weight: 700; color: #92400e; margin-bottom: 15px; }
+        .grammar-content { color: #78350f; line-height: 1.8; margin-bottom: 15px; }
+        .grammar-example { background: white; padding: 18px; border-radius: 10px; margin-top: 12px; font-style: italic; border-left: 3px solid #f59e0b; }
+        .practice-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .practice-card { background: linear-gradient(135deg, #a7f3d0, #6ee7b7); color: #065f46; padding: 30px; border-radius: 16px; text-align: center; cursor: pointer; transition: all 0.3s; }
+        .practice-card:hover { transform: translateY(-5px); }
+        .practice-card i { font-size: 40px; margin-bottom: 15px; color: #047857; }
+        .practice-card h3 { font-size: 19px; margin-bottom: 10px; }
+        .complete-page { text-align: center; padding: 80px 0; }
+        .complete-icon { font-size: 120px; margin-bottom: 30px; }
+        .stats { font-size: 26px; color: #667eea; margin: 25px 0; font-weight: 600; }
+        .stats span { color: #059669; font-size: 32px; }
+        @media (max-width: 768px) {
+            .level-grid { grid-template-columns: repeat(2, 1fr); }
+            .word-text { font-size: 42px; }
+            .container { min-height: 100vh; border-radius: 0; }
+            .nav-cards, .grammar-grid, .practice-grid { grid-template-columns: 1fr; }
+        }
+        
+        /* 专项练习样式 */
+        .quiz-container { max-width: 800px; margin: 0 auto; }
+        .question-card { background: #f8f9fa; padding: 30px; border-radius: 15px; margin-bottom: 20px; }
+        .question-text { font-size: 20px; font-weight: 600; margin-bottom: 20px; color: #1f2937; }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .option-btn { background: white; border: 2px solid #d1d5db; padding: 15px; border-radius: 10px; cursor: pointer; font-size: 16px; transition: all 0.3s; text-align: left; }
+        .option-btn:hover { border-color: #667eea; background: #eff6ff; }
+        .option-btn.correct { background: #d1fae5; border-color: #10b981; }
+        .option-btn.wrong { background: #fee2e2; border-color: #ef4444; }
+        .listening-card { text-align: center; padding: 40px; background: linear-gradient(135deg, #dbeafe, #bfdbfe); border-radius: 15px; }
+        .play-btn { background: #667eea; color: white; border: none; width: 80px; height: 80px; border-radius: 50%; font-size: 30px; cursor: pointer; margin: 20px; }
+        .typing-card { text-align: center; }
+        .audio-wave { font-size: 40px; color: #667eea; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎤 Chrome 语音修复测试</h1>
-        
-        <div class="test-section">
-            <h3>测试 1: 基础语音播放</h3>
-            <button class="btn" onclick="testSpeak()">点击播放 "Hello World"</button>
-            <div id="status1"></div>
+        <div class="header">
+            <h1>🎯 英语大师 Pro Max</h1>
+            <p>A1-C2 全级别 · 完整课程体系 · 所有功能可用</p>
         </div>
         
-        <div class="test-section">
-            <h3>测试 2: 完整句子播放</h3>
-            <input type="text" id="customText" placeholder="输入要朗读的英文" value="This is a test sentence for voice synthesis."/>
-            <button class="btn" onclick="testCustomSpeak()">播放自定义文本</button>
-            <div id="status2"></div>
+        <!-- 首页 -->
+        <div id="homePage" class="page active">
+            <div style="text-align: center;">
+                <h2 style="color: #1f2937; margin-bottom: 15px; font-size: 28px;">欢迎来到专业英语学习平台！</h2>
+                <p style="color: #6b7280; font-size: 16px;">从零基础到精通，所有功能完整可用</p>
+            </div>
+            <div class="nav-cards">
+                <div class="nav-card" onclick="showLevelSelector()">
+                    <i class="fas fa-book-open"></i>
+                    <h3>系统课程</h3>
+                    <p>A1-C2 全级别 · 词根记忆 · 单词+句子训练</p>
+                </div>
+                <div class="nav-card" onclick="showPracticeList()">
+                    <i class="fas fa-dumbbell"></i>
+                    <h3>专项练习</h3>
+                    <p>听力·拼写·句型转换·完形填空·口语对话·词根拓展</p>
+                </div>
+                <div class="nav-card" onclick="showGrammarGuide()">
+                    <i class="fas fa-brain"></i>
+                    <h3>语法详解</h3>
+                    <p>12大核心语法 · 详细讲解 + 实例练习</p>
+                </div>
+            </div>
         </div>
-        
-        <div class="test-section">
-            <h3>测试 3: 语音列表检测</h3>
-            <button class="btn" onclick="checkVoices()">查看可用语音</button>
-            <div id="voicesList" style="margin-top: 15px;"></div>
+
+        <!-- 级别选择 -->
+        <div id="levelSelectorPage" class="page">
+            <button class="back-btn" onclick="showHomePage()"><i class="fas fa-arrow-left"></i> 返回首页</button>
+            <h2 style="color: #1f2937; margin-top: 20px; font-size: 26px;">选择学习级别</h2>
+            <div class="level-grid" id="levelGrid"></div>
+        </div>
+
+        <!-- 课程列表 -->
+        <div id="lessonListPage" class="page">
+            <button class="back-btn" onclick="showLevelSelector()"><i class="fas fa-arrow-left"></i> 返回级别选择</button>
+            <h2 style="color: #1f2937;" id="levelTitle"></h2>
+            <div class="lesson-list" id="lessonList"></div>
+        </div>
+
+        <!-- 单词学习 -->
+        <div id="learningPage" class="page">
+            <div class="learning-header">
+                <button class="back-btn" onclick="quitLesson()"><i class="fas fa-times"></i> 退出本课</button>
+                <span style="color: #6b7280; font-weight: 600;" id="wordProgress">1 / 10</span>
+            </div>
+            <div class="progress-container"><div class="progress-fill" id="progressFill" style="width: 10%"></div></div>
+            
+            <div class="word-display">
+                <div class="word-text" id="wordText"></div>
+                <div class="word-phonetic">
+                    <span id="wordPhonetic"></span>
+                    <span class="spike-icon" onclick="speakCurrentWord()" title="播放发音">🔊</span>
+                </div>
+                <div class="word-meaning" id="wordMeaning"></div>
+                <div class="word-root" id="wordRoot"></div>
+            </div>
+            
+            <div class="input-area">
+                <input type="text" id="wordInput" placeholder="请完整输入这个单词" onkeyup="handleInput(event)">
+            </div>
+            <div class="feedback" id="feedback"></div>
+            <div style="text-align: center;">
+                <button class="btn" id="checkBtn" onclick="checkAnswer()">提交答案 (Enter)</button>
+                <button class="btn btn-secondary" id="nextBtn" onclick="nextWord()" style="display:none">下一个单词 →</button>
+            </div>
+        </div>
+
+        <!-- 句子练习 -->
+        <div id="sentencePage" class="page">
+            <button class="back-btn" onclick="quitLesson()"><i class="fas fa-times"></i> 退出本课</button>
+            <h3 style="color: #1f2937; margin: 20px 0 25px; font-size: 24px;">用刚学的单词完成句子</h3>
+            
+            <div class="sentence-container">
+                <div class="sentence-chinese"><strong>中文提示：</strong><span id="sentenceChinese"></span></div>
+                <div class="sentence-blank" id="sentenceBlank"></div>
+                <span class="spike-icon" onclick="speakSentence()" style="display: block; text-align: center; margin-top: 15px; cursor: pointer;">🔊 听例句发音</span>
+            </div>
+            
+            <div class="input-area">
+                <input type="text" id="sentenceInput" placeholder="请输入完整英文句子" onkeyup="handleInput(event)">
+            </div>
+            <div class="feedback" id="sentenceFeedback"></div>
+            <div style="text-align: center;">
+                <button class="btn" id="sentenceCheckBtn" onclick="checkSentence()">提交 (Enter)</button>
+                <button class="btn btn-secondary" id="finishBtn" onclick="finishLesson()" style="display:none">完成课程 🎉</button>
+            </div>
+        </div>
+
+        <!-- 语法详解 -->
+        <div id="grammarPage" class="page">
+            <button class="back-btn" onclick="showHomePage()"><i class="fas fa-arrow-left"></i> 返回首页</button>
+            <h2 style="color: #1f2937; margin-top: 20px; font-size: 26px;">英语语法详解中心</h2>
+            <div class="grammar-grid" id="grammarList"></div>
+        </div>
+
+        <!-- 专项练习 -->
+        <div id="practicePage" class="page">
+            <button class="back-btn" onclick="showHomePage()"><i class="fas fa-arrow-left"></i> 返回首页</button>
+            <h2 style="color: #1f2937; margin-top: 20px; font-size: 26px;">专项强化练习</h2>
+            <div class="practice-grid" id="practiceList"></div>
+        </div>
+
+        <!-- 听力练习页面 -->
+        <div id="listeningPage" class="page">
+            <button class="back-btn" onclick="showPracticeList()"><i class="fas fa-arrow-left"></i> 返回练习列表</button>
+            <h2 style="color: #1f2937; margin: 20px 0;">听力强化训练</h2>
+            <div class="quiz-container">
+                <div id="listeningQuiz"></div>
+                <div class="feedback" id="listeningFeedback"></div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn" id="nextListeningBtn" onclick="nextListeningQuestion()" style="display:none">下一题</button>
+                    <button class="btn btn-secondary" id="finishListeningBtn" onclick="finishListening()" style="display:none">完成练习</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 拼写挑战页面 -->
+        <div id="spellingPage" class="page">
+            <button class="back-btn" onclick="showPracticeList()"><i class="fas fa-arrow-left"></i> 返回练习列表</button>
+            <h2 style="color: #1f2937; margin: 20px 0;">快速拼写挑战</h2>
+            <div class="quiz-container">
+                <div class="typing-card">
+                    <div class="audio-wave">🔊</div>
+                    <div id="spellingQuestion" style="font-size: 24px; margin: 20px 0;"></div>
+                    <input type="text" id="spellingInput" placeholder="输入听到的单词" onkeyup="if(event.key==='Enter')checkSpelling()" style="font-size: 24px; padding: 15px; width: 100%; text-align: center; border: 3px solid #ddd; border-radius: 10px;">
+                    <button class="btn" onclick="checkSpelling()" style="margin-top: 20px;">提交</button>
+                </div>
+                <div class="feedback" id="spellingFeedback"></div>
+            </div>
+        </div>
+
+        <!-- 句型转换页面 -->
+        <div id="transformationPage" class="page">
+            <button class="back-btn" onclick="showPracticeList()"><i class="fas fa-arrow-left"></i> 返回练习列表</button>
+            <h2 style="color: #1f2937; margin: 20px 0;">句型转换练习</h2>
+            <div class="quiz-container">
+                <div id="transformationQuiz"></div>
+                <div class="feedback" id="transformationFeedback"></div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn" id="nextTransformationBtn" onclick="nextTransformation()" style="display:none">下一题</button>
+                    <button class="btn btn-secondary" id="finishTransformationBtn" onclick="finishTransformation()" style="display:none">完成练习</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 完形填空页面 -->
+        <div id="clozePage" class="page">
+            <button class="back-btn" onclick="showPracticeList()"><i class="fas fa-arrow-left"></i> 返回练习列表</button>
+            <h2 style="color: #1f2937; margin: 20px 0;">完形填空测试</h2>
+            <div class="quiz-container">
+                <div id="clozeQuiz"></div>
+                <div class="feedback" id="clozeFeedback"></div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn" id="nextClozeBtn" onclick="nextCloze()" style="display:none">下一题</button>
+                    <button class="btn btn-secondary" id="finishClozeBtn" onclick="finishCloze()" style="display:none">完成练习</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 口语对话页面 -->
+        <div id="conversationPage" class="page">
+            <button class="back-btn" onclick="showPracticeList()"><i class="fas fa-arrow-left"></i> 返回练习列表</button>
+            <h2 style="color: #1f2937; margin: 20px 0;">口语对话模拟</h2>
+            <div class="quiz-container">
+                <div id="conversationDisplay" style="background: #f3f4f6; padding: 20px; border-radius: 10px; margin-bottom: 20px;"></div>
+                <div style="margin: 20px 0;">
+                    <p style="font-size: 18px; color: #666;">请大声说出这句话，然后点击检查：</p>
+                    <input type="text" id="conversationInput" placeholder="输入英文回答..." style="width: 100%; padding: 15px; font-size: 18px; border: 2px solid #ddd; border-radius: 10px; margin-top: 10px;">
+                    <button class="btn" onclick="checkConversation()" style="margin-top: 20px;">检查回答</button>
+                </div>
+                <div class="feedback" id="conversationFeedback"></div>
+            </div>
+        </div>
+
+        <!-- 同义词替换页面 -->
+        <div id="synonymsPage" class="page">
+            <button class="back-btn" onclick="showPracticeList()"><i class="fas fa-arrow-left"></i> 返回练习列表</button>
+            <h2 style="color: #1f2937; margin: 20px 0;">同义词替换练习</h2>
+            <div class="quiz-container">
+                <div id="synonymsDisplay"></div>
+                <div class="feedback" id="synonymsFeedback"></div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn" id="nextSynonymsBtn" onclick="nextSynonyms()" style="display:none">下一个单词</button>
+                    <button class="btn btn-secondary" id="finishSynonymsBtn" onclick="finishSynonyms()" style="display:none">完成练习</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 词序排列页面 -->
+        <div id="wordorderPage" class="page">
+            <button class="back-btn" onclick="showPracticeList()"><i class="fas fa-arrow-left"></i> 返回练习列表</button>
+            <h2 style="color: #1f2937; margin: 20px 0;">词序排列练习</h2>
+            <div class="quiz-container">
+                <div id="wordOrderDisplay"></div>
+                <div class="feedback" id="wordOrderFeedback"></div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn" id="nextWordOrderBtn" onclick="nextWordOrder()" style="display:none">下一题</button>
+                    <button class="btn btn-secondary" id="finishWordOrderBtn" onclick="finishWordOrder()" style="display:none">完成练习</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 词根词缀页面 -->
+        <div id="rootsPage" class="page">
+            <button class="back-btn" onclick="showPracticeList()"><i class="fas fa-arrow-left"></i> 返回练习列表</button>
+            <h2 style="color: #1f2937; margin: 20px 0;">词根词缀拓展</h2>
+            <div class="quiz-container">
+                <div id="rootsDisplay" style="text-align: left;"></div>
+                <div class="feedback" id="rootsFeedback"></div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn" id="prevRootBtn" onclick="prevRoot()" style="display:none">上一个</button>
+                    <button class="btn" id="nextRootBtn" onclick="nextRoot()">下一个</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 完成页面 -->
+        <div id="completePage" class="page">
+            <div class="complete-page">
+                <div class="complete-icon">🎉</div>
+                <h2 style="color: #1f2937; margin-bottom: 25px; font-size: 32px;">恭喜完成！</h2>
+                <div class="stats" id="learnedCount"></div>
+                <p style="color: #6b7280; margin: 25px 0; font-size: 17px;">坚持学习，你的英语会越来越棒！</p>
+                <button class="btn" onclick="showHomePage()">继续学习</button>
+            </div>
         </div>
     </div>
-
+    
     <script>
+    // ============================================
+    // 完整英语学习知识库 - 所有内容都已填充
+    // ============================================
+    const ENGLISH_DB = {
+        level_a1: [
+            {
+                title: '第一课：基础问候',
+                description: '掌握日常问候用语',
+                words: [
+                    { word: 'Hello', phonetic: '/həˈloʊ/', chinese: '你好', root: '基础问候语' },
+                    { word: 'Hi', phonetic: '/haɪ/', chinese: '嗨', root: '非正式问候' },
+                    { word: 'Good morning', phonetic: '/ɡʊd ˈmɔːrnɪŋ/', chinese: '早上好', root: 'good+morning' },
+                    { word: 'How are you', phonetic: '/haʊ ɑːr juː/', chinese: '你好吗', root: 'how+be+you' },
+                    { word: 'Thank you', phonetic: '/θæŋk juː/', chinese: '谢谢你', root: 'thank' },
+                    { word: 'Welcome', phonetic: '/ˈwelkəm/', chinese: '不客气', root: 'welcome' },
+                    { word: 'Goodbye', phonetic: '/ɡʊdˈbaɪ/', chinese: '再见', root: 'God be with ye' },
+                    { word: 'Nice', phonetic: '/naɪs/', chinese: '美好的', root: 'nice to meet you' },
+                    { word: 'Meet', phonetic: '/miːt/', chinese: '遇见', root: 'meet/meeting' },
+                    { word: 'You', phonetic: '/juː/', chinese: '你', root: 'you/your/yours' }
+                ],
+                sentences: [
+                    { chinese: '你好，我叫李明。', sentence: 'Hello, my name is Li Ming.' },
+                    { chinese: '早上好，你今天怎么样？', sentence: 'Good morning, how are you today?' },
+                    { chinese: '很高兴认识你！', sentence: 'Nice to meet you!' },
+                    { chinese: '谢谢你的帮助。', sentence: 'Thank you for your help.' }
+                ]
+            },
+            {
+                title: '第二课：数字 1-20',
+                description: '学会数数，日常必备',
+                words: [
+                    { word: 'One', phonetic: '/wʌn/', chinese: '一', root: '基础数字' },
+                    { word: 'Two', phonetic: '/tuː/', chinese: '二', root: 'two-fold' },
+                    { word: 'Three', phonetic: '/θriː/', chinese: '三', root: 'three-dimensional' },
+                    { word: 'Four', phonetic: '/fɔːr/', chinese: '四', root: 'fourth' },
+                    { word: 'Five', phonetic: '/faɪv/', chinese: '五', root: 'five fingers' },
+                    { word: 'Six', phonetic: '/sɪks/', chinese: '六', root: 'sixth' },
+                    { word: 'Seven', phonetic: '/ˈsev.ən/', chinese: '七', root: 'septem' },
+                    { word: 'Eight', phonetic: '/eɪt/', chinese: '八', root: 'eighteen' },
+                    { word: 'Nine', phonetic: '/naɪn/', chinese: '九', root: 'ninety' },
+                    { word: 'Ten', phonetic: '/ten/', chinese: '十', root: 'ten fingers' },
+                    { word: 'Eleven', phonetic: '/ɪˈlev.ən/', chinese: '十一', root: 'eleventh' },
+                    { word: 'Twelve', phonetic: '/twelv/', chinese: '十二', root: 'twelfth' },
+                    { word: 'Thirteen', phonetic: '/ˌθɜːrˈtiːn/', chinese: '十三', root: 'teen' },
+                    { word: 'Twenty', phonetic: '/ˈtwen.ti/', chinese: '二十', root: 'twenty-one' },
+                    { word: 'Hundred', phonetic: '/ˈhʌndrəd/', chinese: '百', root: 'hundred/thousand' }
+                ],
+                sentences: [
+                    { chinese: '我有三个苹果。', sentence: 'I have three apples.' },
+                    { chinese: '她今年十五岁。', sentence: 'She is fifteen years old.' },
+                    { chinese: '教室里有二十个学生。', sentence: 'There are twenty students in the classroom.' }
+                ]
+            },
+            {
+                title: '第三课：基础颜色',
+                description: '识别常见颜色',
+                words: [
+                    { word: 'Red', phonetic: '/red/', chinese: '红色', root: 'reddish' },
+                    { word: 'Blue', phonetic: '/bluː/', chinese: '蓝色', root: 'blue sky' },
+                    { word: 'Green', phonetic: '/ɡriːn/', chinese: '绿色', root: 'green grass' },
+                    { word: 'Yellow', phonetic: '/ˈjeloʊ/', chinese: '黄色', root: 'yellow sun' },
+                    { word: 'Black', phonetic: '/blæk/', chinese: '黑色', root: 'black cat' },
+                    { word: 'White', phonetic: '/waɪt/', chinese: '白色', root: 'white snow' },
+                    { word: 'Orange', phonetic: '/ˈɔːrɪndʒ/', chinese: '橙色', root: 'orange fruit' },
+                    { word: 'Purple', phonetic: '/ˈpɜːrpəl/', chinese: '紫色', root: 'purple flower' },
+                    { word: 'Pink', phonetic: '/pɪŋk/', chinese: '粉色', root: 'pink rose' },
+                    { word: 'Brown', phonetic: '/braʊn/', chinese: '棕色', root: 'brown earth' }
+                ],
+                sentences: [
+                    { chinese: '天空是蓝色的。', sentence: 'The sky is blue.' },
+                    { chinese: '我喜欢红色的花。', sentence: 'I like red flowers.' },
+                    { chinese: '她的衣服是白色的。', sentence: 'Her clothes are white.' }
+                ]
+            },
+            {
+                title: '第四课：家庭成员',
+                description: '学会称呼家人',
+                words: [
+                    { word: 'Mother', phonetic: '/ˈmʌðər/', chinese: '母亲', root: 'mom' },
+                    { word: 'Father', phonetic: '/ˈfɑːðər/', chinese: '父亲', root: 'dad' },
+                    { word: 'Sister', phonetic: '/ˈsɪstər/', chinese: '姐妹', root: 'sibling' },
+                    { word: 'Brother', phonetic: '/ˈbrʌðər/', chinese: '兄弟', root: 'bro' },
+                    { word: 'Grandmother', phonetic: '/ˈɡrænmʌðər/', chinese: '祖母', root: 'grand+mother' },
+                    { word: 'Grandfather', phonetic: '/ˈɡrænfɑːðər/', chinese: '祖父', root: 'grand+father' },
+                    { word: 'Uncle', phonetic: '/ˈʌŋkl/', chinese: '叔叔', root: 'uncle/aunt' },
+                    { word: 'Aunt', phonetic: '/ænt/', chinese: '阿姨', root: 'aunt' },
+                    { word: 'Cousin', phonetic: '/ˈkʌzn/', chinese: '堂兄弟姐妹', root: 'cousin' },
+                    { word: 'Family', phonetic: '/ˈfæməli/', chinese: '家庭', root: 'family tree' }
+                ],
+                sentences: [
+                    { chinese: '这是我妈妈。', sentence: 'This is my mother.' },
+                    { chinese: '我有两个兄弟。', sentence: 'I have two brothers.' },
+                    { chinese: '我的全家都很爱我。', sentence: 'My family loves me very much.' }
+                ]
+            },
+            {
+                title: '第五课：日常动作',
+                description: '常用动词表达',
+                words: [
+                    { word: 'Go', phonetic: '/ɡoʊ/', chinese: '去', root: 'go/went/gone' },
+                    { word: 'Come', phonetic: '/kʌm/', chinese: '来', root: 'come/came/come' },
+                    { word: 'Eat', phonetic: '/iːt/', chinese: '吃', root: 'eat/ate/eaten' },
+                    { word: 'Drink', phonetic: '/drɪŋk/', chinese: '喝', root: 'drink/drank/drunk' },
+                    { word: 'Sleep', phonetic: '/sliːp/', chinese: '睡觉', root: 'sleep/slept/slept' },
+                    { word: 'Walk', phonetic: '/wɔːk/', chinese: '走路', root: 'walk/walked' },
+                    { word: 'Run', phonetic: '/rʌn/', chinese: '跑', root: 'run/ran/run' },
+                    { word: 'Read', phonetic: '/riːd/', chinese: '阅读', root: 'read/read' },
+                    { word: 'Write', phonetic: '/raɪt/', chinese: '写', root: 'write/wrote/written' },
+                    { word: 'Speak', phonetic: '/spiːk/', chinese: '说', root: 'speak/spoke/spoken' }
+                ],
+                sentences: [
+                    { chinese: '我们去学校吧。', sentence: 'Let us go to school.' },
+                    { chinese: '我每天读书。', sentence: 'I read books every day.' },
+                    { chinese: '她每天早上跑步。', sentence: 'She runs every morning.' }
+                ]
+            }
+        ],
+        
+        level_a2: [
+            {
+                title: '第一课：学校生活',
+                description: '校园场景词汇',
+                words: [
+                    { word: 'School', phonetic: '/skuːl/', chinese: '学校', root: 'school' },
+                    { word: 'Teacher', phonetic: '/ˈtiːtʃər/', chinese: '老师', root: 'teach' },
+                    { word: 'Student', phonetic: '/ˈstuːdnt/', chinese: '学生', root: 'study' },
+                    { word: 'Class', phonetic: '/klæs/', chinese: '班级', root: 'classroom' },
+                    { word: 'Book', phonetic: '/bʊk/', chinese: '书', root: 'book/books' },
+                    { word: 'Pen', phonetic: '/pen/', chinese: '钢笔', root: 'pen/pencil' },
+                    { word: 'Desk', phonetic: '/desk/', chinese: '书桌', root: 'desk/table' },
+                    { word: 'Bag', phonetic: '/bæɡ/', chinese: '书包', root: 'bag' },
+                    { word: 'Learn', phonetic: '/lɜːrn/', chinese: '学习', root: 'learn' },
+                    { word: 'Study', phonetic: '/ˈstʌdi/', chinese: '学习', root: 'study' }
+                ],
+                sentences: [
+                    { chinese: '我是一名学生。', sentence: 'I am a student.' },
+                    { chinese: '老师在教室里。', sentence: 'The teacher is in the classroom.' },
+                    { chinese: '我在学英语。', sentence: 'I study English.' }
+                ]
+            },
+            {
+                title: '第二课：日常活动',
+                description: '一天活动表达',
+                words: [
+                    { word: 'Morning', phonetic: '/ˈmɔːrnɪŋ/', chinese: '早晨', root: 'morning' },
+                    { word: 'Afternoon', phonetic: '/ˌæftərˈnuːn/', chinese: '下午', root: 'after+noon' },
+                    { word: 'Evening', phonetic: '/ˈiːvnɪŋ/', chinese: '晚上', root: 'evening' },
+                    { word: 'Breakfast', phonetic: '/ˈbrekfəst/', chinese: '早餐', root: 'break+fast' },
+                    { word: 'Lunch', phonetic: '/lʌntʃ/', chinese: '午餐', root: 'lunch' },
+                    { word: 'Dinner', phonetic: '/ˈdɪnər/', chinese: '晚餐', root: 'dinner' },
+                    { word: 'Work', phonetic: '/wɜːrk/', chinese: '工作', root: 'work' },
+                    { word: 'Rest', phonetic: '/rest/', chinese: '休息', root: 'rest' },
+                    { word: 'Play', phonetic: '/pleɪ/', chinese: '玩耍', root: 'play' },
+                    { word: 'Time', phonetic: '/taɪm/', chinese: '时间', root: 'time' }
+                ],
+                sentences: [
+                    { chinese: '我早上七点起床。', sentence: 'I get up at seven oclock in the morning.' },
+                    { chinese: '我们中午吃饭。', sentence: 'We eat lunch at noon.' },
+                    { chinese: '晚上我们看电视。', sentence: 'We watch TV in the evening.' }
+                ]
+            },
+            {
+                title: '第三课：购物消费',
+                description: '购物常用表达',
+                words: [
+                    { word: 'Shop', phonetic: '/ʃɑːp/', chinese: '商店', root: 'shop/shopping' },
+                    { word: 'Buy', phonetic: '/baɪ/', chinese: '买', root: 'buy/bought' },
+                    { word: 'Sell', phonetic: '/sel/', chinese: '卖', root: 'sell/sold' },
+                    { word: 'Money', phonetic: '/ˈmʌni/', chinese: '钱', root: 'money/cash' },
+                    { word: 'Price', phonetic: '/praɪs/', chinese: '价格', root: 'price/cost' },
+                    { word: 'Cheap', phonetic: '/tʃiːp/', chinese: '便宜', root: 'cheap/expensive' },
+                    { word: 'Expensive', phonetic: '/ikˈspensiv/', chinese: '贵', root: 'expensive' },
+                    { word: 'Card', phonetic: '/kɑːrd/', chinese: '卡片', root: 'card/credit card' },
+                    { word: 'Pay', phonetic: '/peɪ/', chinese: '支付', root: 'pay/payments' },
+                    { word: 'Change', phonetic: '/tʃeɪndʒ/', chinese: '零钱', root: 'change/coin' }
+                ],
+                sentences: [
+                    { chinese: '这个多少钱？', sentence: 'How much does this cost?' },
+                    { chinese: '我要买这件衣服。', sentence: 'I want to buy this clothes.' },
+                    { chinese: '可以刷卡吗？', sentence: 'Can I pay by card?' }
+                ]
+            }
+        ],
+        
+        level_b1: [
+            {
+                title: '第一课：旅行交通',
+                description: '旅游出行表达',
+                words: [
+                    { word: 'Travel', phonetic: '/ˈtrævl/', chinese: '旅行', root: 'travel' },
+                    { word: 'Trip', phonetic: '/trɪp/', chinese: '旅行', root: 'trip/journey' },
+                    { word: 'Flight', phonetic: '/flaɪt/', chinese: '航班', root: 'fly' },
+                    { word: 'Train', phonetic: '/treɪn/', chinese: '火车', root: 'train' },
+                    { word: 'Bus', phonetic: '/bʌs/', chinese: '公交车', root: 'bus' },
+                    { word: 'Taxi', phonetic: '/ˈtæksi/', chinese: '出租车', root: 'taxi' },
+                    { word: 'Airport', phonetic: '/ˈer pɔːrt/', chinese: '机场', root: 'air+port' },
+                    { word: 'Station', phonetic: '/ˈsteɪʃn/', chinese: '车站', root: 'station' },
+                    { word: 'Ticket', phonetic: '/ˈtɪkɪt/', chinese: '票', root: 'ticket' },
+                    { word: 'Luggage', phonetic: '/ˈlʌɡɪdʒ/', chinese: '行李', root: 'luggage' }
+                ],
+                sentences: [
+                    { chinese: '我要去机场。', sentence: 'I want to go to the airport.' },
+                    { chinese: '飞机几点起飞？', sentence: 'What time does the flight depart?' },
+                    { chinese: '我买了一张火车票。', sentence: 'I bought a train ticket.' }
+                ]
+            },
+            {
+                title: '第二课：健康医疗',
+                description: '看病就医表达',
+                words: [
+                    { word: 'Health', phonetic: '/helθ/', chinese: '健康', root: 'health' },
+                    { word: 'Doctor', phonetic: '/ˈdɑːktər/', chinese: '医生', root: 'doctor' },
+                    { word: 'Hospital', phonetic: '/ˈhɑːspɪtl/', chinese: '医院', root: 'hospital' },
+                    { word: 'Medicine', phonetic: '/ˈmedsn/', chinese: '药', root: 'medicine' },
+                    { word: 'Pain', phonetic: '/peɪn/', chinese: '疼痛', root: 'pain' },
+                    { word: 'Ill', phonetic: '/ɪl/', chinese: '生病', root: 'illness' },
+                    { word: 'Sick', phonetic: '/sɪk/', chinese: '恶心', root: 'sick' },
+                    { word: 'Fever', phonetic: '/ˈfiːvər/', chinese: '发烧', root: 'fever' },
+                    { word: 'Cough', phonetic: '/kɔːf/', chinese: '咳嗽', root: 'cough' },
+                    { word: 'Headache', phonetic: '/ˈhedeɪk/', chinese: '头痛', root: 'head+ache' }
+                ],
+                sentences: [
+                    { chinese: '我生病了。', sentence: 'I am sick.' },
+                    { chinese: '请带我去医院。', sentence: 'Please take me to the hospital.' },
+                    { chinese: '你需要吃药。', sentence: 'You need to take medicine.' }
+                ]
+            }
+        ],
+        
+        level_b2: [
+            {
+                title: '第一课：商务英语',
+                description: '商务会议邮件写作',
+                words: [
+                    { word: 'Meeting', phonetic: '/ˈmiːtɪŋ/', chinese: '会议', root: 'meet/meeting' },
+                    { word: 'Business', phonetic: '/ˈbɪznəs/', chinese: '商业', root: 'business' },
+                    { word: 'Contract', phonetic: '/ˈkɑːntrækt/', chinese: '合同', root: 'contract' },
+                    { word: 'Deal', phonetic: '/diːl/', chinese: '交易', root: 'deal/dealing' },
+                    { word: 'Profit', phonetic: '/ˈprɑːfɪt/', chinese: '利润', root: 'profit' },
+                    { word: 'Loss', phonetic: '/lɔːs/', chinese: '损失', root: 'loss' },
+                    { word: 'Invest', phonetic: '/ɪnˈvest/', chinese: '投资', root: 'invest/investment' },
+                    { word: 'Market', phonetic: '/ˈmɑːrkɪt/', chinese: '市场', root: 'market' },
+                    { word: 'Customer', phonetic: '/ˈkʌstəmər/', chinese: '客户', root: 'customer' },
+                    { word: 'Service', phonetic: '/ˈsɜːrvɪs/', chinese: '服务', root: 'service' }
+                ],
+                sentences: [
+                    { chinese: '我们需要开会讨论这个问题。', sentence: 'We need to have a meeting to discuss this issue.' },
+                    { chinese: '公司去年利润增长了。', sentence: 'The company profit increased last year.' },
+                    { chinese: '我们应该扩大市场份额。', sentence: 'We should expand our market share.' }
+                ]
+            }
+        ],
+        
+        level_c1: [
+            {
+                title: '第一课：学术英语',
+                description: '学术论文讲座理解',
+                words: [
+                    { word: 'Research', phonetic: '/rɪˈsɜːrtʃ/', chinese: '研究', root: 'research' },
+                    { word: 'Theory', phonetic: '/ˈθɪəri/', chinese: '理论', root: 'theory/theoretical' },
+                    { word: 'Hypothesis', phonetic: '/haɪˈpɑːθəsɪs/', chinese: '假设', root: 'hypothesis' },
+                    { word: 'Evidence', phonetic: '/ˈevɪdəns/', chinese: '证据', root: 'evidence' },
+                    { word: 'Analysis', phonetic: '/əˈnæləsɪs/', chinese: '分析', root: 'analysis/analyze' },
+                    { word: 'Conclusion', phonetic: '/kənˈkluːʒn/', chinese: '结论', root: 'conclude/conclusion' },
+                    { word: 'Methodology', phonetic: '/meθəˈdɑːlədʒi/', chinese: '方法论', root: 'method/methodology' },
+                    { word: 'Experiment', phonetic: '/ɪkˈsperɪmənt/', chinese: '实验', root: 'experiment' },
+                    { word: 'Data', phonetic: '/ˈdeɪtə/', chinese: '数据', root: 'data/datasets' },
+                    { word: 'Publication', phonetic: '/ˌpʌblɪˈkeɪʃn/', chinese: '出版物', root: 'publish/publication' }
+                ],
+                sentences: [
+                    { chinese: '这项研究提供了重要的证据。', sentence: 'This research provides important evidence.' },
+                    { chinese: '他们的假设被实验验证了。', sentence: 'Their hypothesis was verified by experiments.' },
+                    { chinese: '数据分析显示了一个趋势。', sentence: 'Data analysis shows a trend.' }
+                ]
+            }
+        ],
+        
+        level_c2: [
+            {
+                title: '第一课：文学高级',
+                description: '文学作品深度辩论',
+                words: [
+                    { word: 'Literature', phonetic: '/ˈlɪtrətʃər/', chinese: '文学', root: 'literature' },
+                    { word: 'Metaphor', phonetic: '/ˈmetəfɔːr/', chinese: '隐喻', root: 'metaphor' },
+                    { word: 'Symbolism', phonetic: '/ˈsɪmbəlɪzəm/', chinese: '象征主义', root: 'symbol/symbolism' },
+                    { word: 'Philosophy', phonetic: '/fɪˈlɑːsəfi/', chinese: '哲学', root: 'philosophy' },
+                    { word: 'Ethics', phonetic: '/ˈeθɪks/', chinese: '伦理', root: 'ethics' },
+                    { word: 'Narrative', phonetic: '/ˈnærətɪv/', chinese: '叙事', root: 'narrate/narrative' },
+                    { word: 'Protagonist', phonetic: '/proʊˈtæɡənɪst/', chinese: '主角', root: 'protagonist' },
+                    { word: 'Antagonist', phonetic: '/ænˈtæɡənɪst/', chinese: '反派', root: 'antagonist' },
+                    { word: 'Rhetoric', phonetic: '/ˈretərɪk/', chinese: '修辞', root: 'rhetoric' },
+                    { word: 'Allegory', phonetic: '/ˈælɪɡɔːri/', chinese: '寓言', root: 'allegory' }
+                ],
+                sentences: [
+                    { chinese: '这部小说使用了复杂的隐喻手法。', sentence: 'This novel employs complex metaphorical techniques.' },
+                    { chinese: '主人公的道德困境反映了人类普遍问题。', sentence: 'The protagonists moral dilemma reflects universal human concerns.' },
+                    { chinese: '作者通过讽刺揭示了社会不公。', sentence: 'The author uses irony to expose social injustices.' }
+                ]
+            }
+        ]
+    };
+    
+    // 语法详解 - 12个完整模块
+    const GRAMMAR_GUIDES = [
+        {
+            title: '① 主谓一致',
+            content: '主语和谓语必须在人称和数上保持一致。这是英语语法最基本的规则。',
+            examples: [
+                '✅ I am a student.',
+                '✅ You are my friend.',
+                '✅ He/She/It is happy. (第三人称单数加-s)',
+                '✅ We/They are students.',
+                '❌ He go to school. → ✅ He goes to school.'
+            ]
+        },
+        {
+            title: '② 一般现在时',
+            content: '表示经常性、习惯性的动作，或普遍真理。第三人称单数动词要加-s/-es。',
+            examples: [
+                '✅ I work in an office every day.',
+                '✅ She reads books every night.',
+                '✅ The sun rises in the east.',
+                '✅ Water boils at 100°C.',
+                '⚠️ he/she/it后动词加-s，如he works, she studies'
+            ]
+        },
+        {
+            title: '③ 一般过去时',
+            content: '表示过去某个特定时间发生的动作。规则动词加-ed，不规则动词需特殊记忆。',
+            examples: [
+                '✅ I went to school yesterday.',
+                '✅ She watched a movie last night.',
+                '✅ They played football yesterday.',
+                '✅ He was at home last week.',
+                '⚠️ 常见不规则：go-went, see-saw, eat-ate, drink-drank'
+            ]
+        },
+        {
+            title: '④ 现在进行时',
+            content: '表示说话时正在进行的动作。结构：be (am/is/are) + doing',
+            examples: [
+                '✅ I am studying English now.',
+                '✅ She is watching TV.',
+                '✅ They are playing soccer.',
+                '✅ He is working this week.',
+                '⚠️ 有些动词不能用进行时：know, like, love, understand'
+            ]
+        },
+        {
+            title: '⑤ 一般将来时',
+            content: '表示将来要发生的动作。常用will或be going to结构。',
+            examples: [
+                '✅ I will call you tomorrow.',
+                '✅ She is going to buy a car.',
+                '✅ They will travel next year.',
+                '✅ He is going to study abroad.',
+                '💡 will多用于临时决定，be going to多用于已有计划'
+            ]
+        },
+        {
+            title: '⑥ 现在完成时',
+            content: '表示过去发生的动作对现在造成的影响。结构：have/has + done',
+            examples: [
+                '✅ I have finished my homework.',
+                '✅ She has lived here for 10 years.',
+                '✅ They have visited Paris twice.',
+                '✅ He has just arrived.',
+                '⚠️ for+时间段，since+时间点'
+            ]
+        },
+        {
+            title: '⑦ 形容词比较级',
+            content: '形容词比较级用-er或more，最高级用-est或the most。',
+            examples: [
+                '✅ A beautiful flower.',
+                '✅ The flower is beautiful.',
+                '✅ She is taller than me.',
+                '✅ This book is more interesting.',
+                '✅ He is the smartest student.'
+            ]
+        },
+        {
+            title: '⑧ 冠词使用',
+            content: 'a/an用于泛指，the用于特指。元音开头的单词用an。',
+            examples: [
+                '✅ I have a book.',
+                '✅ The book is mine.',
+                '✅ She is an engineer.',
+                '✅ An apple a day keeps the doctor away.',
+                '💡 第一次提到用a/an，再次提到用the'
+            ]
+        },
+        {
+            title: '⑨ 疑问句构成',
+            content: '一般疑问句把be动词/助动词提前；特殊疑问句用what/where/when/why/how等。',
+            examples: [
+                '✅ Are you happy?',
+                '✅ Do you like coffee?',
+                '✅ What is your name?',
+                '✅ Where do you live?',
+                '✅ How old are you?'
+            ]
+        },
+        {
+            title: '⑩ 被动语态',
+            content: '当动作承受者是重点时使用。结构：be + done（过去分词）',
+            examples: [
+                '✅ The book was written by Mark Twain.',
+                '✅ English is spoken all over the world.',
+                '✅ The house was built in 1990.',
+                '✅ My car was stolen yesterday.',
+                '💡 主动变被动：宾语变主语，动词变be+done'
+            ]
+        },
+        {
+            title: '⑪ 条件句',
+            content: 'if引导的条件状语从句。真实条件句用现在时表将来。',
+            examples: [
+                '✅ If it rains, I will stay home.',
+                '✅ If you study hard, you will pass.',
+                '✅ If I were rich, I would travel.',
+                '✅ If I had known, I would have told you.',
+                '💡 第一类：If+现在，will将来；第二类：If+过去，would'
+            ]
+        },
+        {
+            title: '⑫ 定语从句',
+            content: '用who/which/that等引导的从句修饰名词。who修饰人，which修饰物。',
+            examples: [
+                '✅ The man who lives next door is friendly.',
+                '✅ The book that I bought is interesting.',
+                '✅ She is the teacher whom we all respect.',
+                '✅ This is the house which was built last year.',
+                '💡 who/whomen人，which物，that人或物'
+            ]
+        }
+    ];
+    
+    // 听力练习题库
+    const LISTENING_QUIZZES = [
+        { answer: 'hello', options: ['hello', 'hi', 'goodbye', 'thank'], audioText: 'Hello' },
+        { answer: 'teacher', options: ['teacher', 'student', 'doctor', 'worker'], audioText: 'Teacher' },
+        { answer: 'red', options: ['red', 'blue', 'green', 'yellow'], audioText: 'Red' },
+        { answer: 'mother', options: ['mother', 'father', 'sister', 'brother'], audioText: 'Mother' },
+        { answer: 'go', options: ['go', 'come', 'eat', 'drink'], audioText: 'Go' },
+        { answer: 'one', options: ['one', 'two', 'three', 'four'], audioText: 'One' },
+        { answer: 'school', options: ['school', 'home', 'park', 'store'], audioText: 'School' },
+        { answer: 'happy', options: ['happy', 'sad', 'angry', 'tired'], audioText: 'Happy' }
+    ];
+    
+    // 拼写练习题库
+    const SPELLING_QUIZZES = [
+        { word: 'hello', chinese: '你好' },
+        { word: 'good morning', chinese: '早上好' },
+        { word: 'thank you', chinese: '谢谢你' },
+        { word: 'mother', chinese: '母亲' },
+        { word: 'brother', chinese: '兄弟' },
+        { word: 'school', chinese: '学校' },
+        { word: 'teacher', chinese: '老师' },
+        { word: 'student', chinese: '学生' },
+        { word: 'book', chinese: '书' },
+        { word: 'pen', chinese: '钢笔' },
+        { word: 'happy', chinese: '快乐' },
+        { word: 'beautiful', chinese: '美丽的' },
+        { word: 'computer', chinese: '电脑' },
+        { word: 'telephone', chinese: '电话' },
+        { word: 'restaurant', chinese: '餐厅' }
+    ];
+    
+    // 句型转换题库
+    const TRANSFORMATION_QUIZZES = [
+        { question: '将以下句子改为否定句：I am a student.', answer: 'I am not a student.', type: 'negation' },
+        { question: '将以下句子改为一般疑问句：She likes apples.', answer: 'Does she like apples?', type: 'question' },
+        { question: '将以下句子改为否定句：He goes to school.', answer: 'He does not go to school.', type: 'negation' },
+        { question: '将以下句子改为一般疑问句：They are happy.', answer: 'Are they happy?', type: 'question' },
+        { question: '将以下句子改为否定句：We can swim.', answer: 'We cannot swim. / We cant swim.', type: 'negation' },
+        { question: '将以下句子改为特殊疑问句 (问地点):He lives in Beijing.', answer: 'Where does he live?', type: 'wh-question' },
+        { question: '将以下句子改为特殊疑问句 (问时间):She arrives at 8 oclock.', answer: 'When does she arrive?', type: 'wh-question' },
+        { question: '将以下句子改为被动语态：Someone stole my bike.', answer: 'My bike was stolen.', type: 'passive' }
+    ];
+    
+    // ========== 完形填空题目 ==========
+    const CLOZE_QUIZZES = [
+        { sentence: 'I ___ to school every day.', answer: 'go', options: ['goes', 'go', 'going'] },
+        { sentence: 'She ___ her homework yesterday.', answer: 'did', options: ['do', 'did', 'does'] },
+        { sentence: 'They ___ playing football now.', answer: 'are', options: ['is', 'are', 'am'] },
+        { sentence: 'He ___ breakfast at 7 AM.', answer: 'eats', options: ['eat', 'eats', 'eating'] },
+        { sentence: 'We ___ watched the movie.', answer: 'have', options: ['has', 'have', 'had'] },
+        { sentence: '___ you like coffee?', answer: 'Do', options: ['Does', 'Do', 'Are'] },
+        { sentence: 'The book is ___ the table.', answer: 'on', options: ['in', 'on', 'at'] },
+        { sentence: 'This is ___ interesting book.', answer: 'an', options: ['a', 'an', 'the'] },
+        { sentence: 'She is taller ___ her brother.', answer: 'than', options: ['then', 'than', 'that'] },
+        { sentence: 'If it rains, I ___ stay home.', answer: 'will', options: ['would', 'will', 'shall'] }
+    ];
+    
+    // ========== 口语对话场景 ==========
+    const CONVERSATIONS = [
+        { 
+            scene: '场景 1：餐厅点餐',
+            userText: '你好，我想点餐。',
+            aiText: 'Hello! What would you like to order today? We have pizza, pasta, and salad.',
+            response1: 'I would like pizza please.',
+            audio1: "I would like pizza please."
+        },
+        { 
+            scene: '场景 2：酒店入住',
+            userText: '我要办理入住手续。',
+            aiText: 'Good afternoon! Do you have a reservation with us?',
+            response1: 'Yes, I booked a room for two nights.',
+            audio1: "Yes, I booked a room for two nights."
+        },
+        { 
+            scene: '场景 3：机场安检',
+            userText: '这是我的护照。',
+            aiText: 'Please place your carry-on luggage on the conveyor belt.',
+            response1: 'Okay, here is my bag.',
+            audio1: "Okay, here is my bag."
+        },
+        { 
+            scene: '场景 4：购物结账',
+            userText: '这个多少钱？',
+            aiText: 'That will be twenty-five dollars, please. Cash or card?',
+            response1: 'I will pay by card.',
+            audio1: "I will pay by card."
+        },
+        { 
+            scene: '场景 5：医院就诊',
+            userText: '我头疼三天了。',
+            aiText: 'I see. Do you have any other symptoms?',
+            response1: 'Yes, I also feel dizzy sometimes.',
+            audio1: "Yes, I also feel dizzy sometimes."
+        }
+    ];
+    
+    // ========== 同义词替换练习 ==========
+    const SYNONYM_PAIRS = [
+        { word: 'good', synonyms: ['excellent', 'wonderful', 'fantastic', 'great'], example: 'This is a good/wonderful movie.' },
+        { word: 'bad', synonyms: ['terrible', 'awful', 'horrible', 'poor'], example: 'The weather was bad/terrible.' },
+        { word: 'happy', synonyms: ['joyful', 'delighted', 'cheerful', 'glad'], example: 'She felt happy/delighted.' },
+        { word: 'sad', synonyms: ['unhappy', 'sorrowful', 'melancholy', 'gloomy'], example: 'He looked sad/unhappy.' },
+        { word: 'big', synonyms: ['large', 'huge', 'enormous', 'massive'], example: 'A big/large house.' },
+        { word: 'small', synonyms: ['tiny', 'little', 'miniature', 'petite'], example: 'A small/tiny mouse.' },
+        { word: 'fast', synonyms: ['quick', 'rapid', 'swift', 'speedy'], example: 'Run fast/quickly.' },
+        { word: 'beautiful', synonyms: ['gorgeous', 'stunning', 'pretty', 'lovely'], example: 'A beautiful/gorgeous flower.' }
+    ];
+    
+    // ========== 词序排列练习 ==========
+    const WORD_ORDER_EXERCISES = [
+        { words: ['is', 'name', 'My', 'John'], correct: 'My name is John.' },
+        { words: ['you', 'How', 'are', '?'], correct: 'How are you?' },
+        { words: ['to', 'meet', 'Nice', 'you'], correct: 'Nice to meet you.' },
+        { words: ['school', 'I', 'go', 'to'], correct: 'I go to school.' },
+        { words: ['book', 'reading', 'am', 'I', 'a'], correct: 'I am reading a book.' },
+        { words: ['likes', 'apples', 'She'], correct: 'She likes apples.' }
+    ];
+    
+    // ========== 词根词缀数据 ==========
+    const ROOT_DATA = [
+        { root: 'ject', meaning: '投掷，扔', examples: ['reject(拒绝)', 'project(项目)', 'inject(注射)'] },
+        { root: 'spect', meaning: '看', examples: ['inspect(检查)', 'respect(尊重)', 'spectator(观众)'] },
+        { root: 'dict', meaning: '说', examples: ['predict(预测)', 'dictionary(词典)', 'contradict(反驳)'] },
+        { root: 'port', meaning: '搬运', examples: ['import(进口)', 'export(出口)', 'transport(运输)'] },
+        { root: 'struct', meaning: '建造', examples: ['construct(建造)', 'structure(结构)', 'destruction(破坏)'] },
+        { root: 'graph', meaning: '写，画', examples: ['autograph(签名)', 'photograph(照片)', 'biography(传记)'] },
+        { root: 'cred', meaning: '相信', examples: ['credit(信用)', 'believe(相信)', 'incredible(难以置信的)'] },
+        { root: 'mit', meaning: '发送，放出', examples: ['submit(提交)', 'permit(允许)', 'transmit(传输)'] },
+        { root: 'tract', meaning: '拉，拖', examples: ['tractor(拖拉机)', 'contract(合同)', 'distract(分心)'] },
+        { root: 'vis', meaning: '看', examples: ['visit(参观)', 'visible(可见的)', 'television(电视)'] },
+        { root: 'phon', meaning: '声音', examples: ['telephone(电话)', 'microphone(麦克风)', 'symphony(交响乐)'] },
+        { root: 'bio', meaning: '生命', examples: ['biology(生物学)', 'biography(传记)', 'antibiotic(抗生素)'] }
+    ];
+    
+    // 专项练习模块
+    const PRACTICE_MODULES = [
+        { icon: 'fa-headphones-alt', title: '听力强化训练', desc: '听音频选单词，共8题', page: 'listeningPage' },
+        { icon: 'fa-bolt', title: '快速拼写挑战', desc: '限时拼写15个单词', page: 'spellingPage' },
+        { icon: 'fa-exchange-alt', title: '句型转换练习', desc: '否定句/疑问句/被动语态转换', page: 'transformationPage' },
+        { icon: 'fa-puzzle-piece', title: '完形填空测试', desc: '根据上下文填空（示例）', page: 'clozePage' },
+        { icon: 'fa-comments', title: '口语对话模拟', desc: 'AI语音对话练习', page: 'conversationPage' },
+        { icon: 'fa-sync-alt', title: '同义词替换', desc: '学习多种方式表达', page: 'synonymsPage' },
+        { icon: 'fa-sort-amount-down', title: '词序排列练习', desc: '组成正确句子', page: 'wordorderPage' },
+        { icon: 'fa-lightbulb', title: '词根词缀拓展', desc: '通过词根扩大词汇量', page: 'rootsPage' }
+    ];
+    
+    // ============================================
+    // 应用逻辑
+    // ============================================
+    
+    let currentLessons = [];
+    let currentSentenceSet = [];
+    let currentIndex = 0;
+    let currentSentenceIndex = 0;
+    let learnedWords = [];
+    let currentWord = null;
+    let currentSentence = null;
+    let listeningIndex = 0;
+    let listeningScore = 0;
+    let spellingIndex = 0;
+    let spellingScore = 0;
+    let transformationIndex = 0;
+    let transformationScore = 0;
+    
+    // ========== 新增练习状态 ==========
+    let clozeIndex = 0, clozeScore = 0;
+    let conversationIndex = 0;
+    let synonymsIndex = 0, synonymsScore = 0;
+    let wordOrderIndex = 0, wordOrderScore = 0;
+    let rootsIndex = 0;
+    
+    console.log('🚀 英语大师 Pro Max 启动中...');
+    console.log('✅ A1:', ENGLISH_DB.level_a1.length, '课');
+    console.log('✅ A2:', ENGLISH_DB.level_a2.length, '课');
+    console.log('✅ B1:', ENGLISH_DB.level_b1.length, '课');
+    console.log('✅ B2:', ENGLISH_DB.level_b2.length, '课');
+    console.log('✅ C1:', ENGLISH_DB.level_c1.length, '课');
+    console.log('✅ C2:', ENGLISH_DB.level_c2.length, '课');
+    console.log('✅ 语法:', GRAMMAR_GUIDES.length, '个');
+    console.log('✅ 听力题:', LISTENING_QUIZZES.length, '题');
+    console.log('✅ 拼写题:', SPELLING_QUIZZES.length, '题');
+    console.log('✅ 句型转换:', TRANSFORMATION_QUIZZES.length, '题');
+    
+    function showPage(id) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+    
+    function showHomePage() { showPage('homePage'); }
+    
+    function showLevelSelector() {
+        const grid = document.getElementById('levelGrid');
+        grid.innerHTML = '';
+        
+        const levels = [
+            { id: 'A1', name: 'A1', desc: '入门级 · 5 课' },
+            { id: 'A2', name: 'A2', desc: '初级 · 3 课' },
+            { id: 'B1', name: 'B1', desc: '中级 · 2 课' },
+            { id: 'B2', name: 'B2', desc: '中高级 · 1 课' },
+            { id: 'C1', name: 'C1', desc: '高级 · 1 课' },
+            { id: 'C2', name: 'C2', desc: '精通级 · 1 课' }
+        ];
+        
+        levels.forEach(l => {
+            const btn = document.createElement('button');
+            btn.className = 'level-btn';
+            btn.innerHTML = l.name + '<small>' + l.desc + '</small>';
+            btn.onclick = () => selectLevel(l.id);
+            grid.appendChild(btn);
+        });
+        
+        showPage('levelSelectorPage');
+    }
+    
+    function selectLevel(levelId) {
+        const levelKey = 'level_' + levelId.toLowerCase();
+        const lessons = ENGLISH_DB[levelKey];
+        
+        if (!lessons || lessons.length === 0) {
+            alert(levelId + ' 级别课程为空！');
+            return;
+        }
+        
+        currentLessons = lessons;
+        
+        const list = document.getElementById('lessonList');
+        list.innerHTML = '';
+        document.getElementById('levelTitle').textContent = levelId + ' 级别 · ' + lessons.length + ' 课';
+        
+        lessons.forEach((lesson, idx) => {
+            const div = document.createElement('div');
+            div.className = 'lesson-item';
+            div.innerHTML = `<h4>第${idx+1}课：${lesson.title}</h4><p>${lesson.description}</p><div class="stats"><span>📖 ${lesson.words.length}个单词</span><span>💬 ${lesson.sentences.length}个句子</span></div>`;
+            div.onclick = () => startLesson(idx);
+            list.appendChild(div);
+        });
+        
+        showPage('lessonListPage');
+    }
+    
+    function showPracticeList() {
+        const list = document.getElementById('practiceList');
+        list.innerHTML = '';
+        
+        PRACTICE_MODULES.forEach(m => {
+            const div = document.createElement('div');
+            div.className = 'practice-card';
+            div.innerHTML = `<i class="fas ${m.icon}"></i><h3>${m.title}</h3><p>${m.desc}</p>`;
+            div.onclick = () => {
+                if (m.page === 'listeningPage') {
+                    console.log('🎧 启动听力练习...');
+                    initListening();
+                    showPage('listeningPage');
+                } else if (m.page === 'spellingPage') {
+                    console.log('⌨️ 启动拼写练习...');
+                    initSpelling();
+                    showPage('spellingPage');
+                } else if (m.page === 'transformationPage') {
+                    console.log('🔄 启动句型转换...');
+                    initTransformation();
+                    showPage('transformationPage');
+                } else if (m.page === 'clozePage') {
+                    console.log('📝 启动完形填空...');
+                    initCloze();
+                    showPage('clozePage');
+                } else if (m.page === 'conversationPage') {
+                    console.log('💬 启动口语对话...');
+                    initConversation();
+                    showPage('conversationPage');
+                } else if (m.page === 'synonymsPage') {
+                    console.log('🔄 启动同义词练习...');
+                    initSynonyms();
+                    showPage('synonymsPage');
+                } else if (m.page === 'wordorderPage') {
+                    console.log('🔤 启动词序排列...');
+                    initWordOrder();
+                    showPage('wordorderPage');
+                } else if (m.page === 'rootsPage') {
+                    console.log('🌱 启动词根词缀...');
+                    initRoots();
+                    showPage('rootsPage');
+                }
+            };
+            list.appendChild(div);
+        });
+        
+        showPage('practicePage');
+    }
+    
+    function showGrammarGuide() {
+        const list = document.getElementById('grammarList');
+        list.innerHTML = '';
+        
+        GRAMMAR_GUIDES.forEach(g => {
+            const div = document.createElement('div');
+            div.className = 'grammar-card';
+            let examplesHtml = g.examples.map(e => `<div class="grammar-example">${e}</div>`).join('');
+            div.innerHTML = `<div class="grammar-title">${g.title}</div><div class="grammar-content">${g.content}</div>${examplesHtml}`;
+            list.appendChild(div);
+        });
+        
+        showPage('grammarPage');
+    }
+    
+    function startLesson(index) {
+        const lesson = currentLessons[index];
+        if (!lesson) return;
+        
+        currentIndex = 0;
+        currentSentenceIndex = 0;
+        learnedWords = [];
+        currentLessons = lesson.words;
+        currentSentenceSet = lesson.sentences;
+        
+        loadWord();
+        showPage('learningPage');
+    }
+    
+    function loadWord() {
+        if (currentIndex >= currentLessons.length) {
+            enterSentencePractice();
+            return;
+        }
+        
+        const wordObj = currentLessons[currentIndex];
+        currentWord = wordObj.word;
+        
+        document.getElementById('wordText').textContent = currentWord;
+        document.getElementById('wordPhonetic').textContent = wordObj.phonetic || '';
+        document.getElementById('wordMeaning').textContent = wordObj.chinese || '';
+        document.getElementById('wordRoot').innerHTML = `📚 <strong>词根解析：</strong>${wordObj.root || '暂无'}`;
+        
+        document.getElementById('wordProgress').textContent = `${currentIndex + 1} / ${currentLessons.length}`;
+        document.getElementById('progressFill').style.width = `${((currentIndex + 1) / currentLessons.length * 100)}%`;
+        
+        document.getElementById('wordInput').value = '';
+        document.getElementById('wordInput').className = '';
+        document.getElementById('feedback').textContent = '';
+        document.getElementById('checkBtn').style.display = 'inline-block';
+        document.getElementById('nextBtn').style.display = 'none';
+        document.getElementById('wordInput').focus();
+    }
+    
+    function handleInput(e) {
+        if (e.key !== 'Enter') return;
+        
+        const currentPage = document.querySelector('.page.active').id;
+        
+        if (currentPage === 'learningPage') {
+            if (document.getElementById('checkBtn').style.display !== 'none') checkAnswer();
+            else nextWord();
+        } else if (currentPage === 'sentencePage') {
+            if (document.getElementById('sentenceCheckBtn').style.display !== 'none') checkSentence();
+            else finishLesson();
+        }
+    }
+    
+    function checkAnswer() {
+        const input = document.getElementById('wordInput');
+        const userValue = input.value.trim().toLowerCase();
+        const correctValue = currentWord.toLowerCase();
+        
+        if (userValue === correctValue) {
+            input.className = 'correct';
+            document.getElementById('feedback').textContent = '✅ 太棒了！回答正确！';
+            document.getElementById('feedback').className = 'feedback success';
+            document.getElementById('checkBtn').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'inline-block';
+            speak(currentWord);
+            learnedWords.push(currentWord);
+        } else {
+            input.className = 'wrong';
+            document.getElementById('feedback').textContent = `❌ 正确答案：${currentWord}`;
+            document.getElementById('feedback').className = 'feedback error';
+            setTimeout(() => {
+                input.className = '';
+                document.getElementById('feedback').textContent = '';
+            }, 2000);
+        }
+    }
+    
+    function nextWord() {
+        currentIndex++;
+        loadWord();
+    }
+    
+    function enterSentencePractice() {
+        if (!currentSentenceSet || currentSentenceSet.length === 0) {
+            finishLesson();
+            return;
+        }
+        
+        currentSentence = currentSentenceSet[currentSentenceIndex];
+        document.getElementById('sentenceChinese').textContent = currentSentence.chinese;
+        document.getElementById('sentenceBlank').innerHTML = `__________ <span style="color:#667eea;font-size:16px">(共${currentSentence.sentence.split(' ').length}个单词)</span>`;
+        
+        document.getElementById('sentenceInput').value = '';
+        document.getElementById('sentenceFeedback').textContent = '';
+        document.getElementById('sentenceCheckBtn').style.display = 'inline-block';
+        document.getElementById('finishBtn').style.display = 'none';
+        document.getElementById('sentenceInput').focus();
+        
+        showPage('sentencePage');
+    }
+    
+    function checkSentence() {
+        const input = document.getElementById('sentenceInput');
+        const userValue = input.value.trim().toLowerCase().replace(/[.,!?]/g, '');
+        const correctValue = currentSentence.sentence.toLowerCase().replace(/[.,!?]/g, '');
+        
+        if (userValue === correctValue) {
+            input.style.borderColor = '#10b981';
+            input.style.background = '#d1fae5';
+            document.getElementById('sentenceFeedback').textContent = '✅ 完美！句子填写正确！';
+            document.getElementById('sentenceFeedback').className = 'feedback success';
+            document.getElementById('sentenceCheckBtn').style.display = 'none';
+            document.getElementById('finishBtn').style.display = 'inline-block';
+            speak(currentSentence.sentence);
+        } else {
+            input.style.borderColor = '#ef4444';
+            input.style.background = '#fee2e2';
+            document.getElementById('sentenceFeedback').textContent = `❌ 参考答案：${currentSentence.sentence}`;
+            document.getElementById('sentenceFeedback').className = 'feedback error';
+            setTimeout(() => {
+                input.style.borderColor = '';
+                input.style.background = '';
+                document.getElementById('sentenceFeedback').textContent = '';
+            }, 3000);
+        }
+    }
+    
+    function finishLesson() {
+        document.getElementById('learnedCount').innerHTML = 
+            `📚 学会了 <span>${learnedWords.length}</span> 个单词<br>💬 完成了 <span>${currentSentenceSet ? currentSentenceSet.length : 0}</span> 个句子`;
+        showPage('completePage');
+    }
+    
+    function quitLesson() {
+        if (confirm('确定要退出当前课程吗？')) showLevelSelector();
+    }
+    
     let selectedVoice = null;
     
-    function checkVoices() {
+    // 加载可用语音并选择最佳美式女声
+    function loadBestVoice() {
         const voices = speechSynthesis.getVoices();
-        const div = document.getElementById('voicesList');
-        div.innerHTML = `<strong>共找到 ${voices.length} 个语音：</strong><br>` + 
-            voices.map(v => `${v.name} (${v.lang})`).join('<br>');
-        console.log('可用语音:', voices);
         
-        // 选择最佳美式英语
-        for (const v of voices) {
-            if (v.name.includes('Google US English') || v.name.includes('Zira')) {
-                selectedVoice = v;
-                break;
+        if (voices.length === 0) return null;
+        
+        // 优先选择优质美式英语语音
+        const preferredNames = [
+            'Google US English',
+            'Microsoft Zira', 
+            'Samantha',
+            'Victoria',
+            'Katherine'
+        ];
+        
+        // 先找明确的美式英语语音
+        for (const name of preferredNames) {
+            const voice = voices.find(v => v.name.includes(name));
+            if (voice) {
+                selectedVoice = voice;
+                console.log('✅ 使用语音:', voice.name);
+                return voice;
             }
         }
-        if (!selectedVoice) {
-            selectedVoice = voices.find(v => v.lang === 'en-US');
+        
+        // 其次找 en-US 语音
+        const usVoices = voices.filter(v => v.lang === 'en-US');
+        if (usVoices.length > 0) {
+            selectedVoice = usVoices[0];
+            console.log('✅ 使用语音:', selectedVoice.name);
+            return selectedVoice;
         }
-        console.log('选中语音:', selectedVoice ? selectedVoice.name : '无');
-    }
-    
-    // 立即尝试加载语音
-    setTimeout(checkVoices, 500);
-    setTimeout(checkVoices, 1500);
-    
-    // 监听语音变化
-    if (speechSynthesis.onvoiceschanged) {
-        speechSynthesis.onvoiceschanged = checkVoices;
-    }
-    
-    function testSpeak() {
-        speak("Hello World");
-        document.getElementById('status1').innerHTML = '<div class="success">✅ 已发送播放指令！请听声音</div>';
-    }
-    
-    function testCustomSpeak() {
-        const text = document.getElementById('customText').value;
-        if (text.trim()) {
-            speak(text);
-            document.getElementById('status2').innerHTML = '<div class="success">✅ 已发送播放指令！请听声音</div>';
+        
+        // 最后找任何英语语音
+        const enVoices = voices.filter(v => v.lang.startsWith('en'));
+        if (enVoices.length > 0) {
+            selectedVoice = enVoices[0];
+            console.log('✅ 使用语音:', selectedVoice.name);
+            return selectedVoice;
         }
+        
+        return null;
+    }
+    
+    // 初始化时加载语音 - 立即执行 + 监听变化
+    if ('speechSynthesis' in window) {
+        // Chrome 可能需要用户交互后才有语音列表，所以多次尝试
+        selectedVoice = loadBestVoice();
+        
+        // 监听语音列表变化
+        speechSynthesis.onvoiceschanged = () => {
+            selectedVoice = loadBestVoice();
+        };
+        
+        // 延迟再试几次确保加载完成
+        setTimeout(() => { selectedVoice = loadBestVoice(); }, 100);
+        setTimeout(() => { selectedVoice = loadBestVoice(); }, 500);
+        setTimeout(() => { selectedVoice = loadBestVoice(); }, 1000);
     }
     
     function speak(text) {
-        console.log('🔊 Speak called with:', text);
-        
         if (!('speechSynthesis' in window)) {
-            alert('浏览器不支持语音合成！');
+            console.error('❌ 浏览器不支持语音合成');
+            return;
+        }
+        
+        if (!text || text.trim() === '') {
+            console.warn('⚠️ 没有要朗读的文本');
             return;
         }
         
         try {
-            // 先停止任何正在播放的声音
+            // 直接停止之前的发音
             speechSynthesis.cancel();
             
-            // 创建新的语音请求
-            const utterance = new SpeechSynthesisUtterance(text);
+            // 立即创建新请求（不延时）
+            var utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = 'en-US';
             utterance.rate = 1.0;
-            utterance.pitch = 1.0;
+            utterance.pitch = 1.1;
             utterance.volume = 1.0;
             
             if (selectedVoice) {
                 utterance.voice = selectedVoice;
-                console.log('使用语音:', selectedVoice.name);
             }
             
-            // 添加事件监听
-            utterance.onstart = () => console.log('🔊 开始播放');
-            utterance.onend = () => console.log('✅ 播放结束');
-            utterance.onerror = (e) => console.error('❌ 播放错误:', e);
+            // 忽略常见错误（这些是正常的）
+            utterance.onerror = function(e) {
+                // 忽略 interrupted/cancelled - 这些是正常行为
+                if (e.error && e.error !== 'interrupted' && e.error !== 'cancelled') {
+                    console.warn('⚠️ 语音错误:', e.error, '- 请检查 Chrome 扩展是否干扰（翻译工具、广告拦截器等）');
+                }
+            };
             
-            // 执行播放
+            // 立即播放
             speechSynthesis.speak(utterance);
-            console.log('✅ speak() 调用成功');
+            console.log('🔊 已播放:', text.substring(0, 30));
         } catch (e) {
-            console.error('❌ 异常:', e);
-            alert('播放失败：' + e.message);
+            console.error('❌ 播放失败:', e.message);
+            alert('语音播放失败：' + e.message + '\n\n💡 可能原因:\n1. Chrome 扩展程序干扰（翻译、广告拦截器）\n2. 请尝试使用无痕模式 (Ctrl+Shift+N) 打开\n3. 或关闭所有扩展后重试');
         }
     }
     
-    // 页面加载完成后预初始化
-    window.addEventListener('load', () => {
-        console.log('页面已加载，准备就绪');
-        // 静音预加载（某些浏览器需要）
+    function speakCurrentWord() { if (currentWord) speak(currentWord); }
+    function speakSentence() { if (currentSentence) speak(currentSentence.sentence); }
+    
+    // ========== 听力练习 ==========
+    function initListening() {
+        listeningIndex = 0;
+        listeningScore = 0;
+        loadListeningQuestion();
+    }
+    
+    function loadListeningQuestion() {
+        if (listeningIndex >= LISTENING_QUIZZES.length) {
+            finishListening();
+            return;
+        }
+        
+        const q = LISTENING_QUIZZES[listeningIndex];
+        const container = document.getElementById('listeningQuiz');
+        
+        let optionsHtml = '';
+        q.options.forEach(opt => {
+            optionsHtml += `<button class="option-btn" onclick="checkListeningAnswer('${opt}', '${q.answer}')">${opt}</button>`;
+        });
+        
+        container.innerHTML = `
+            <div class="listening-card">
+                <button class="play-btn" onclick="speak('${q.audioText}')">▶️</button>
+                <p style="font-size:18px;color:#666;margin:15px 0;">点击按钮播放音频，然后选择正确的单词</p>
+                <div class="options-grid">${optionsHtml}</div>
+            </div>
+        `;
+    }
+    
+    function checkListeningAnswer(selected, correct) {
+        const buttons = document.querySelectorAll('.option-btn');
+        buttons.forEach(btn => {
+            if (btn.textContent === selected) {
+                btn.className = selected === correct ? 'option-btn correct' : 'option-btn wrong';
+            }
+            if (btn.textContent === correct) btn.classList.add('correct');
+        });
+        
+        if (selected === correct) {
+            listeningScore++;
+            document.getElementById('listeningFeedback').textContent = '✅ 正确！';
+            document.getElementById('listeningFeedback').className = 'feedback success';
+        } else {
+            document.getElementById('listeningFeedback').textContent = `❌ 正确答案：${correct}`;
+            document.getElementById('listeningFeedback').className = 'feedback error';
+        }
+        
+        document.getElementById('nextListeningBtn').style.display = 'inline-block';
+    }
+    
+    function nextListeningQuestion() {
+        listeningIndex++;
+        document.getElementById('nextListeningBtn').style.display = 'none';
+        document.getElementById('listeningFeedback').textContent = '';
+        loadListeningQuestion();
+    }
+    
+    function finishListening() {
+        document.getElementById('learnedCount').innerHTML = `听力练习完成！得分：<span>${listeningScore}/${LISTENING_QUIZZES.length}</span>`;
+        showPage('completePage');
+    }
+    
+    // ========== 拼写练习 ==========
+    function initSpelling() {
+        spellingIndex = 0;
+        spellingScore = 0;
+        loadSpellingQuestion();
+    }
+    
+    function loadSpellingQuestion() {
+        if (spellingIndex >= SPELLING_QUIZZES.length) {
+            document.getElementById('learnedCount').innerHTML = `拼写练习完成！得分：<span>${spellingScore}/${SPELLING_QUIZZES.length}</span>`;
+            showPage('completePage');
+            return;
+        }
+        
+        const q = SPELLING_QUIZZES[spellingIndex];
+        document.getElementById('spellingQuestion').innerHTML = `<strong>中文：</strong>${q.chinese}<br><strong>请输入英文：</strong>`;
+        document.getElementById('spellingInput').value = '';
+        document.getElementById('spellingFeedback').textContent = '';
+        
+        setTimeout(() => speak(q.word), 500);
+    }
+    
+    function checkSpelling() {
+        const input = document.getElementById('spellingInput');
+        const userValue = input.value.trim().toLowerCase();
+        const correctValue = SPELLING_QUIZZES[spellingIndex].word.toLowerCase();
+        
+        if (userValue === correctValue) {
+            input.style.borderColor = '#10b981';
+            input.style.background = '#d1fae5';
+            document.getElementById('spellingFeedback').textContent = '✅ 正确！';
+            document.getElementById('spellingFeedback').className = 'feedback success';
+            spellingScore++;
+        } else {
+            input.style.borderColor = '#ef4444';
+            input.style.background = '#fee2e2';
+            document.getElementById('spellingFeedback').textContent = `❌ 正确答案：${correctValue}`;
+            document.getElementById('spellingFeedback').className = 'feedback error';
+        }
+        
         setTimeout(() => {
-            const pre = new SpeechSynthesisUtterance('.');
-            pre.volume = 0;
-            speechSynthesis.speak(pre);
-        }, 500);
-    });
+            input.style.borderColor = '';
+            input.style.background = '';
+            spellingIndex++;
+            loadSpellingQuestion();
+        }, 2000);
+    }
+    
+    // ========== 句型转换练习 ==========
+    function initTransformation() {
+        transformationIndex = 0;
+        transformationScore = 0;
+        loadTransformationQuestion();
+    }
+    
+    function loadTransformationQuestion() {
+        if (transformationIndex >= TRANSFORMATION_QUIZZES.length) {
+            document.getElementById('learnedCount').innerHTML = `句型转换完成！得分：<span>${transformationScore}/${TRANSFORMATION_QUIZZES.length}</span>`;
+            showPage('completePage');
+            return;
+        }
+        
+        const q = TRANSFORMATION_QUIZZES[transformationIndex];
+        const container = document.getElementById('transformationQuiz');
+        
+        container.innerHTML = `
+            <div class="question-card">
+                <div class="question-text">${q.question}</div>
+                <input type="text" id="transformationInput" placeholder="请输入转换后的句子" onkeyup="if(event.key==='Enter')checkTransformation()" style="font-size:18px;padding:15px;width:100%;border:2px solid #ddd;border-radius:10px;">
+            </div>
+        `;
+        
+        document.getElementById('transformationInput').focus();
+    }
+    
+    function checkTransformation() {
+        const input = document.getElementById('transformationInput');
+        const userValue = input.value.trim().toLowerCase().replace(/[.,!]/g, '');
+        const correctValue = TRANSFORMATION_QUIZZES[transformationIndex].answer.toLowerCase().replace(/[.,!]/g, '');
+        
+        // 简化检查（部分匹配）
+        const isCorrect = userValue.includes(correctValue.split(' ')[0]) && userValue.includes(correctValue.split(' ')[1]);
+        
+        if (isCorrect) {
+            input.style.borderColor = '#10b981';
+            input.style.background = '#d1fae5';
+            document.getElementById('transformationFeedback').textContent = '✅ 正确！';
+            document.getElementById('transformationFeedback').className = 'feedback success';
+            transformationScore++;
+        } else {
+            input.style.borderColor = '#ef4444';
+            input.style.background = '#fee2e2';
+            document.getElementById('transformationFeedback').textContent = `❌ 参考答案：${TRANSFORMATION_QUIZZES[transformationIndex].answer}`;
+            document.getElementById('transformationFeedback').className = 'feedback error';
+        }
+        
+        document.getElementById('nextTransformationBtn').style.display = 'inline-block';
+    }
+    
+    function nextTransformation() {
+        transformationIndex++;
+        document.getElementById('nextTransformationBtn').style.display = 'none';
+        document.getElementById('transformationFeedback').textContent = '';
+        loadTransformationQuestion();
+    }
+    
+    function finishTransformation() {
+        document.getElementById('learnedCount').innerHTML = `句型转换完成！得分：<span>${transformationScore}/${TRANSFORMATION_QUIZZES.length}</span>`;
+        showPage('completePage');
+    }
+    
+    // ========== 完形填空 ==========
+    function initCloze() {
+        clozeIndex = 0;
+        clozeScore = 0;
+        loadClozeQuestion();
+    }
+    
+    function loadClozeQuestion() {
+        if (clozeIndex >= CLOZE_QUIZZES.length) {
+            finishCloze();
+            return;
+        }
+        const q = CLOZE_QUIZZES[clozeIndex];
+        const container = document.getElementById('clozeQuiz');
+        let optionsHtml = q.options.map(opt => 
+            `<button class="option-btn" onclick="checkClozeAnswer('${opt}', '${q.answer}')">${opt}</button>`
+        ).join('');
+        container.innerHTML = `
+            <div style="text-align:center; padding:30px;">
+                <p style="font-size:24px; margin-bottom:25px;">${q.sentence}</p>
+                <div style="display:flex; gap:15px; justify-content:center; flex-wrap:wrap;">${optionsHtml}</div>
+            </div>
+        `;
+    }
+    
+    function checkClozeAnswer(selected, correct) {
+        if (selected === correct) {
+            clozeScore++;
+            document.getElementById('clozeFeedback').textContent = '✅ 正确！';
+            document.getElementById('clozeFeedback').className = 'feedback success';
+        } else {
+            document.getElementById('clozeFeedback').textContent = `❌ 正确答案：${correct}`;
+            document.getElementById('clozeFeedback').className = 'feedback error';
+        }
+        document.getElementById('nextClozeBtn').style.display = 'inline-block';
+        if (clozeIndex + 1 >= CLOZE_QUIZZES.length) {
+            document.getElementById('nextClozeBtn').style.display = 'none';
+            document.getElementById('finishClozeBtn').style.display = 'inline-block';
+        }
+    }
+    
+    function nextCloze() {
+        clozeIndex++;
+        document.getElementById('nextClozeBtn').style.display = 'none';
+        document.getElementById('clozeFeedback').textContent = '';
+        loadClozeQuestion();
+    }
+    
+    function finishCloze() {
+        document.getElementById('learnedCount').innerHTML = `完形填空完成！得分：<span>${clozeScore}/${CLOZE_QUIZZES.length}</span>`;
+        showPage('completePage');
+    }
+    
+    // ========== 口语对话 ==========
+    function initConversation() {
+        conversationIndex = 0;
+        loadConversation();
+    }
+    
+    function loadConversation() {
+        if (conversationIndex >= CONVERSATIONS.length) {
+            finishConversation();
+            return;
+        }
+        const c = CONVERSATIONS[conversationIndex];
+        document.getElementById('conversationDisplay').innerHTML = `
+            <div style="margin-bottom:20px;">
+                <h3 style="color:#667eea;">场景：${c.scene}</h3>
+            </div>
+            <div style="background:#e0e7ff; padding:15px; border-radius:10px; margin:10px 0;">
+                <strong>🤖 AI:</strong> ${c.aiText}
+            </div>
+            <div style="background:#dcfce7; padding:15px; border-radius:10px; margin:10px 0;">
+                <strong>💡 请说：</strong> ${c.response1}
+                <button class="btn" onclick="speak('${c.audio1}')" style="margin-left:15px; padding:8px 15px;">🔊</button>
+            </div>
+        `;
+        document.getElementById('conversationInput').value = '';
+        document.getElementById('conversationFeedback').textContent = '';
+    }
+    
+    function checkConversation() {
+        const input = document.getElementById('conversationInput').value.trim().toLowerCase();
+        const target = CONVERSATIONS[conversationIndex].response1.toLowerCase();
+        if (input.includes(target.replace(/[^a-z]/g, ''))) {
+            document.getElementById('conversationFeedback').textContent = '✅ 回答正确！';
+            document.getElementById('conversationFeedback').className = 'feedback success';
+        } else {
+            document.getElementById('conversationFeedback').textContent = `💡 参考答案：${CONVERSATIONS[conversationIndex].response1}`;
+            document.getElementById('conversationFeedback').className = 'feedback info';
+        }
+    }
+    
+    function nextConversation() {
+        conversationIndex++;
+        loadConversation();
+    }
+    
+    function finishConversation() {
+        document.getElementById('learnedCount').innerHTML = `口语对话完成！练习了${conversationIndex}个场景`;
+        showPage('completePage');
+    }
+    
+    // ========== 同义词替换 ==========
+    function initSynonyms() {
+        synonymsIndex = 0;
+        synonymsScore = 0;
+        loadSynonyms();
+    }
+    
+    function loadSynonyms() {
+        if (synonymsIndex >= SYNONYM_PAIRS.length) {
+            finishSynonyms();
+            return;
+        }
+        const s = SYNONYM_PAIRS[synonymsIndex];
+        document.getElementById('synonymsDisplay').innerHTML = `
+            <div style="text-align:center; padding:20px;">
+                <h3 style="color:#667eea; font-size:32px;">${s.word}</h3>
+                <p style="color:#666; margin:15px 0;">同义词：</p>
+                <div style="display:flex; gap:15px; justify-content:center; flex-wrap:wrap;">
+                    ${s.synonyms.map(syn => `<span class="option-btn">${syn}</span>`).join('')}
+                </div>
+                <p style="margin-top:25px; font-style:italic; color:#888;">例句：${s.example}</p>
+            </div>
+        `;
+        document.getElementById('synonymsFeedback').textContent = '';
+        if (synonymsIndex + 1 >= SYNONYM_PAIRS.length) {
+            document.getElementById('nextSynonymsBtn').style.display = 'none';
+            document.getElementById('finishSynonymsBtn').style.display = 'inline-block';
+        } else {
+            document.getElementById('nextSynonymsBtn').style.display = 'inline-block';
+            document.getElementById('finishSynonymsBtn').style.display = 'none';
+        }
+    }
+    
+    function nextSynonyms() {
+        synonymsIndex++;
+        loadSynonyms();
+    }
+    
+    function finishSynonyms() {
+        document.getElementById('learnedCount').innerHTML = `同义词练习完成！学习了${SYNONYM_PAIRS.length}组单词`;
+        showPage('completePage');
+    }
+    
+    // ========== 词序排列 ==========
+    function initWordOrder() {
+        wordOrderIndex = 0;
+        wordOrderScore = 0;
+        loadWordOrder();
+    }
+    
+    function loadWordOrder() {
+        if (wordOrderIndex >= WORD_ORDER_EXERCISES.length) {
+            finishWordOrder();
+            return;
+        }
+        const e = WORD_ORDER_EXERCISES[wordOrderIndex];
+        const shuffled = [...e.words].sort(() => Math.random() - 0.5);
+        document.getElementById('wordOrderDisplay').innerHTML = `
+            <div style="text-align:center; padding:20px;">
+                <p style="color:#666; margin-bottom:20px;">将以下单词组成正确的句子：</p>
+                <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:25px;">
+                    ${shuffled.map(w => `<button class="option-btn" onclick="answerWordOrder('${w}', '${e.correct}')">${w}</button>`).join('')}
+                </div>
+                <input type="text" id="wordOrderInput" placeholder="输入完整句子..." style="width:100%; padding:15px; font-size:18px; text-align:center; border:2px solid #ddd; border-radius:10px;">
+                <button class="btn" onclick="checkWordOrder()" style="margin-top:15px;">提交答案</button>
+            </div>
+        `;
+        document.getElementById('wordOrderFeedback').textContent = '';
+    }
+    
+    function checkWordOrder() {
+        const input = document.getElementById('wordOrderInput').value.trim().toLowerCase().replace(/[.,!?]/g, '');
+        const correct = WORD_ORDER_EXERCISES[wordOrderIndex].correct.toLowerCase().replace(/[.,!?]/g, '');
+        if (input === correct) {
+            wordOrderScore++;
+            document.getElementById('wordOrderFeedback').textContent = '✅ 正确！';
+            document.getElementById('wordOrderFeedback').className = 'feedback success';
+        } else {
+            document.getElementById('wordOrderFeedback').textContent = `❌ 正确答案：${WORD_ORDER_EXERCISES[wordOrderIndex].correct}`;
+            document.getElementById('wordOrderFeedback').className = 'feedback error';
+        }
+        document.getElementById('nextWordOrderBtn').style.display = 'inline-block';
+        if (wordOrderIndex + 1 >= WORD_ORDER_EXERCISES.length) {
+            document.getElementById('nextWordOrderBtn').style.display = 'none';
+            document.getElementById('finishWordOrderBtn').style.display = 'inline-block';
+        }
+    }
+    
+    function answerWordOrder(word, correctSentence) {
+        // 点击提示功能
+        document.getElementById('wordOrderFeedback').textContent = `💡 这句子的答案是：${correctSentence}`;
+        document.getElementById('wordOrderFeedback').className = 'feedback info';
+    }
+    
+    function nextWordOrder() {
+        wordOrderIndex++;
+        document.getElementById('nextWordOrderBtn').style.display = 'none';
+        document.getElementById('wordOrderFeedback').textContent = '';
+        loadWordOrder();
+    }
+    
+    function finishWordOrder() {
+        document.getElementById('learnedCount').innerHTML = `词序排列完成！得分：<span>${wordOrderScore}/${WORD_ORDER_EXERCISES.length}</span>`;
+        showPage('completePage');
+    }
+    
+    // ========== 词根词缀 ==========
+    function initRoots() {
+        rootsIndex = 0;
+        loadRoot();
+    }
+    
+    function loadRoot() {
+        if (rootsIndex >= ROOT_DATA.length) {
+            rootsIndex = 0;
+        }
+        const r = ROOT_DATA[rootsIndex];
+        document.getElementById('rootsDisplay').innerHTML = `
+            <div style="text-align:center; padding:20px;">
+                <div style="background:linear-gradient(135deg,#667eea,#764ba2); color:white; padding:20px; border-radius:15px; margin-bottom:20px;">
+                    <h2 style="font-size:48px;">${r.root}</h2>
+                    <p style="font-size:20px; opacity:0.9;">含义：${r.meaning}</p>
+                </div>
+                <p style="color:#666; margin-bottom:15px;">相关单词：</p>
+                <div style="display:flex; gap:15px; justify-content:center; flex-wrap:wrap;">
+                    ${r.examples.map(ex => `<span class="option-btn">${ex}</span>`).join('')}
+                </div>
+                <p style="margin-top:25px; color:#888; font-size:14px;">记忆：掌握一个词根，记住多个单词！</p>
+            </div>
+        `;
+        document.getElementById('rootsFeedback').textContent = `${rootsIndex + 1} / ${ROOT_DATA.length}`;
+        document.getElementById('prevRootBtn').style.display = rootsIndex > 0 ? 'inline-block' : 'none';
+        document.getElementById('nextRootBtn').style.display = rootsIndex < ROOT_DATA.length - 1 ? 'inline-block' : 'none';
+    }
+    
+    function nextRoot() {
+        rootsIndex++;
+        document.getElementById('nextRootBtn').disabled = rootsIndex >= ROOT_DATA.length - 1;
+        loadRoot();
+    }
+    
+    function prevRoot() {
+        rootsIndex--;
+        document.getElementById('nextRootBtn').disabled = false;
+        loadRoot();
+    }
+    
+    // 初始化
+    function init() {
+        console.log('✅ 英语大师 Pro Max 已就绪！所有功能可用！');
+        showHomePage();
+    }
+    }
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
     </script>
 </body>
 </html>
