@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英语大师 - 键盘输入学单词</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .container { background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); width: 100%; max-width: 800px; min-height: 600px; overflow: hidden; position: relative; }
+        .header { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; padding: 20px 30px; text-align: center; }
+        .header h1 { font-size: 24px; }
+        .page { display: none; padding: 40px; }
+        .page.active { display: block; }
+        .nav-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-top: 30px; }
+        .nav-card { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 30px; border-radius: 15px; text-align: center; cursor: pointer; transition: transform 0.3s; }
+        .nav-card:hover { transform: translateY(-5px); }
+        .nav-card i { font-size: 40px; margin-bottom: 15px; }
+        .level-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 30px; }
+        .level-btn { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 25px; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .level-btn small { display: block; font-size: 12px; opacity: 0.8; margin-top: 5px; }
+        .lesson-item { background: #f8f9fa; padding: 20px; margin-bottom: 10px; border-radius: 10px; cursor: pointer; }
+        .lesson-item:hover { background: #e9ecef; }
+        .word-display { text-align: center; margin-bottom: 30px; }
+        .word-text { font-size: 48px; font-weight: bold; color: #333; }
+        .word-phonetic { font-size: 18px; color: #666; margin: 10px 0; }
+        .word-chinese { font-size: 24px; color: #667eea; margin: 15px 0; }
+        .input-area input { width: 100%; padding: 15px; font-size: 20px; border: 2px solid #ddd; border-radius: 10px; text-align: center; }
+        .btn { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; padding: 15px 40px; font-size: 18px; border-radius: 10px; cursor: pointer; margin: 10px; }
+        .btn-secondary { background: #6c757d; }
+        .back-btn { background: none; border: none; color: #667eea; cursor: pointer; font-size: 16px; margin-bottom: 20px; }
+        .feedback { font-size: 18px; margin: 20px 0; height: 30px; }
+        .feedback.success { color: #10b981; }
+        .feedback.error { color: #ef4444; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header"><h1>🎯 英语大师</h1></div>
+        
+        <div id="homePage" class="page active">
+            <h2 style="text-align:center;color:#333;margin-bottom:10px;">欢迎开始英语学习！</h2>
+            <p style="text-align:center;color:#666;margin-bottom:30px;">通过键盘输入练习，真正掌握每个单词</p>
+            <div class="nav-cards">
+                <div class="nav-card" onclick="showLevelSelector()"><i class="fas fa-book"></i><h3>系统课程</h3><p>A1-C2 全级别课程</p></div>
+                <div class="nav-card" onclick="alert('专项练习模块开发中...')"><i class="fas fa-dumbbell"></i><h3>专项练习</h3><p>强化训练模块</p></div>
+                <div class="nav-card" onclick="alert('语法详解模块开发中...')"><i class="fas fa-brain"></i><h3>语法详解</h3><p>深入理解语法</p></div>
+            </div>
+        </div>
+
+        <div id="levelSelectorPage" class="page">
+            <button class="back-btn" onclick="showHomePage()"><i class="fas fa-arrow-left"></i> 返回首页</button>
+            <h2 style="color:#333;">选择级别</h2>
+            <div class="level-grid" id="levelGrid"></div>
+        </div>
+
+        <div id="lessonListPage" class="page">
+            <button class="back-btn" onclick="showLevelSelector()"><i class="fas fa-arrow-left"></i> 返回级别选择</button>
+            <h2 style="color:#333;" id="levelTitle"></h2>
+            <div id="lessonList"></div>
+        </div>
+
+        <div id="learningPage" class="page">
+            <button class="back-btn" onclick="quitLesson()"><i class="fas fa-times"></i> 退出本课</button>
+            <div class="word-display">
+                <div class="word-text" id="wordText"></div>
+                <div class="word-phonetic"><span id="wordPhonetic"></span><span onclick="speakCurrentWord()" style="cursor:pointer">🔊</span></div>
+                <div class="word-chinese" id="wordChinese"></div>
+            </div>
+            <div class="input-area"><input type="text" id="wordInput" placeholder="请完整输入这个单词" onkeyup="handleInput(event)"></div>
+            <div class="feedback" id="feedback"></div>
+            <div style="text-align:center;"><button class="btn" id="checkBtn" onclick="checkAnswer()">提交 (Enter)</button><button class="btn btn-secondary" id="nextBtn" onclick="nextWord()" style="display:none">下一个单词</button></div>
+        </div>
+
+        <div id="sentencePage" class="page">
+            <button class="back-btn" onclick="quitLesson()"><i class="fas fa-times"></i> 退出本课</button>
+            <h3 style="color:#333;margin-bottom:20px;">用刚学的单词完成句子</h3>
+            <div class="word-display"><div class="word-chinese" id="sentenceChinese"></div><div style="margin:20px 0;padding:20px;background:#f8f9fa;border-radius:10px"><span id="sentenceBlank" style="font-size:20px;color:#666"></span><span onclick="speakSentence()" style="cursor:pointer">🔊</span></div></div>
+            <div class="input-area"><input type="text" id="sentenceInput" placeholder="请输入完整句子" onkeyup="handleInput(event)"></div>
+            <div class="feedback" id="sentenceFeedback"></div>
+            <div style="text-align:center;"><button class="btn" id="sentenceCheckBtn" onclick="checkSentence()">提交 (Enter)</button><button class="btn btn-secondary" id="finishBtn" onclick="finishLesson()" style="display:none">完成课程 🎉</button></div>
+        </div>
+
+        <div id="completePage" class="page">
+            <div style="text-align:center;padding:60px 0"><div style="font-size:80px;margin-bottom:30px">🎉</div><h2 style="color:#333;margin-bottom:20px">太棒了!</h2><p style="color:#666;font-size:18px;margin-bottom:30px">你完成了这节课！</p><p style="color:#667eea" id="learnedCount"></p><button class="btn" onclick="showLevelSelector()">继续学习</button></div>
+        </div>
+    </div>
+    
+    <script>
+    // ========== 课程数据 ==========
+    const LESSONS = [
+        { title: '第一课：打招呼', words: ['Hello', 'Hi', 'Good morning', 'How are you'] },
+        { title: '第二课：数字 1-10', words: ['One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten'] },
+        { title: '第三课：基础颜色', words: ['Red', 'Blue', 'Green', 'Yellow', 'Black', 'White', 'Orange', 'Purple'] },
+        { title: '第四课：常用问候', words: ['Thank you', 'Please', 'Excuse me', 'Sorry', 'You\'re welcome', 'Goodbye', 'See you'] },
+        { title: '第五课：家庭成员', words: ['Mother', 'Father', 'Sister', 'Brother', 'Grandmother', 'Grandfather'] }
+    ];
+    
+    let currentLessons = [];
+    let currentIndex = 0;
+    let learnedWords = [];
+    let currentWord = null;
+    
+    // ========== 页面切换 ==========
+    function showPage(id) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+    
+    function showHomePage() { showPage('homePage'); }
+    
+    function showLevelSelector() {
+        const grid = document.getElementById('levelGrid');
+        grid.innerHTML = '';
+        
+        const levels = [
+            { id: 'A1', name: 'A1', desc: '入门级' },
+            { id: 'A2', name: 'A2', desc: '初级' },
+            { id: 'B1', name: 'B1', desc: '中级' },
+            { id: 'B2', name: 'B2', desc: '中高级' },
+            { id: 'C1', name: 'C1', desc: '高级' },
+            { id: 'C2', name: 'C2', desc: '精通级' }
+        ];
+        
+        levels.forEach(l => {
+            const btn = document.createElement('button');
+            btn.className = 'level-btn';
+            btn.innerHTML = l.name + '<small>' + l.desc + '</small>';
+            btn.onclick = () => selectLevel(l.id);
+            grid.appendChild(btn);
+        });
+        
+        showPage('levelSelectorPage');
+    }
+    
+    function selectLevel(levelId) {
+        if (levelId !== 'A1') {
+            alert(levelId + ' 级别课程正在开发中，目前只有 A1 级别可用！请先选择 A1。');
+            return;
+        }
+        
+        currentLessons = LESSONS;
+        
+        const list = document.getElementById('lessonList');
+        list.innerHTML = '';
+        document.getElementById('levelTitle').textContent = 'A1 级别课程';
+        
+        currentLessons.forEach((lesson, idx) => {
+            const div = document.createElement('div');
+            div.className = 'lesson-item';
+            div.innerHTML = '<h4>' + lesson.title + '</h4><p>' + lesson.words.length + ' 个单词</p>';
+            div.onclick = () => startLesson(idx);
+            list.appendChild(div);
+        });
+        
+        showPage('lessonListPage');
+    }
+    
+    // ========== 学习功能 ==========
+    function startLesson(index) {
+        const lesson = currentLessons[index];
+        if (!lesson) return;
+        
+        currentIndex = 0;
+        learnedWords = [];
+        currentLessons = lesson.words;
+        
+        loadWord();
+        showPage('learningPage');
+    }
+    
+    function loadWord() {
+        if (currentIndex >= currentLessons.length) {
+            enterSentencePractice();
+            return;
+        }
+        
+        currentWord = currentLessons[currentIndex];
+        
+        document.getElementById('wordText').textContent = currentWord;
+        document.getElementById('wordPhonetic').textContent = '';
+        document.getElementById('wordChinese').textContent = '';
+        
+        document.getElementById('wordInput').value = '';
+        document.getElementById('wordInput').className = '';
+        document.getElementById('feedback').textContent = '';
+        document.getElementById('checkBtn').style.display = 'inline-block';
+        document.getElementById('nextBtn').style.display = 'none';
+        document.getElementById('wordInput').focus();
+    }
+    
+    function handleInput(e) {
+        if (e.key !== 'Enter') return;
+        
+        const currentPage = document.querySelector('.page.active').id;
+        
+        if (currentPage === 'learningPage') {
+            if (document.getElementById('checkBtn').style.display !== 'none') {
+                checkAnswer();
+            } else {
+                nextWord();
+            }
+        } else if (currentPage === 'sentencePage') {
+            if (document.getElementById('sentenceCheckBtn').style.display !== 'none') {
+                checkSentence();
+            } else {
+                finishLesson();
+            }
+        }
+    }
+    
+    function checkAnswer() {
+        const input = document.getElementById('wordInput');
+        const userValue = input.value.trim().toLowerCase();
+        const correctValue = currentWord.toLowerCase();
+        
+        if (userValue === correctValue) {
+            input.style.borderColor = '#10b981';
+            input.style.background = '#d1fae5';
+            document.getElementById('feedback').textContent = '✅ 正确！';
+            document.getElementById('feedback').className = 'feedback success';
+            document.getElementById('checkBtn').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'inline-block';
+            speak(currentWord);
+            learnedWords.push(currentWord);
+        } else {
+            input.style.borderColor = '#ef4444';
+            input.style.background = '#fee2e2';
+            document.getElementById('feedback').textContent = '❌ 正确答案：' + currentWord;
+            document.getElementById('feedback').className = 'feedback error';
+            setTimeout(() => {
+                input.style.borderColor = '';
+                input.style.background = '';
+                document.getElementById('feedback').textContent = '';
+            }, 2000);
+        }
+    }
+    
+    function nextWord() {
+        currentIndex++;
+        loadWord();
+    }
+    
+    function enterSentencePractice() {
+        document.getElementById('sentenceChinese').textContent = '完成句子练习';
+        document.getElementById('sentenceBlank').textContent = '__________';
+        
+        document.getElementById('sentenceInput').value = '';
+        document.getElementById('sentenceCheckBtn').style.display = 'inline-block';
+        document.getElementById('finishBtn').style.display = 'none';
+        document.getElementById('sentenceInput').focus();
+        
+        showPage('sentencePage');
+    }
+    
+    function checkSentence() {
+        const input = document.getElementById('sentenceInput');
+        input.style.borderColor = '#10b981';
+        input.style.background = '#d1fae5';
+        document.getElementById('sentenceFeedback').textContent = '✅ 完美！继续加油';
+        document.getElementById('sentenceFeedback').className = 'feedback success';
+        document.getElementById('sentenceCheckBtn').style.display = 'none';
+        document.getElementById('finishBtn').style.display = 'inline-block';
+    }
+    
+    function finishLesson() {
+        document.getElementById('learnedCount').textContent = '你学会了 ' + learnedWords.length + ' 个单词！';
+        showPage('completePage');
+    }
+    
+    function quitLesson() {
+        if (confirm('确定退出吗？')) {
+            showLevelSelector();
+        }
+    }
+    
+    // ========== 语音 ==========
+    function speak(text) {
+        if ('speechSynthesis' in window) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            speechSynthesis.speak(utterance);
+        }
+    }
+    
+    function speakCurrentWord() { if (currentWord) speak(currentWord); }
+    function speakSentence() { speak('Good job!'); }
+    
+    // 初始化
+    showHomePage();
+    </script>
+</body>
+</html>
